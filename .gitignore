@@ -1,0 +1,52 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.venv/
+venv/
+.env
+.env.*
+.python-version
+.pip-tmp/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Build/Test
+.pytest_cache/
+.mypy_cache/
+*.log
+
+# Model artifacts
+artifacts/*.keras
+artifacts/*.h5
+artifacts/*.json
+
+# Node / Web
+web/node_modules/
+web/dist/
+web/.env
+web/.env.local
+web/.env.*.local
+
+# Spring / Java
+spring-api/target/
+*.class
+
+# Flutter / Mobile
+mobile/.dart_tool/
+mobile/build/
+mobile/.flutter-plugins
+mobile/.flutter-plugins-dependencies
+mobile/.packages
+mobile/android/.gradle/
+mobile/android/local.properties
+mobile/ios/Pods/
+
+# IDE / OS
+.vscode/
+.idea/
+*.iml
+Thumbs.db
+.DS_Store
