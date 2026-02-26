@@ -1,0 +1,51 @@
+name: rice_guard
+description: AI-powered rice leaf disease detection mobile app
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.3.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  # State management & navigation
+  get: ^4.6.6
+
+  # HTTP
+  dio: ^5.4.3+1
+  shadow_log:
+    path: packages/shadow_log
+
+  # Media / gallery access (Telegram-style picker)
+  photo_manager: ^3.3.0
+
+  # Camera capture (camera-button only)
+  image_picker: ^1.1.2
+
+  # Permissions
+  permission_handler: ^11.3.1
+  shared_preferences: ^2.3.2
+
+  # Charts
+  fl_chart: ^0.68.0
+
+  # Lottie animations (for splash & loading)
+  lottie: ^3.1.2
+
+  # Cached images
+  cached_network_image: ^3.3.1
+
+  cupertino_icons: ^1.0.6
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^3.0.0
+
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/images/
+    - assets/animations/
