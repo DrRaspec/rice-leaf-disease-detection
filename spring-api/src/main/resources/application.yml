@@ -1,0 +1,32 @@
+server:
+  port: 8080
+
+spring:
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 10MB
+
+app:
+  inference:
+    python-command: python
+    module: model.predict_cli
+    top-k: 3
+    project-root: D:/MyProject/python/num/AI Rice Disease Detection System/RiceLeafsDisease
+  security:
+    user:
+      username: ${APP_API_USERNAME}
+      password: ${APP_API_PASSWORD}
+    jwt:
+      issuer: rice-disease-api
+      secret: ${APP_SECURITY_JWT_SECRET}
+      access-token-ttl-seconds: 900
+      refresh-token-ttl-seconds: 604800
+    cors:
+      allowed-origins:
+        - ${APP_WEB_ORIGIN_PRIMARY:http://localhost:5173}
+        - ${APP_WEB_ORIGIN_SECONDARY:http://127.0.0.1:5173}
+    rate-limit:
+      window-seconds: 60
+      max-requests-per-window: 60
+      trust-forwarded-for: false
