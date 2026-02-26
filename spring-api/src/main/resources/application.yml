@@ -9,7 +9,7 @@ spring:
 
 app:
   inference:
-    python-command: python
+    python-command: C:/Users/DrRaspec/anaconda3/python.exe
     module: model.predict_cli
     top-k: 3
     project-root: D:/MyProject/python/num/AI Rice Disease Detection System/RiceLeafsDisease
