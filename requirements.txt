@@ -6,5 +6,6 @@ scikit-learn
 fastapi
 uvicorn
 pillow
+pillow-heif
 python-multipart
 PyJWT

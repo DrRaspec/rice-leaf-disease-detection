@@ -10,6 +10,11 @@ from PIL import Image, UnidentifiedImageError
 os.environ.setdefault("TF_CPP_MIN_LOG_LEVEL", "3")
 os.environ.setdefault("TF_ENABLE_ONEDNN_OPTS", "0")
 
+try:
+    from pillow_heif import register_heif_opener
+except Exception:
+    register_heif_opener = None
+
 from model.inference import predict_image
 
 
@@ -21,6 +26,9 @@ def parse_args() -> argparse.Namespace:
 
 
 def main() -> int:
+    if register_heif_opener is not None:
+        register_heif_opener()
+
     args = parse_args()
     image_path = Path(args.image)
 
