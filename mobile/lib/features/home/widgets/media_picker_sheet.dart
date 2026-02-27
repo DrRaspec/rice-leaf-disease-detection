@@ -2,6 +2,7 @@ import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:photo_manager/photo_manager.dart';
+import '../../../app/core/core_i18n.dart';
 import '../../../app/theme/app_theme.dart';
 import '../controllers/home_controller.dart';
 
@@ -43,8 +44,8 @@ class _PickerContent extends GetView<HomeController> {
     });
 
     return Container(
-      decoration: const BoxDecoration(
-        color: Color(0xFF1C2B24),
+      decoration: BoxDecoration(
+        color: AppTheme.card,
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
       child: Column(
@@ -72,7 +73,7 @@ class _Header extends GetView<HomeController> {
               height: 4,
               margin: const EdgeInsets.only(bottom: 12),
               decoration: BoxDecoration(
-                color: Colors.white24,
+                color: AppTheme.textSecondary.withValues(alpha: 0.35),
                 borderRadius: BorderRadius.circular(2),
               ),
             ),
@@ -83,7 +84,7 @@ class _Header extends GetView<HomeController> {
             children: [
               // Close button
               IconButton(
-                icon: const Icon(Icons.close, color: Colors.white70, size: 22),
+                icon: Icon(Icons.close, color: AppTheme.textSecondary, size: 22),
                 onPressed: Get.back,
                 splashRadius: 20,
               ),
@@ -94,7 +95,7 @@ class _Header extends GetView<HomeController> {
                   onTap: () => _showAlbumList(context),
                   child: Obx(() {
                     final name =
-                        controller.currentAlbum.value?.name ?? 'Gallery';
+                        controller.currentAlbum.value?.name ?? AppText.t(TrKey.gallery);
                     return Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
@@ -103,17 +104,17 @@ class _Header extends GetView<HomeController> {
                             name,
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
-                            style: const TextStyle(
-                              color: Colors.white,
+                            style: TextStyle(
+                              color: AppTheme.textPrimary,
                               fontSize: 16,
                               fontWeight: FontWeight.w700,
                             ),
                           ),
                         ),
                         const SizedBox(width: 4),
-                        const Icon(
+                        Icon(
                           Icons.keyboard_arrow_down_rounded,
-                          color: Colors.white54,
+                          color: AppTheme.textSecondary,
                           size: 20,
                         ),
                       ],
@@ -139,18 +140,18 @@ class _Header extends GetView<HomeController> {
                               color: AppTheme.primary,
                               borderRadius: BorderRadius.circular(20),
                             ),
-                            child: const Row(
+                            child: Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
                                 Text(
-                                  'Send',
+                                  AppText.t(TrKey.send),
                                   style: TextStyle(
                                     color: Colors.black,
                                     fontWeight: FontWeight.w700,
                                     fontSize: 14,
                                   ),
                                 ),
-                                SizedBox(width: 4),
+                                const SizedBox(width: 4),
                                 Icon(
                                   Icons.send_rounded,
                                   color: Colors.black,
@@ -166,7 +167,7 @@ class _Header extends GetView<HomeController> {
           ),
 
           const SizedBox(height: 8),
-          Divider(height: 1, color: Colors.white.withValues(alpha: 0.06)),
+          Divider(height: 1, color: AppTheme.cardBorder.withValues(alpha: 0.6)),
         ],
       ),
     );
@@ -175,7 +176,7 @@ class _Header extends GetView<HomeController> {
   void _showAlbumList(BuildContext context) {
     showModalBottomSheet(
       context: context,
-      backgroundColor: const Color(0xFF1C2B24),
+      backgroundColor: AppTheme.card,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
@@ -230,7 +231,7 @@ class _CameraTile extends GetView<HomeController> {
     return GestureDetector(
       onTap: controller.openCamera,
       child: Container(
-        color: const Color(0xFF0D1F16),
+        color: AppTheme.surface,
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
@@ -238,23 +239,23 @@ class _CameraTile extends GetView<HomeController> {
               width: 54,
               height: 54,
               decoration: BoxDecoration(
-                color: const Color(0xFF1E3D2A),
+                color: AppTheme.card,
                 borderRadius: BorderRadius.circular(27),
                 border: Border.all(
-                  color: Colors.white.withValues(alpha: 0.1),
+                  color: AppTheme.cardBorder,
                 ),
               ),
-              child: const Icon(
+              child: Icon(
                 Icons.camera_alt_rounded,
-                color: Colors.white,
+                color: AppTheme.textPrimary,
                 size: 26,
               ),
             ),
             const SizedBox(height: 6),
-            const Text(
-              'Camera',
+            Text(
+              AppText.t(TrKey.camera),
               style: TextStyle(
-                color: Colors.white54,
+                color: AppTheme.textSecondary,
                 fontSize: 11,
                 fontWeight: FontWeight.w500,
               ),
@@ -333,7 +334,7 @@ class _PhotoTile extends GetView<HomeController> {
                   border: Border.all(
                     color: isSelected
                         ? AppTheme.primary
-                        : Colors.white.withValues(alpha: 0.7),
+                        : AppTheme.textSecondary.withValues(alpha: 0.6),
                     width: isSelected ? 0 : 1.5,
                   ),
                   boxShadow: isSelected
@@ -380,16 +381,16 @@ class _AlbumListSheet extends GetView<HomeController> {
                 width: 36,
                 height: 4,
                 decoration: BoxDecoration(
-                  color: Colors.white24,
+                  color: AppTheme.textSecondary.withValues(alpha: 0.35),
                   borderRadius: BorderRadius.circular(2),
                 ),
               ),
             ),
             const SizedBox(height: 12),
-            const Text(
-              'Albums',
+            Text(
+              AppText.t(TrKey.albums),
               style: TextStyle(
-                color: Colors.white,
+                color: AppTheme.textPrimary,
                 fontSize: 16,
                 fontWeight: FontWeight.w700,
               ),
@@ -412,8 +413,8 @@ class _AlbumListSheet extends GetView<HomeController> {
                     leading: _AlbumThumb(album: album),
                     title: Text(
                       album.name,
-                      style: const TextStyle(
-                        color: Colors.white,
+                      style: TextStyle(
+                        color: AppTheme.textPrimary,
                         fontWeight: FontWeight.w600,
                         fontSize: 14,
                       ),
@@ -421,9 +422,9 @@ class _AlbumListSheet extends GetView<HomeController> {
                     subtitle: FutureBuilder<int>(
                       future: album.assetCountAsync,
                       builder: (_, snap) => Text(
-                        snap.hasData ? '${snap.data} photos' : '',
-                        style: const TextStyle(
-                          color: Colors.white38,
+                        snap.hasData ? '${snap.data} ${AppText.t(TrKey.photos)}' : '',
+                        style: TextStyle(
+                          color: AppTheme.textSecondary,
                           fontSize: 12,
                         ),
                       ),
@@ -464,7 +465,7 @@ class _AlbumThumb extends StatelessWidget {
               color: AppTheme.card,
               borderRadius: BorderRadius.circular(10),
             ),
-            child: const Icon(Icons.photo, color: Colors.white24, size: 22),
+            child: Icon(Icons.photo, color: AppTheme.textSecondary, size: 22),
           );
         }
         return ClipRRect(
@@ -497,7 +498,7 @@ class _AssetThumbnail extends StatelessWidget {
         if (bytes == null || bytes.isEmpty) {
           return Container(
             color: AppTheme.card,
-            child: const Icon(Icons.broken_image, color: Colors.white24),
+            child: Icon(Icons.broken_image, color: AppTheme.textSecondary),
           );
         }
         return Image.memory(bytes, fit: BoxFit.cover);

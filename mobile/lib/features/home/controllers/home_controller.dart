@@ -5,9 +5,10 @@ import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:photo_manager/photo_manager.dart';
-import '../../../app/core/api_client.dart';
+import '../../../app/core/core_i18n.dart';
+import '../../../app/core/core_network.dart';
 import '../../../app/routes/app_routes.dart';
-import '../../../data/models/prediction_model.dart';
+import '../../../data/models/prediction_response.dart';
 import '../widgets/media_picker_sheet.dart';
 
 class HomeController extends GetxController {
@@ -123,13 +124,23 @@ class HomeController extends GetxController {
     }
     hasPermission.value = false;
     Get.snackbar(
-      'Permission Denied',
-      'Please allow photo access in Settings.',
+      AppText.t(TrKey.permissionDenied),
+      AppText.t(TrKey.allowPhotoAccess),
       snackPosition: SnackPosition.BOTTOM,
-      backgroundColor: const Color(0xFF1a3d28),
-      colorText: Colors.white,
+      backgroundColor: Get.isDarkMode ? const Color(0xFF1F3A2D) : const Color(0xFFFFFFFF),
+      colorText: Get.isDarkMode ? Colors.white : const Color(0xFF173125),
       margin: const EdgeInsets.all(16),
       borderRadius: 12,
+      mainButton: TextButton(
+        onPressed: PhotoManager.openSetting,
+        child: Text(
+          AppText.t(TrKey.openSettings),
+          style: TextStyle(
+            fontWeight: FontWeight.w700,
+            color: Get.isDarkMode ? const Color(0xFF34D399) : const Color(0xFF16A34A),
+          ),
+        ),
+      ),
     );
     return false;
   }
@@ -137,7 +148,7 @@ class HomeController extends GetxController {
   Future<void> analyse() async {
     final img = selectedImage.value;
     if (img == null) {
-      errorMsg.value = 'Please select an image first.';
+      errorMsg.value = AppText.t(TrKey.pickImageFirst);
       return;
     }
 
@@ -160,7 +171,7 @@ class HomeController extends GetxController {
       if (payload is Map && payload['detail'] is String) {
         errorMsg.value = payload['detail'] as String;
       } else {
-        errorMsg.value = 'Request failed. Please try again.';
+        errorMsg.value = AppText.t(TrKey.requestFailed);
       }
     } on Exception catch (e) {
       errorMsg.value = e.toString().replaceFirst('Exception: ', '');

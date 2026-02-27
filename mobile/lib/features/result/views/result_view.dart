@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import '../../../app/core/core_i18n.dart';
 import '../../../app/theme/app_theme.dart';
-import '../../../data/models/prediction_model.dart';
+import '../../../data/models/prediction_response.dart';
+import '../controllers/disease_info_catalog.dart';
 import '../controllers/result_controller.dart';
 
 class ResultView extends GetView<ResultController> {
@@ -10,7 +12,7 @@ class ResultView extends GetView<ResultController> {
   @override
   Widget build(BuildContext context) {
     final result = controller.result;
-    final info = result.info;
+    final info = controller.info;
 
     return Scaffold(
       backgroundColor: AppTheme.background,
@@ -46,7 +48,7 @@ class ResultView extends GetView<ResultController> {
         child: Container(
           margin: const EdgeInsets.all(8),
           decoration: BoxDecoration(
-            color: Colors.black38,
+            color: Colors.black45,
             borderRadius: BorderRadius.circular(12),
           ),
           child: const Icon(
@@ -164,7 +166,7 @@ class _MainResultCard extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                'Confidence',
+                AppText.t(TrKey.confidence),
                 style: TextStyle(color: AppTheme.textSecondary, fontSize: 13),
               ),
               Text(
@@ -188,7 +190,7 @@ class _MainResultCard extends StatelessWidget {
               builder: (_, v, __) => LinearProgressIndicator(
                 value: v,
                 minHeight: 10,
-                backgroundColor: Colors.white10,
+                backgroundColor: AppTheme.cardBorder.withValues(alpha: 0.5),
                 valueColor: AlwaysStoppedAnimation(_severityColor),
               ),
             ),
@@ -214,8 +216,10 @@ class _MainResultCard extends StatelessWidget {
                 border: Border.all(color: AppTheme.warning.withValues(alpha: 0.35)),
               ),
               child: Text(
-                'Low confidence result. Possible: ${_possibleClassesLabel(result)}. '
-                'Retake a closer photo in better light, focused on one leaf.',
+                AppText.t(TrKey.lowConfidence).replaceFirst(
+                  '{classes}',
+                  _possibleClassesLabel(result),
+                ),
                 style: TextStyle(
                   color: AppTheme.warning,
                   fontSize: 12,
@@ -230,7 +234,7 @@ class _MainResultCard extends StatelessWidget {
   }
 
   String _possibleClassesLabel(PredictionResult prediction) {
-    if (prediction.possibleClasses.isEmpty) return 'unknown class';
+    if (prediction.possibleClasses.isEmpty) return AppText.t(TrKey.unknownClass);
     return prediction.possibleClasses
         .take(2)
         .map((item) => item.replaceAll('_', ' '))
@@ -256,7 +260,7 @@ class _TreatmentCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            '💊 What to do now | អ្វីត្រូវធ្វើឥឡូវ',
+            '💊 ${AppText.t(TrKey.whatToDoNow)}',
             style: TextStyle(
               color: AppTheme.primary,
               fontSize: 14,
@@ -297,7 +301,7 @@ class _TopPredictionsCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Top predictions',
+            AppText.t(TrKey.topPredictions),
             style: TextStyle(
               color: AppTheme.textSecondary,
               fontSize: 12,
@@ -316,8 +320,8 @@ class _TopPredictionsCard extends StatelessWidget {
                 children: [
                   Text(
                     '${idx + 1}',
-                    style: const TextStyle(
-                      color: Colors.white24,
+                    style: TextStyle(
+                      color: AppTheme.textSecondary,
                       fontSize: 12,
                       fontFamily: 'monospace',
                     ),
@@ -345,7 +349,7 @@ class _TopPredictionsCard extends StatelessWidget {
                         builder: (_, v, __) => LinearProgressIndicator(
                           value: v,
                           minHeight: 6,
-                          backgroundColor: Colors.white10,
+                          backgroundColor: AppTheme.cardBorder.withValues(alpha: 0.5),
                           valueColor: AlwaysStoppedAnimation(
                             AppTheme.primary,
                           ),
@@ -356,8 +360,8 @@ class _TopPredictionsCard extends StatelessWidget {
                   const SizedBox(width: 8),
                   Text(
                     '${pct.toStringAsFixed(1)}%',
-                    style: const TextStyle(
-                      color: Colors.white38,
+                    style: TextStyle(
+                      color: AppTheme.textSecondary,
                       fontSize: 11,
                       fontFamily: 'monospace',
                     ),
@@ -382,7 +386,7 @@ class _AnalyseAnotherButton extends StatelessWidget {
     return OutlinedButton.icon(
       onPressed: onTap,
       icon: const Icon(Icons.refresh_rounded, size: 20),
-      label: const Text('Analyse Another Leaf'),
+      label: Text(AppText.t(TrKey.analyzeAnotherLeaf)),
       style: OutlinedButton.styleFrom(
         foregroundColor: AppTheme.primary,
         side: BorderSide(color: AppTheme.primary700),
@@ -403,13 +407,7 @@ class _SeverityBadge extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final label = switch (severity) {
-      'none' => 'Healthy | ល្អ',
-      'low' => 'Low Risk | ទាប',
-      'medium' => 'Medium Risk | មធ្យម',
-      'high' => 'High Risk | ខ្ពស់',
-      _ => 'Unknown',
-    };
+    final label = AppText.severityLabel(severity);
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 3),
       decoration: BoxDecoration(

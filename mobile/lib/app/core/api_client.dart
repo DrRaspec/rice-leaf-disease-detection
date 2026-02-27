@@ -1,10 +1,10 @@
 import 'package:dio/dio.dart';
 import 'package:get/get.dart' as getx;
+import 'api_endpoints.dart';
 import 'app_config.dart';
 import 'app_logger.dart';
 
 class ApiClient extends getx.GetxService {
-  static const String _apiPrefix = '/api/v1';
   late final Dio _dio;
 
   @override
@@ -35,7 +35,7 @@ class ApiClient extends getx.GetxService {
         final formData = FormData.fromMap({
           'file': await MultipartFile.fromFile(filePath),
         });
-        return await _dio.post('$_apiPrefix/predict', data: formData);
+        return await _dio.post(ApiEndpoints.predict, data: formData);
       } on DioException catch (e) {
         lastError = e;
         final canRetry = attempt < maxAttempts && _isRetriable(e);
@@ -47,7 +47,7 @@ class ApiClient extends getx.GetxService {
   }
 
   /// GET /health
-  Future<Response<dynamic>> health() => _dio.get('$_apiPrefix/health');
+  Future<Response<dynamic>> health() => _dio.get(ApiEndpoints.health);
 
   bool _isRetriable(DioException error) {
     if (error.type == DioExceptionType.connectionTimeout ||

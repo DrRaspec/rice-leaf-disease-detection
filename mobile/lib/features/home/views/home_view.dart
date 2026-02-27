@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_adaptive_kit/flutter_adaptive_kit.dart';
 import 'package:get/get.dart';
-import '../../../app/core/app_settings_service.dart';
+import '../../../app/core/core_i18n.dart';
+import '../../../app/core/core_services.dart';
 import '../../../app/theme/app_theme.dart';
 import '../controllers/home_controller.dart';
 
@@ -11,22 +13,70 @@ class HomeView extends GetView<HomeController> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppTheme.background,
-      body: CustomScrollView(
-        slivers: [
-          _buildSliverAppBar(context),
-          SliverPadding(
-            padding: const EdgeInsets.fromLTRB(20, 0, 20, 40),
-            sliver: SliverList(
-              delegate: SliverChildListDelegate([
-                _HeroCard(),
-                const SizedBox(height: 20),
-                _UploadCard(),
-                const SizedBox(height: 20),
-                _DiseasesSection(),
-              ]),
-            ),
+      body: AdaptiveBuilder(
+        phone: (_, __) => _buildPhoneBody(context),
+        tablet: (_, info) =>
+            info.isLandscape ? _buildTabletLandscapeBody(context) : _buildPhoneBody(context),
+        desktop: (_, __) => _buildTabletLandscapeBody(context),
+        foldable: (_, __) => _buildPhoneBody(context),
+      ),
+    );
+  }
+
+  Widget _buildPhoneBody(BuildContext context) {
+    return CustomScrollView(
+      slivers: [
+        _buildSliverAppBar(context),
+        SliverPadding(
+          padding: const EdgeInsets.fromLTRB(20, 0, 20, 40),
+          sliver: SliverList(
+            delegate: SliverChildListDelegate([
+              _HeroCard(),
+              const SizedBox(height: 20),
+              _UploadCard(),
+              const SizedBox(height: 20),
+              _DiseasesSection(),
+            ]),
           ),
-        ],
+        ),
+      ],
+    );
+  }
+
+  Widget _buildTabletLandscapeBody(BuildContext context) {
+    return SafeArea(
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(20, 12, 20, 20),
+        child: Column(
+          children: [
+            _buildHeaderContent(context),
+            const SizedBox(height: 14),
+            Expanded(
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(
+                    flex: 11,
+                    child: ListView(
+                      children: [
+                        _HeroCard(),
+                        const SizedBox(height: 20),
+                        _UploadCard(),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(width: 20),
+                  Expanded(
+                    flex: 9,
+                    child: const SingleChildScrollView(
+                      child: _DiseasesSection(),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -36,61 +86,63 @@ class HomeView extends GetView<HomeController> {
         floating: true,
         snap: true,
         backgroundColor: AppTheme.background.withValues(alpha: 0.95),
-        title: Row(
-          children: [
-            Container(
-              width: 34,
-              height: 34,
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [AppTheme.primary700, AppTheme.primary],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                ),
-                borderRadius: BorderRadius.circular(10),
-              ),
-              child: Icon(
-                Icons.eco_rounded,
-                size: 20,
-                color: Get.isDarkMode ? Colors.black : Colors.white,
-              ),
-            ),
-            const SizedBox(width: 10),
-            RichText(
-              text: TextSpan(
-                style: const TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.w800,
-                ),
-                children: [
-                  const TextSpan(text: 'Rice'),
-                  TextSpan(
-                    text: 'Guard',
-                    style: TextStyle(color: AppTheme.primary),
-                  ),
-                  TextSpan(
-                    text: ' AI',
-                    style:
-                        TextStyle(color: AppTheme.textSecondary, fontSize: 14),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-        actions: [
-          IconButton(
-            onPressed: () => _showDisplaySettings(context),
-            icon: Icon(Icons.tune_rounded, color: AppTheme.textPrimary),
-            tooltip: 'Display Settings',
-          ),
-        ],
+        title: _buildHeaderContent(context),
       );
+
+  Widget _buildHeaderContent(BuildContext context) {
+    return Row(
+      children: [
+        Container(
+          width: 34,
+          height: 34,
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: [AppTheme.primary700, AppTheme.primary],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+            borderRadius: BorderRadius.circular(10),
+          ),
+          child: Icon(
+            Icons.eco_rounded,
+            size: 20,
+            color: Get.isDarkMode ? Colors.black : Colors.white,
+          ),
+        ),
+        const SizedBox(width: 10),
+        RichText(
+          text: TextSpan(
+            style: const TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.w800,
+            ),
+            children: [
+              const TextSpan(text: 'Rice'),
+              TextSpan(
+                text: 'Guard',
+                style: TextStyle(color: AppTheme.primary),
+              ),
+              TextSpan(
+                text: ' AI',
+                style: TextStyle(color: AppTheme.textSecondary, fontSize: 14),
+              ),
+            ],
+          ),
+        ),
+        const Spacer(),
+        IconButton(
+          onPressed: () => _showDisplaySettings(context),
+          icon: Icon(Icons.tune_rounded, color: AppTheme.textPrimary),
+          tooltip: AppText.t(TrKey.displaySettings),
+        ),
+      ],
+    );
+  }
 
   void _showDisplaySettings(BuildContext context) {
     showModalBottomSheet(
       context: context,
-      backgroundColor: AppTheme.card,
+      backgroundColor: Colors.transparent,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
@@ -121,14 +173,21 @@ class _DisplaySettingsSheet extends StatelessWidget {
     }
 
     return SafeArea(
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
-        child: Obx(() {
-          final selectedMode = settings.themeMode.value;
-          final selectedScale = settings.fontScale.value;
-          final selectedFamily = settings.fontFamily.value;
+      child: Obx(() {
+        final selectedMode = settings.themeMode.value;
+        final selectedFontSize = settings.fontSize.value;
+        final selectedZoom = settings.zoomScale.value;
+        final selectedFamily = settings.fontFamily.value;
 
-          return Column(
+        return AnimatedContainer(
+          duration: const Duration(milliseconds: 180),
+          decoration: BoxDecoration(
+            color: AppTheme.card,
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+            border: Border.all(color: AppTheme.cardBorder),
+          ),
+          padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
+          child: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -144,7 +203,7 @@ class _DisplaySettingsSheet extends StatelessWidget {
               ),
               const SizedBox(height: 12),
               Text(
-                'Display Settings',
+                AppText.t(TrKey.displaySettings),
                 style: TextStyle(
                   color: AppTheme.textPrimary,
                   fontSize: 18,
@@ -152,41 +211,53 @@ class _DisplaySettingsSheet extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 14),
-              sectionTitle('Theme'),
+              sectionTitle(AppText.t(TrKey.theme)),
               Wrap(
                 spacing: 8,
                 children: [
                   _ChoiceChip(
-                    label: 'Dark',
+                    label: AppText.t(TrKey.dark),
                     selected: selectedMode == ThemeMode.dark,
                     onTap: () => settings.setThemeMode(ThemeMode.dark),
                   ),
                   _ChoiceChip(
-                    label: 'Light',
+                    label: AppText.t(TrKey.light),
                     selected: selectedMode == ThemeMode.light,
                     onTap: () => settings.setThemeMode(ThemeMode.light),
                   ),
                   _ChoiceChip(
-                    label: 'System',
+                    label: AppText.t(TrKey.system),
                     selected: selectedMode == ThemeMode.system,
                     onTap: () => settings.setThemeMode(ThemeMode.system),
                   ),
                 ],
               ),
               const SizedBox(height: 14),
-              sectionTitle('Font Size'),
+              sectionTitle(AppText.t(TrKey.fontSize)),
               Wrap(
                 spacing: 8,
-                children: AppSettingsService.fontScales.map((scale) {
+                children: AppSettingsService.fontSizes.map((size) {
                   return _ChoiceChip(
-                    label: '${(scale * 100).round()}%',
-                    selected: selectedScale == scale,
-                    onTap: () => settings.setFontScale(scale),
+                    label: size.toStringAsFixed(0),
+                    selected: selectedFontSize == size,
+                    onTap: () => settings.setFontSize(size),
                   );
                 }).toList(),
               ),
               const SizedBox(height: 14),
-              sectionTitle('Font Family'),
+              sectionTitle(AppText.t(TrKey.zoom)),
+              Wrap(
+                spacing: 8,
+                children: AppSettingsService.zoomScales.map((scale) {
+                  return _ChoiceChip(
+                    label: '${(scale * 100).round()}%',
+                    selected: selectedZoom == scale,
+                    onTap: () => settings.setZoomScale(scale),
+                  );
+                }).toList(),
+              ),
+              const SizedBox(height: 14),
+              sectionTitle(AppText.t(TrKey.fontFamily)),
               Wrap(
                 spacing: 8,
                 children: AppSettingsService.fontFamilies.map((family) {
@@ -197,10 +268,27 @@ class _DisplaySettingsSheet extends StatelessWidget {
                   );
                 }).toList(),
               ),
+              const SizedBox(height: 14),
+              sectionTitle(AppText.t(TrKey.language)),
+              Wrap(
+                spacing: 8,
+                children: [
+                  _ChoiceChip(
+                    label: AppText.t(TrKey.khmer),
+                    selected: settings.languageCode.value == 'km',
+                    onTap: () => settings.setLanguageCode('km'),
+                  ),
+                  _ChoiceChip(
+                    label: AppText.t(TrKey.english),
+                    selected: settings.languageCode.value == 'en',
+                    onTap: () => settings.setLanguageCode('en'),
+                  ),
+                ],
+              ),
             ],
-          );
-        }),
-      ),
+          ),
+        );
+      }),
     );
   }
 }
@@ -245,8 +333,10 @@ class _HeroCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          colors: [Color(0xFF143d26), Color(0xFF0d2e1e)],
+        gradient: LinearGradient(
+          colors: Get.isDarkMode
+              ? const [Color(0xFF143d26), Color(0xFF0d2e1e)]
+              : const [Color(0xFFDDF5E4), Color(0xFFC7EED4)],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
@@ -273,7 +363,7 @@ class _HeroCard extends StatelessWidget {
                     ),
                   ),
                   child: Text(
-                    '🌾 Rice Field Helper',
+                    AppText.t(TrKey.heroTag),
                     style: TextStyle(
                       color: AppTheme.primary,
                       fontSize: 12,
@@ -283,7 +373,7 @@ class _HeroCard extends StatelessWidget {
                 ),
                 const SizedBox(height: 12),
                 Text(
-                  'Check Rice Leaf Disease\nពិនិត្យជំងឺស្លឹកស្រូវ',
+                  AppText.t(TrKey.heroTitle),
                   style: TextStyle(
                     color: AppTheme.textPrimary,
                     fontSize: 24,
@@ -294,7 +384,7 @@ class _HeroCard extends StatelessWidget {
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  'Take one clear photo and get simple treatment steps.',
+                  AppText.t(TrKey.heroSubtitle),
                   style: TextStyle(
                     color: AppTheme.textSecondary,
                     fontSize: 14,
@@ -305,7 +395,7 @@ class _HeroCard extends StatelessWidget {
             ),
           ),
           const SizedBox(width: 16),
-          const Text('🌿', style: TextStyle(fontSize: 56)),
+          const Text('🌾', style: TextStyle(fontSize: 56)),
         ],
       ),
     );
@@ -327,7 +417,7 @@ class _UploadCard extends GetView<HomeController> {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Text(
-            'Diagnose Leaf | ពិនិត្យស្លឹក',
+            AppText.t(TrKey.uploadTitle),
             style: TextStyle(
               color: AppTheme.textPrimary,
               fontSize: 18,
@@ -336,7 +426,7 @@ class _UploadCard extends GetView<HomeController> {
           ),
           const SizedBox(height: 4),
           Text(
-            'Use one leaf, bright light, close camera.',
+            AppText.t(TrKey.uploadSubtitle),
             style: TextStyle(color: AppTheme.textSecondary, fontSize: 14),
           ),
           const SizedBox(height: 10),
@@ -348,7 +438,7 @@ class _UploadCard extends GetView<HomeController> {
               border: Border.all(color: AppTheme.primary.withValues(alpha: 0.2)),
             ),
             child: Text(
-              'Tip: If internet is slow, the app auto-compresses your image.',
+              AppText.t(TrKey.uploadTip),
               style: TextStyle(
                 color: AppTheme.textSecondary,
                 fontSize: 13,
@@ -367,7 +457,7 @@ class _UploadCard extends GetView<HomeController> {
                 duration: const Duration(milliseconds: 250),
                 height: 200,
                 decoration: BoxDecoration(
-                  color: const Color(0xFF0f2318),
+                  color: AppTheme.surface,
                   borderRadius: BorderRadius.circular(18),
                   border: Border.all(
                     color: img != null
@@ -389,17 +479,17 @@ class _UploadCard extends GetView<HomeController> {
                           ),
                           const SizedBox(height: 10),
                           Text(
-                            'Tap to upload | ចុចដើម្បីបញ្ចូលរូប',
+                            AppText.t(TrKey.tapToUpload),
                             style: TextStyle(
                               color: AppTheme.textSecondary,
                               fontWeight: FontWeight.w600,
                             ),
                           ),
                           const SizedBox(height: 4),
-                          const Text(
-                            'Camera / Gallery',
+                          Text(
+                            AppText.t(TrKey.cameraGallery),
                             style: TextStyle(
-                              color: Colors.white30,
+                              color: AppTheme.textSecondary.withValues(alpha: 0.8),
                               fontSize: 12,
                             ),
                           ),
@@ -495,18 +585,18 @@ class _UploadCard extends GetView<HomeController> {
                         valueColor: AlwaysStoppedAnimation(Colors.black),
                       ),
                     )
-                  : const Row(
+                  : Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Icon(
+                        const Icon(
                           Icons.biotech_rounded,
                           size: 20,
                           color: Colors.black,
                         ),
-                        SizedBox(width: 8),
+                        const SizedBox(width: 8),
                         Text(
-                          'Analyze | វិភាគ',
-                          style: TextStyle(
+                          AppText.t(TrKey.analyze),
+                          style: const TextStyle(
                             color: Colors.black,
                             fontSize: 16,
                             fontWeight: FontWeight.w700,
@@ -524,6 +614,8 @@ class _UploadCard extends GetView<HomeController> {
 
 // ── Diseases Section ──────────────────────────────────────────────────────────
 class _DiseasesSection extends StatelessWidget {
+  const _DiseasesSection();
+
   static const _diseases = [
     ('✅', 'Healthy', 'none', 'No disease detected.'),
     (
@@ -544,7 +636,7 @@ class _DiseasesSection extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Detectable Diseases | ជំងឺអាចរកឃើញ',
+          AppText.t(TrKey.detectableDiseases),
           style: TextStyle(
             color: AppTheme.textPrimary,
             fontSize: 19,
@@ -623,7 +715,7 @@ class _DiseaseRow extends StatelessWidget {
               border: Border.all(color: _badge.withValues(alpha: 0.3)),
             ),
             child: Text(
-              severity == 'none' ? 'safe' : severity,
+              AppText.severityLabel(severity),
               style: TextStyle(
                 color: _badge,
                 fontSize: 11,

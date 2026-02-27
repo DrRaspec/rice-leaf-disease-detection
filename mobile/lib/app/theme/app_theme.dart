@@ -3,25 +3,25 @@ import 'package:get/get.dart';
 
 class AppTheme {
   static const _dark = _Palette(
-    primary: Color(0xFF22C55E),
-    primary700: Color(0xFF15803D),
-    surface: Color(0xFF0D2E1E),
-    background: Color(0xFF0A2015),
-    card: Color(0xFF122B1D),
-    cardBorder: Color(0xFF1E4030),
+    primary: Color(0xFF34D399),
+    primary700: Color(0xFF10B981),
+    surface: Color(0xFF193428),
+    background: Color(0xFF163024),
+    card: Color(0xFF1F3A2D),
+    cardBorder: Color(0xFF2D4F40),
     textPrimary: Color(0xFFFFFFFF),
-    textSecondary: Color(0xFF9CA3AF),
+    textSecondary: Color(0xFFC7D2CE),
   );
 
   static const _light = _Palette(
-    primary: Color(0xFF15803D),
-    primary700: Color(0xFF166534),
-    surface: Color(0xFFEAF7EE),
-    background: Color(0xFFF7FCF8),
+    primary: Color(0xFF16A34A),
+    primary700: Color(0xFF15803D),
+    surface: Color(0xFFF1FAF4),
+    background: Color(0xFFFCFFFD),
     card: Color(0xFFFFFFFF),
-    cardBorder: Color(0xFFD0E7D5),
-    textPrimary: Color(0xFF102418),
-    textSecondary: Color(0xFF4B6355),
+    cardBorder: Color(0xFFDCEEE1),
+    textPrimary: Color(0xFF173125),
+    textSecondary: Color(0xFF5B7568),
   );
 
   static const Color warning = Color(0xFFF59E0B);
@@ -68,7 +68,7 @@ class AppTheme {
             primary: palette.primary,
             secondary: palette.primary700,
             surface: palette.surface,
-            onPrimary: Colors.white,
+            onPrimary: Colors.black,
             onSurface: palette.textPrimary,
           );
 
@@ -92,7 +92,7 @@ class AppTheme {
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
           backgroundColor: palette.primary,
-          foregroundColor: brightness == Brightness.dark ? Colors.black : Colors.white,
+          foregroundColor: Colors.black,
           padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 16),
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
           textStyle: baseTextTheme.labelLarge?.copyWith(
