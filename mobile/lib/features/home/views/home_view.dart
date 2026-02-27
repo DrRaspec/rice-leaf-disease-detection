@@ -273,20 +273,20 @@ class _HeroCard extends StatelessWidget {
                     ),
                   ),
                   child: Text(
-                    '🌾 AI-Powered Detection',
+                    '🌾 Rice Field Helper',
                     style: TextStyle(
                       color: AppTheme.primary,
-                      fontSize: 11,
+                      fontSize: 12,
                       fontWeight: FontWeight.w600,
                     ),
                   ),
                 ),
                 const SizedBox(height: 12),
                 Text(
-                  'Protect Your\nRice Harvest',
+                  'Check Rice Leaf Disease\nពិនិត្យជំងឺស្លឹកស្រូវ',
                   style: TextStyle(
                     color: AppTheme.textPrimary,
-                    fontSize: 26,
+                    fontSize: 24,
                     fontWeight: FontWeight.w800,
                     height: 1.2,
                     letterSpacing: -0.5,
@@ -294,10 +294,10 @@ class _HeroCard extends StatelessWidget {
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  'Instant leaf diagnosis with deep learning.',
+                  'Take one clear photo and get simple treatment steps.',
                   style: TextStyle(
                     color: AppTheme.textSecondary,
-                    fontSize: 13,
+                    fontSize: 14,
                     height: 1.5,
                   ),
                 ),
@@ -327,7 +327,7 @@ class _UploadCard extends GetView<HomeController> {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Text(
-            'Diagnose Your Leaf',
+            'Diagnose Leaf | ពិនិត្យស្លឹក',
             style: TextStyle(
               color: AppTheme.textPrimary,
               fontSize: 18,
@@ -336,8 +336,25 @@ class _UploadCard extends GetView<HomeController> {
           ),
           const SizedBox(height: 4),
           Text(
-            'Upload a clear photo of the rice leaf',
-            style: TextStyle(color: AppTheme.textSecondary, fontSize: 13),
+            'Use one leaf, bright light, close camera.',
+            style: TextStyle(color: AppTheme.textSecondary, fontSize: 14),
+          ),
+          const SizedBox(height: 10),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+            decoration: BoxDecoration(
+              color: AppTheme.primary.withValues(alpha: 0.08),
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: AppTheme.primary.withValues(alpha: 0.2)),
+            ),
+            child: Text(
+              'Tip: If internet is slow, the app auto-compresses your image.',
+              style: TextStyle(
+                color: AppTheme.textSecondary,
+                fontSize: 13,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
           ),
           const SizedBox(height: 16),
 
@@ -372,7 +389,7 @@ class _UploadCard extends GetView<HomeController> {
                           ),
                           const SizedBox(height: 10),
                           Text(
-                            'Tap to upload image',
+                            'Tap to upload | ចុចដើម្បីបញ្ចូលរូប',
                             style: TextStyle(
                               color: AppTheme.textSecondary,
                               fontWeight: FontWeight.w600,
@@ -380,7 +397,7 @@ class _UploadCard extends GetView<HomeController> {
                           ),
                           const SizedBox(height: 4),
                           const Text(
-                            'Camera or Gallery',
+                            'Camera / Gallery',
                             style: TextStyle(
                               color: Colors.white30,
                               fontSize: 12,
@@ -445,10 +462,11 @@ class _UploadCard extends GetView<HomeController> {
                       ),
                     ),
                     child: Text(
-                      '⚠️  ${controller.errorMsg.value}',
+                      '⚠️ ${controller.errorMsg.value}',
                       style: const TextStyle(
                         color: AppTheme.danger,
-                        fontSize: 13,
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
                       ),
                     ),
                   )
@@ -462,10 +480,11 @@ class _UploadCard extends GetView<HomeController> {
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppTheme.primary,
                 disabledBackgroundColor: AppTheme.primary700.withValues(alpha: 0.4),
-                padding: const EdgeInsets.symmetric(vertical: 16),
+                padding: const EdgeInsets.symmetric(vertical: 18),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(16),
                 ),
+                minimumSize: const Size(double.infinity, 58),
               ),
               child: controller.isLoading.value
                   ? const SizedBox(
@@ -486,10 +505,10 @@ class _UploadCard extends GetView<HomeController> {
                         ),
                         SizedBox(width: 8),
                         Text(
-                          'Analyse Leaf',
+                          'Analyze | វិភាគ',
                           style: TextStyle(
                             color: Colors.black,
-                            fontSize: 15,
+                            fontSize: 16,
                             fontWeight: FontWeight.w700,
                           ),
                         ),
@@ -525,10 +544,10 @@ class _DiseasesSection extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Detectable Diseases',
+          'Detectable Diseases | ជំងឺអាចរកឃើញ',
           style: TextStyle(
             color: AppTheme.textPrimary,
-            fontSize: 20,
+            fontSize: 19,
             fontWeight: FontWeight.w700,
           ),
         ),
@@ -581,7 +600,7 @@ class _DiseaseRow extends StatelessWidget {
                   style: TextStyle(
                     color: AppTheme.textPrimary,
                     fontWeight: FontWeight.w600,
-                    fontSize: 14,
+                    fontSize: 15,
                   ),
                 ),
                 const SizedBox(height: 2),
@@ -589,7 +608,7 @@ class _DiseaseRow extends StatelessWidget {
                   desc,
                   style: TextStyle(
                     color: AppTheme.textSecondary,
-                    fontSize: 12,
+                    fontSize: 13,
                   ),
                 ),
               ],

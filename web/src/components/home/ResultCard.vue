@@ -39,6 +39,18 @@
         {{ result.info.summary }}
       </p>
 
+      <div
+        v-if="showUncertain"
+        class="rounded-2xl border border-[#F4D48B] bg-[#FFF8E6] p-4 text-sm leading-relaxed text-[#7A5314]"
+      >
+        <p class="font-semibold">Low confidence result.</p>
+        <p class="mt-1">
+          Possible classes:
+          {{ candidateLabel }}.
+          Please retake a closer photo in better light for stronger accuracy.
+        </p>
+      </div>
+
       <section class="space-y-3">
         <h5 class="text-sm font-semibold uppercase tracking-wide text-[#2E7D32]">What to do now</h5>
         <p class="rounded-2xl border border-[#E6EFE3] bg-white p-4 text-sm leading-relaxed text-[#2D4535]">
@@ -100,4 +112,14 @@ const barStyle = computed(() => ({
   width: `${confidenceValue.value}%`,
   backgroundColor: props.result?.info?.color || '#2E7D32',
 }))
+
+const showUncertain = computed(
+  () => Boolean(props.result?.is_uncertain) || confidenceValue.value < 45,
+)
+
+const candidateLabel = computed(() => {
+  const candidates = props.result?.possible_classes
+  if (!Array.isArray(candidates) || candidates.length === 0) return 'unknown'
+  return candidates.map((item) => String(item).replace(/_/g, ' ')).join(' / ')
+})
 </script>

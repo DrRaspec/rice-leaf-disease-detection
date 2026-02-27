@@ -33,12 +33,16 @@ class PredictionResult {
   final double confidence;
   final List<TopPrediction> topPredictions;
   final DiseaseInfo info;
+  final bool isUncertain;
+  final List<String> possibleClasses;
 
   const PredictionResult({
     required this.predictedClass,
     required this.confidence,
     required this.topPredictions,
     required this.info,
+    required this.isUncertain,
+    required this.possibleClasses,
   });
 
   factory PredictionResult.fromJson(Map<String, dynamic> json) {
@@ -50,6 +54,10 @@ class PredictionResult {
           .map((e) => TopPrediction.fromJson(e as Map<String, dynamic>))
           .toList(),
       info: DiseaseDatabase.info(cls),
+      isUncertain: json['is_uncertain'] == true,
+      possibleClasses: (json['possible_classes'] as List<dynamic>? ?? const [])
+          .map((e) => e.toString())
+          .toList(),
     );
   }
 }
@@ -63,9 +71,9 @@ class DiseaseDatabase {
       icon: '✅',
       severity: 'none',
       description:
-          'No disease detected. Your rice plant appears to be in excellent health.',
+          'Leaf looks healthy. Continue normal care and weekly checks.',
       treatment:
-          'Continue regular monitoring, proper irrigation and balanced fertilization.',
+          'Today: keep current irrigation. This week: continue balanced fertilizer and monitor field.',
     ),
     'bacterial_leaf_blight': DiseaseInfo(
       key: 'bacterial_leaf_blight',
@@ -73,9 +81,9 @@ class DiseaseDatabase {
       icon: '🦠',
       severity: 'high',
       description:
-          'Caused by Xanthomonas oryzae pv. oryzae. Yellowing and drying of leaf margins.',
+          'Likely bacterial blight. Leaf edges turn yellow then dry quickly.',
       treatment:
-          'Apply copper-based bactericides. Improve field drainage. Use resistant varieties.',
+          'Today: remove heavily infected leaves, improve drainage. Next spray: copper-based bactericide as advised locally.',
     ),
     'leaf_blast': DiseaseInfo(
       key: 'leaf_blast',
@@ -83,9 +91,9 @@ class DiseaseDatabase {
       icon: '💥',
       severity: 'high',
       description:
-          'Caused by Magnaporthe oryzae. Diamond-shaped gray lesions. Most destructive rice disease worldwide.',
+          'Likely leaf blast. Lesions are gray center with dark border.',
       treatment:
-          'Apply tricyclazole or isoprothiolane. Reduce nitrogen application.',
+          'Today: avoid extra nitrogen. Next spray: recommended blast fungicide from local agronomy shop.',
     ),
     'brown_spot': DiseaseInfo(
       key: 'brown_spot',
@@ -93,9 +101,9 @@ class DiseaseDatabase {
       icon: '🟤',
       severity: 'medium',
       description:
-          'Fungal disease causing oval brown spots with yellow halos. Associated with nutritional deficiencies.',
+          'Likely brown spot. Oval brown patches may spread in weak plants.',
       treatment:
-          'Apply fungicides (iprodione, propiconazole). Ensure balanced K fertilization.',
+          'This week: improve balanced fertilizer (especially potassium). Use suitable fungicide if spread increases.',
     ),
     'leaf_scald': DiseaseInfo(
       key: 'leaf_scald',
@@ -103,9 +111,9 @@ class DiseaseDatabase {
       icon: '🔥',
       severity: 'medium',
       description:
-          'Caused by Microdochium oryzae. Scalded light-brown lesions from leaf tip downward.',
+          'Likely leaf scald. Damage often starts from leaf tips downward.',
       treatment:
-          'Apply propiconazole fungicide. Avoid excessive nitrogen. Improve air circulation.',
+          'Today: improve spacing/airflow if possible. Apply suitable fungicide and avoid excess nitrogen.',
     ),
     'narrow_brown_spot': DiseaseInfo(
       key: 'narrow_brown_spot',
@@ -113,9 +121,9 @@ class DiseaseDatabase {
       icon: '🟫',
       severity: 'low',
       description:
-          'Caused by Cercospora janseana. Narrow brown linear spots on leaf blade.',
+          'Likely narrow brown spot. Usually mild but should be monitored.',
       treatment:
-          'Apply mancozeb or carbendazim. Maintain balanced nutrition. Avoid water stress.',
+          'Monitor for 3-5 days. Keep balanced nutrition and water. Spray only if symptoms spread quickly.',
     ),
   };
 

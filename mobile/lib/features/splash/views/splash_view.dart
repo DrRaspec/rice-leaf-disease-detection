@@ -8,6 +8,8 @@ class SplashView extends GetView<SplashController> {
 
   @override
   Widget build(BuildContext context) {
+    // Ensure controller is created so onReady() navigation timer starts.
+    controller;
     return Scaffold(
       backgroundColor: AppTheme.background,
       body: Center(

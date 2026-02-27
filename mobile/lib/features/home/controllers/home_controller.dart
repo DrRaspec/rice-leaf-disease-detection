@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:photo_manager/photo_manager.dart';
@@ -57,7 +58,7 @@ class HomeController extends GetxController {
       );
       if (xfile != null) {
         selectedAsset.value = null;
-        selectedImage.value = File(xfile.path);
+        selectedImage.value = await _optimizeForUpload(File(xfile.path));
         errorMsg.value = '';
       }
     } catch (e) {
@@ -71,7 +72,7 @@ class HomeController extends GetxController {
     selectedAsset.value = asset;
     final file = await asset.file;
     if (file != null) {
-      selectedImage.value = file;
+      selectedImage.value = await _optimizeForUpload(file);
       errorMsg.value = '';
     }
   }
@@ -144,7 +145,8 @@ class HomeController extends GetxController {
     errorMsg.value = '';
 
     try {
-      final response = await _api.predictDisease(img.path);
+      final uploadFile = await _optimizeForUpload(img);
+      final response = await _api.predictDisease(uploadFile.path);
       final result = PredictionResult.fromJson(
         Map<String, dynamic>.from(response.data as Map),
       );
@@ -171,5 +173,33 @@ class HomeController extends GetxController {
     selectedImage.value = null;
     selectedAsset.value = null;
     errorMsg.value = '';
+  }
+
+  Future<File> _optimizeForUpload(File source) async {
+    final originalBytes = await source.length();
+    final useAggressive = originalBytes > 2 * 1024 * 1024;
+    final minSide = useAggressive ? 960 : 1280;
+    final quality = useAggressive ? 70 : 82;
+
+    final targetPath =
+        '${Directory.systemTemp.path}/rice_upload_${DateTime.now().microsecondsSinceEpoch}.jpg';
+
+    final result = await FlutterImageCompress.compressAndGetFile(
+      source.absolute.path,
+      targetPath,
+      format: CompressFormat.jpeg,
+      quality: quality,
+      minWidth: minSide,
+      minHeight: minSide,
+      keepExif: false,
+    );
+
+    if (result == null) return source;
+    final optimized = File(result.path);
+    final optimizedBytes = await optimized.length();
+    if (optimizedBytes >= originalBytes) {
+      return source;
+    }
+    return optimized;
   }
 }

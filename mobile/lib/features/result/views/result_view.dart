@@ -100,6 +100,7 @@ class _MainResultCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final conf = result.confidence;
+    final lowConfidence = result.isUncertain || conf < 0.45;
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
@@ -203,9 +204,37 @@ class _MainResultCard extends StatelessWidget {
               height: 1.6,
             ),
           ),
+          if (lowConfidence) ...[
+            const SizedBox(height: 12),
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: AppTheme.warning.withValues(alpha: 0.12),
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: AppTheme.warning.withValues(alpha: 0.35)),
+              ),
+              child: Text(
+                'Low confidence result. Possible: ${_possibleClassesLabel(result)}. '
+                'Retake a closer photo in better light, focused on one leaf.',
+                style: TextStyle(
+                  color: AppTheme.warning,
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+          ],
         ],
       ),
     );
+  }
+
+  String _possibleClassesLabel(PredictionResult prediction) {
+    if (prediction.possibleClasses.isEmpty) return 'unknown class';
+    return prediction.possibleClasses
+        .take(2)
+        .map((item) => item.replaceAll('_', ' '))
+        .join(' / ');
   }
 }
 
@@ -227,10 +256,10 @@ class _TreatmentCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            '💊 Recommended Treatment',
+            '💊 What to do now | អ្វីត្រូវធ្វើឥឡូវ',
             style: TextStyle(
               color: AppTheme.primary,
-              fontSize: 13,
+              fontSize: 14,
               fontWeight: FontWeight.w700,
               letterSpacing: 0.3,
             ),
@@ -240,7 +269,7 @@ class _TreatmentCard extends StatelessWidget {
             info.treatment,
             style: TextStyle(
               color: AppTheme.textSecondary,
-              fontSize: 13,
+              fontSize: 14,
               height: 1.6,
             ),
           ),
@@ -268,12 +297,12 @@ class _TopPredictionsCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'TOP PREDICTIONS',
+            'Top predictions',
             style: TextStyle(
               color: AppTheme.textSecondary,
-              fontSize: 11,
+              fontSize: 12,
               fontWeight: FontWeight.w700,
-              letterSpacing: 1.2,
+              letterSpacing: 0.6,
             ),
           ),
           const SizedBox(height: 14),
@@ -359,8 +388,8 @@ class _AnalyseAnotherButton extends StatelessWidget {
         side: BorderSide(color: AppTheme.primary700),
         padding: const EdgeInsets.symmetric(vertical: 14),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        textStyle: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
-        minimumSize: const Size(double.infinity, 52),
+        textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+        minimumSize: const Size(double.infinity, 56),
       ),
     );
   }
@@ -375,10 +404,10 @@ class _SeverityBadge extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final label = switch (severity) {
-      'none' => 'Healthy',
-      'low' => 'Low Risk',
-      'medium' => 'Medium Risk',
-      'high' => 'High Risk',
+      'none' => 'Healthy | ល្អ',
+      'low' => 'Low Risk | ទាប',
+      'medium' => 'Medium Risk | មធ្យម',
+      'high' => 'High Risk | ខ្ពស់',
       _ => 'Unknown',
     };
     return Container(

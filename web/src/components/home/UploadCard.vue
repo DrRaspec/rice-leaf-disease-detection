@@ -53,7 +53,7 @@
         </div>
 
         <p class="mt-4 text-base font-semibold text-[#102016]">Drag and drop or click to upload</p>
-        <p class="mt-2 text-sm text-[#4D6653]">Use JPG, PNG, or WebP image files.</p>
+        <p class="mt-2 text-sm text-[#4D6653]">Use JPG, PNG, WebP, or HEIC image files.</p>
 
         <ul class="mt-4 space-y-1 text-sm text-[#38503F]">
           <li>Good light</li>

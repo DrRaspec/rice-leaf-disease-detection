@@ -14,13 +14,19 @@
           <UploadCard
             :selected-file="selectedFile"
             :preview-src="previewUrl"
-            :loading="loading"
+            :loading="loading || optimizing"
             @file-selected="handleFileSelected"
             @analyze="analyze"
             @remove="removeSelection"
           />
 
-          <p v-if="loading" class="mt-4 text-sm text-[#2D4535]">Analyzing...</p>
+          <p v-if="optimizing" class="mt-4 text-sm text-[#2D4535]">Optimizing image for faster upload...</p>
+          <p v-else-if="loading" class="mt-4 text-sm text-[#2D4535]">
+            {{ uploadProgress > 0 && uploadProgress < 100 ? `Uploading ${uploadProgress}%...` : 'Analyzing...' }}
+          </p>
+          <p v-if="selectedFile && optimizedInfo" class="mt-2 text-xs text-[#4D6653]">
+            {{ optimizedInfo }}
+          </p>
 
           <div
             v-if="error"
@@ -43,11 +49,14 @@ import { onBeforeUnmount, ref } from 'vue'
 import UploadCard from '@/components/home/UploadCard.vue'
 import ResultCard from '@/components/home/ResultCard.vue'
 import { usePrediction } from '@/composables/usePrediction'
+import { optimizeImageForUpload } from '@/utils/imageOptimize'
 
-const { result, loading, error, predict, reset } = usePrediction()
+const { result, loading, error, uploadProgress, predict, reset } = usePrediction()
 
 const selectedFile = ref(null)
 const previewUrl = ref('')
+const optimizing = ref(false)
+const optimizedInfo = ref('')
 
 function revokePreview() {
   if (previewUrl.value) {
@@ -56,22 +65,42 @@ function revokePreview() {
   }
 }
 
-function handleFileSelected(file) {
+function formatKB(bytes) {
+  return `${Math.max(1, Math.round(bytes / 1024))} KB`
+}
+
+async function handleFileSelected(file) {
   if (!file) return
   revokePreview()
-  selectedFile.value = file
-  previewUrl.value = URL.createObjectURL(file)
+  optimizing.value = true
+  optimizedInfo.value = ''
+  try {
+    const optimized = await optimizeImageForUpload(file)
+    selectedFile.value = optimized
+    previewUrl.value = URL.createObjectURL(optimized)
+    if (optimized.size < file.size) {
+      optimizedInfo.value = `Optimized from ${formatKB(file.size)} to ${formatKB(optimized.size)}`
+    }
+  } catch {
+    selectedFile.value = file
+    previewUrl.value = URL.createObjectURL(file)
+    optimizedInfo.value = ''
+  } finally {
+    optimizing.value = false
+  }
   reset()
 }
 
 async function analyze() {
-  if (!selectedFile.value || loading.value) return
+  if (!selectedFile.value || loading.value || optimizing.value) return
   await predict(selectedFile.value)
 }
 
 function removeSelection() {
   selectedFile.value = null
   revokePreview()
+  optimizedInfo.value = ''
+  optimizing.value = false
   reset()
 }
 

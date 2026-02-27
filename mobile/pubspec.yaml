@@ -23,6 +23,7 @@ dependencies:
 
   # Camera capture (camera-button only)
   image_picker: ^1.1.2
+  flutter_image_compress: ^2.4.0
 
   # Permissions
   permission_handler: ^11.3.1
