@@ -15,6 +15,8 @@ import org.springframework.web.multipart.MultipartFile;
 @RequestMapping({"", "/api/v1"})
 public class PredictionController {
 
+    private static final long MAX_UPLOAD_BYTES = 6L * 1024L * 1024L;
+
     private final PythonInferenceService inferenceService;
 
     public PredictionController(PythonInferenceService inferenceService) {
@@ -30,6 +32,9 @@ public class PredictionController {
     public JsonNode predict(@RequestParam("file") MultipartFile file) {
         if (file.isEmpty()) {
             throw new IllegalArgumentException("Empty file uploaded.");
+        }
+        if (file.getSize() > MAX_UPLOAD_BYTES) {
+            throw new IllegalArgumentException("Image is too large. Please upload up to 6 MB.");
         }
         String contentType = file.getContentType();
         if (contentType == null || !contentType.startsWith("image/")) {

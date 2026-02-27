@@ -4,6 +4,7 @@ import com.rice.disease.config.JwtProperties;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.io.DecodingException;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import java.nio.charset.StandardCharsets;
@@ -105,7 +106,7 @@ public class JwtService {
             if (decoded.length >= 32) {
                 return Keys.hmacShaKeyFor(decoded);
             }
-        } catch (IllegalArgumentException ignored) {
+        } catch (IllegalArgumentException | DecodingException ignored) {
             // Not base64-encoded; fall back to raw string bytes.
         }
 
@@ -116,3 +117,6 @@ public class JwtService {
     public record RefreshTokenClaims(String username, String refreshId, Instant expiresAt) {
     }
 }
+
+
+
