@@ -79,6 +79,17 @@ export function usePrediction() {
   const result = ref(null)
   const loading = ref(false)
   const error = ref(null)
+  const uploadProgress = ref(0)
+
+  function shouldRetry(err) {
+    if (!err) return false
+    if (!err.response) return true
+    return err.response.status >= 500
+  }
+
+  async function sleep(ms) {
+    return new Promise((resolve) => setTimeout(resolve, ms))
+  }
 
   async function predict(file) {
     if (!file) return
@@ -86,35 +97,54 @@ export function usePrediction() {
     error.value = null
     result.value = null
     loading.value = true
+    uploadProgress.value = 0
 
-    try {
-      const form = new FormData()
-      form.append('file', file)
+    const maxAttempts = 2
+    for (let attempt = 1; attempt <= maxAttempts; attempt += 1) {
+      try {
+        const form = new FormData()
+        form.append('file', file)
       const { data } = await apiClient.post('/predict', form, {
-        headers: { 'Content-Type': 'multipart/form-data' },
-      })
-      const key = data.predicted_class
-      result.value = {
-        ...data,
-        info: DISEASE_INFO[key] ?? {
-          label: key.replace(/_/g, ' '),
-          icon: 'leaf',
-          severity: 'medium',
-          color: '#F9A825',
-          summary: 'Detected patterns suggest this class. Please verify with field observation.',
-          whatToDo: 'Follow standard disease management while you confirm the diagnosis.',
-          prevention: 'Maintain monitoring, field hygiene, and balanced fertilization.',
-        },
+          headers: { 'Content-Type': 'multipart/form-data' },
+          onUploadProgress: (event) => {
+            if (!event.total) return
+            uploadProgress.value = Math.min(100, Math.round((event.loaded / event.total) * 100))
+          },
+        })
+        const key = data.predicted_class
+        result.value = {
+          ...data,
+          info: DISEASE_INFO[key] ?? {
+            label: key.replace(/_/g, ' '),
+            icon: 'leaf',
+            severity: 'medium',
+            color: '#F9A825',
+            summary: 'Detected patterns suggest this class. Please verify with field observation.',
+            whatToDo: 'Follow standard disease management while you confirm the diagnosis.',
+            prevention: 'Maintain monitoring, field hygiene, and balanced fertilization.',
+          },
+          is_uncertain: Boolean(data.is_uncertain),
+          possible_classes: Array.isArray(data.possible_classes) ? data.possible_classes : [],
+        }
+        break
+      } catch (err) {
+        const canRetry = attempt < maxAttempts && shouldRetry(err)
+        if (canRetry) {
+          await sleep(500 * attempt)
+          continue
+        }
+        error.value =
+          err.response?.data?.detail ??
+          err.response?.data?.message ??
+          err.response?.data?.error ??
+          err.message ??
+          'Prediction failed. Please try again.'
+      } finally {
+        if (attempt === maxAttempts || result.value) {
+          loading.value = false
+          uploadProgress.value = result.value ? 100 : 0
+        }
       }
-    } catch (err) {
-      error.value =
-        err.response?.data?.detail ??
-        err.response?.data?.message ??
-        err.response?.data?.error ??
-        err.message ??
-        'Prediction failed. Please try again.'
-    } finally {
-      loading.value = false
     }
   }
 
@@ -122,7 +152,8 @@ export function usePrediction() {
     result.value = null
     error.value = null
     loading.value = false
+    uploadProgress.value = 0
   }
 
-  return { result, loading, error, predict, reset }
+  return { result, loading, error, uploadProgress, predict, reset }
 }

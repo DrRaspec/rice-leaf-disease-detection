@@ -2,6 +2,7 @@ from io import BytesIO
 import os
 import secrets
 import time
+from contextlib import asynccontextmanager
 
 import jwt
 from fastapi import FastAPI, File, HTTPException, Request, UploadFile
@@ -11,8 +12,36 @@ from pydantic import BaseModel
 
 from model.inference import predict_image
 
+try:
+    from pillow_heif import register_heif_opener
+except Exception:
+    register_heif_opener = None
 
-app = FastAPI(title="Rice Leaf Disease Detection API", version="1.0.0")
+
+def _validate_security_config() -> None:
+    if not API_USERNAME or not API_PASSWORD or not JWT_SECRET:
+        raise RuntimeError(
+            "APP_API_USERNAME, APP_API_PASSWORD, and APP_SECURITY_JWT_SECRET must be set."
+        )
+    if API_USERNAME.strip().lower() in _BANNED_USERNAMES:
+        raise RuntimeError("APP_API_USERNAME uses an insecure default/common value.")
+    if API_PASSWORD.strip() in _BANNED_PASSWORDS:
+        raise RuntimeError("APP_API_PASSWORD uses an insecure default/common value.")
+    if JWT_SECRET.strip() in _BANNED_JWT_SECRETS or len(JWT_SECRET) < 32:
+        raise RuntimeError(
+            "APP_SECURITY_JWT_SECRET is insecure. Use a unique random secret with at least 32 characters."
+        )
+
+
+@asynccontextmanager
+async def _lifespan(application: FastAPI):
+    if register_heif_opener is not None:
+        register_heif_opener()
+    _validate_security_config()
+    yield
+
+
+app = FastAPI(title="Rice Leaf Disease Detection API", version="1.0.0", lifespan=_lifespan)
 
 API_USERNAME = os.getenv("APP_API_USERNAME")
 API_PASSWORD = os.getenv("APP_API_PASSWORD")
@@ -22,6 +51,7 @@ ACCESS_TOKEN_TTL_SECONDS = int(os.getenv("APP_ACCESS_TOKEN_TTL_SECONDS", "900"))
 REFRESH_TOKEN_TTL_SECONDS = int(os.getenv("APP_REFRESH_TOKEN_TTL_SECONDS", "604800"))
 RATE_LIMIT_WINDOW_SECONDS = int(os.getenv("APP_RATE_LIMIT_WINDOW_SECONDS", "60"))
 RATE_LIMIT_MAX_REQUESTS = int(os.getenv("APP_RATE_LIMIT_MAX_REQUESTS", "60"))
+MAX_UPLOAD_BYTES = int(os.getenv("APP_MAX_UPLOAD_BYTES", str(6 * 1024 * 1024)))
 TRUST_X_FORWARDED_FOR = os.getenv("APP_TRUST_X_FORWARDED_FOR", "false").lower() == "true"
 
 _refresh_store: dict[str, tuple[str, int]] = {}
@@ -53,20 +83,6 @@ class AuthTokensResponse(BaseModel):
     refreshExpiresInSeconds: int
 
 
-@app.on_event("startup")
-def validate_security_config() -> None:
-    if not API_USERNAME or not API_PASSWORD or not JWT_SECRET:
-        raise RuntimeError(
-            "APP_API_USERNAME, APP_API_PASSWORD, and APP_SECURITY_JWT_SECRET must be set."
-        )
-    if API_USERNAME.strip().lower() in _BANNED_USERNAMES:
-        raise RuntimeError("APP_API_USERNAME uses an insecure default/common value.")
-    if API_PASSWORD.strip() in _BANNED_PASSWORDS:
-        raise RuntimeError("APP_API_PASSWORD uses an insecure default/common value.")
-    if JWT_SECRET.strip() in _BANNED_JWT_SECRETS or len(JWT_SECRET) < 32:
-        raise RuntimeError(
-            "APP_SECURITY_JWT_SECRET is insecure. Use a unique random secret with at least 32 characters."
-        )
 
 
 def _unix_now() -> int:
@@ -220,6 +236,8 @@ async def predict(file: UploadFile = File(...)) -> dict:
     content = await file.read()
     if not content:
         raise HTTPException(status_code=400, detail="Empty file uploaded.")
+    if len(content) > MAX_UPLOAD_BYTES:
+        raise HTTPException(status_code=413, detail="Image is too large. Please upload up to 6 MB.")
 
     try:
         image = Image.open(BytesIO(content))
