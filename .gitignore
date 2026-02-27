@@ -4,6 +4,8 @@ __pycache__/
 *.pyo
 *.pyd
 .venv/
+.venv-wsl/
+.venv-linux/
 venv/
 .env
 .env.*
@@ -22,6 +24,8 @@ venv/
 artifacts/*.keras
 artifacts/*.h5
 artifacts/*.json
+artifacts/*.txt
+artifacts/*.png
 dataset/
 
 # Node / Web

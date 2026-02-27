@@ -23,6 +23,8 @@ RiceGuard AI helps farmers in Cambodia detect rice leaf diseases from a photo, s
 1. Train model from `dataset/`
 2. Serve prediction endpoint (`POST /api/v1/predict`)
 3. Web/mobile upload leaf image and display results
+4. Clients auto-optimize large images for faster upload on slow networks
+5. Low-confidence predictions are flagged as uncertain with possible alternatives
 
 ## Quick Start
 
@@ -35,6 +37,10 @@ pip install -r requirements.txt
 2. Train once to generate artifacts:
 ```bash
 python -m model.train
+```
+Optional GPU check:
+```bash
+python scripts/check_tf_gpu.py
 ```
 3. Set required API env vars:
 ```bash
@@ -51,4 +57,6 @@ mvn spring-boot:run
 ## Documentation
 
 - Setup and full run instructions: `docs/RUNNING.md`
+- AI process and model flow explanation: `docs/AI_PROCESS_FLOW.md`
 - Public release safety checklist: `docs/PUBLIC_RELEASE_CHECKLIST.md`
+- Dataset provenance references: `docs/DATA_SOURCES.md`
