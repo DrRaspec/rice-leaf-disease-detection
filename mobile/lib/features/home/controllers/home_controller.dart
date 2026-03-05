@@ -127,7 +127,8 @@ class HomeController extends GetxController {
       AppText.t(TrKey.permissionDenied),
       AppText.t(TrKey.allowPhotoAccess),
       snackPosition: SnackPosition.BOTTOM,
-      backgroundColor: Get.isDarkMode ? const Color(0xFF1F3A2D) : const Color(0xFFFFFFFF),
+      backgroundColor:
+          Get.isDarkMode ? const Color(0xFF1F3A2D) : const Color(0xFFFFFFFF),
       colorText: Get.isDarkMode ? Colors.white : const Color(0xFF173125),
       margin: const EdgeInsets.all(16),
       borderRadius: 12,
@@ -137,7 +138,9 @@ class HomeController extends GetxController {
           AppText.t(TrKey.openSettings),
           style: TextStyle(
             fontWeight: FontWeight.w700,
-            color: Get.isDarkMode ? const Color(0xFF34D399) : const Color(0xFF16A34A),
+            color: Get.isDarkMode
+                ? const Color(0xFF34D399)
+                : const Color(0xFF16A34A),
           ),
         ),
       ),
@@ -157,7 +160,9 @@ class HomeController extends GetxController {
 
     try {
       final uploadFile = await _optimizeForUpload(img);
-      final response = await _api.predictDisease(uploadFile.path);
+      final language = AppText.isKhmer ? 'km' : 'en';
+      final response =
+          await _api.predictDisease(uploadFile.path, language: language);
       final result = PredictionResult.fromJson(
         Map<String, dynamic>.from(response.data as Map),
       );

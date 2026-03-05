@@ -27,7 +27,10 @@ class ApiClient extends getx.GetxService {
   }
 
   /// POST /predict with multipart image file
-  Future<Response<dynamic>> predictDisease(String filePath) async {
+  Future<Response<dynamic>> predictDisease(
+    String filePath, {
+    required String language,
+  }) async {
     const maxAttempts = 2;
     DioException? lastError;
     for (var attempt = 1; attempt <= maxAttempts; attempt++) {
@@ -35,7 +38,16 @@ class ApiClient extends getx.GetxService {
         final formData = FormData.fromMap({
           'file': await MultipartFile.fromFile(filePath),
         });
-        return await _dio.post(ApiEndpoints.predict, data: formData);
+        return await _dio.post(
+          ApiEndpoints.predict,
+          data: formData,
+          queryParameters: {'lang': language},
+          options: Options(
+            headers: {
+              'Accept-Language': language,
+            },
+          ),
+        );
       } on DioException catch (e) {
         lastError = e;
         final canRetry = attempt < maxAttempts && _isRetriable(e);

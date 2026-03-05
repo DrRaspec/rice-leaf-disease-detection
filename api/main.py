@@ -5,7 +5,7 @@ import time
 from contextlib import asynccontextmanager
 
 import jwt
-from fastapi import FastAPI, File, HTTPException, Request, UploadFile
+from fastapi import FastAPI, File, Header, HTTPException, Request, UploadFile
 from fastapi.responses import JSONResponse
 from PIL import Image, UnidentifiedImageError
 from pydantic import BaseModel
@@ -16,6 +16,135 @@ try:
     from pillow_heif import register_heif_opener
 except Exception:
     register_heif_opener = None
+
+
+DISEASES_EN = {
+    "healthy": {
+        "key": "healthy",
+        "label": "Healthy",
+        "icon": "healthy",
+        "severity": "none",
+        "description": "Leaf looks healthy. Continue normal care and weekly checks.",
+        "treatment": "Keep irrigation and balanced fertilization. Continue monitoring.",
+    },
+    "bacterial_leaf_blight": {
+        "key": "bacterial_leaf_blight",
+        "label": "Bacterial Leaf Blight",
+        "icon": "bacterial_leaf_blight",
+        "severity": "high",
+        "description": "Leaf edges yellow and dry quickly.",
+        "treatment": "Remove heavily infected leaves and improve drainage. Use approved bactericide.",
+    },
+    "leaf_blast": {
+        "key": "leaf_blast",
+        "label": "Leaf Blast",
+        "icon": "leaf_blast",
+        "severity": "high",
+        "description": "Gray-centered lesions with dark borders.",
+        "treatment": "Avoid excess nitrogen and apply recommended fungicide for blast.",
+    },
+    "brown_spot": {
+        "key": "brown_spot",
+        "label": "Brown Spot",
+        "icon": "brown_spot",
+        "severity": "medium",
+        "description": "Oval brown spots, sometimes with yellow halo.",
+        "treatment": "Improve balanced nutrition (especially potassium) and monitor spread.",
+    },
+    "leaf_scald": {
+        "key": "leaf_scald",
+        "label": "Leaf Scald",
+        "icon": "leaf_scald",
+        "severity": "medium",
+        "description": "Scald-like brown lesions often starting from tips.",
+        "treatment": "Improve airflow and apply suitable fungicide if symptoms progress.",
+    },
+    "narrow_brown_spot": {
+        "key": "narrow_brown_spot",
+        "label": "Narrow Brown Spot",
+        "icon": "narrow_brown_spot",
+        "severity": "low",
+        "description": "Narrow linear lesions on the leaf blade.",
+        "treatment": "Monitor for a few days and spray only if disease spreads rapidly.",
+    },
+}
+
+DISEASES_KM = {
+    "healthy": {
+        "key": "healthy",
+        "label": "សុខភាពល្អ",
+        "icon": "healthy",
+        "severity": "none",
+        "description": "ស្លឹកមានសុខភាពល្អ។ បន្តថែទាំធម្មតា និងពិនិត្យជារៀងរាល់សប្តាហ៍។",
+        "treatment": "ថ្ងៃនេះ: រក្សាការស្រោចទឹកដដែល។ សប្តាហ៍នេះ: បន្តដាក់ជីសមស្រប និងតាមដានស្រែ។",
+    },
+    "bacterial_leaf_blight": {
+        "key": "bacterial_leaf_blight",
+        "label": "រលាកស្លឹកបាក់តេរី",
+        "icon": "bacterial_leaf_blight",
+        "severity": "high",
+        "description": "សង្ស័យជំងឺរលាកស្លឹកបាក់តេរី។ គែមស្លឹកលឿង ហើយស្ងួតលឿន។",
+        "treatment": "ថ្ងៃនេះ: ដកស្លឹកដែលឆ្លងខ្លាំង និងកែលម្អការបង្ហូរទឹក។ បាញ់ថ្នាំប្រភេទស្ពាន់តាមការណែនាំមូលដ្ឋាន។",
+    },
+    "leaf_blast": {
+        "key": "leaf_blast",
+        "label": "ជំងឺប្លាស",
+        "icon": "leaf_blast",
+        "severity": "high",
+        "description": "សង្ស័យជំងឺប្លាស។ ស្នាមមានកណ្ដាលប្រផេះ និងគែមងងឹត។",
+        "treatment": "ថ្ងៃនេះ: ជៀសវាងជីនីត្រូសែនលើស។ បន្ទាប់មកប្រើថ្នាំកម្ចាត់ផ្សិតសមស្របតាមការណែនាំអ្នកជំនាញ។",
+    },
+    "brown_spot": {
+        "key": "brown_spot",
+        "label": "ចំណុចត្នោត",
+        "icon": "brown_spot",
+        "severity": "medium",
+        "description": "សង្ស័យជំងឺចំណុចត្នោត។ ចំណុចអូវ៉ាល់អាចរាលដាលលើដំណាំខ្សោយ។",
+        "treatment": "សប្តាហ៍នេះ: កែលម្អការដាក់ជីឱ្យសមតុល្យ (ជាពិសេសប៉ូតាស្យូម) ហើយប្រើថ្នាំបង្ការផ្សិតបើរាលដាលខ្លាំង។",
+    },
+    "leaf_scald": {
+        "key": "leaf_scald",
+        "label": "ដំបៅស្លឹក",
+        "icon": "leaf_scald",
+        "severity": "medium",
+        "description": "សង្ស័យដំបៅស្លឹក។ ខូចខាតភាគច្រើនចាប់ផ្តើមពីចុងស្លឹកចុះក្រោម។",
+        "treatment": "ថ្ងៃនេះ: កែលម្អខ្យល់ចេញចូលរវាងដើម។ ប្រើថ្នាំសមស្រប និងជៀសវាងជីនីត្រូសែនលើស។",
+    },
+    "narrow_brown_spot": {
+        "key": "narrow_brown_spot",
+        "label": "ចំណុចត្នោតចង្អៀត",
+        "icon": "narrow_brown_spot",
+        "severity": "low",
+        "description": "សង្ស័យចំណុចត្នោតចង្អៀត។ ជាទូទៅស្រាល ប៉ុន្តែត្រូវតាមដាន។",
+        "treatment": "តាមដានរយៈពេល ៣-៥ ថ្ងៃ។ រក្សាអាហារូបត្ថម្ភ និងទឹកឱ្យសមស្រប។ បាញ់ថ្នាំតែពេលរាលដាលលឿន។",
+    },
+}
+
+
+def _resolve_language(lang: str | None, accept_language: str | None) -> str:
+    candidate = lang or accept_language
+    if not candidate:
+        return "en"
+
+    normalized = candidate.strip().lower()
+    if "," in normalized:
+        normalized = normalized.split(",", maxsplit=1)[0]
+    return "km" if normalized.startswith("km") else "en"
+
+
+def _localized_disease_info(predicted_class: str, language: str) -> dict[str, str]:
+    db = DISEASES_KM if language == "km" else DISEASES_EN
+    return db.get(
+        predicted_class,
+        {
+            "key": predicted_class,
+            "label": predicted_class.replace("_", " "),
+            "icon": "unknown",
+            "severity": "unknown",
+            "description": "",
+            "treatment": "",
+        },
+    )
 
 
 def _validate_security_config() -> None:
@@ -81,8 +210,6 @@ class AuthTokensResponse(BaseModel):
     expiresInSeconds: int
     refreshToken: str
     refreshExpiresInSeconds: int
-
-
 
 
 def _unix_now() -> int:
@@ -229,7 +356,11 @@ def refresh(request: RefreshRequest) -> AuthTokensResponse:
 
 @app.post("/predict")
 @app.post("/api/v1/predict")
-async def predict(file: UploadFile = File(...)) -> dict:
+async def predict(
+    file: UploadFile = File(...),
+    lang: str | None = None,
+    accept_language: str | None = Header(default=None, alias="Accept-Language"),
+) -> dict:
     if not file.content_type or not file.content_type.startswith("image/"):
         raise HTTPException(status_code=400, detail="Please upload an image file.")
 
@@ -245,6 +376,12 @@ async def predict(file: UploadFile = File(...)) -> dict:
         raise HTTPException(status_code=400, detail="Invalid image format.") from exc
 
     try:
-        return predict_image(image)
+        result = predict_image(image)
     except FileNotFoundError as exc:
         raise HTTPException(status_code=500, detail=str(exc)) from exc
+
+    language = _resolve_language(lang, accept_language)
+    predicted_class = str(result.get("predicted_class", ""))
+    result["disease_info"] = _localized_disease_info(predicted_class, language)
+    result["language"] = language
+    return result
