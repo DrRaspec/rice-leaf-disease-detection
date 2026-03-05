@@ -9,7 +9,7 @@
     <application
         android:label="rice_guard"
         android:name="${applicationName}"
-        android:icon="@mipmap/ic_launcher">
+        android:icon="@drawable/splash_brand_mark">
         <activity
             android:name=".MainActivity"
             android:exported="true"
@@ -50,3 +50,4 @@
         </intent>
     </queries>
 </manifest>
+
