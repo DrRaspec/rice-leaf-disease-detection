@@ -109,6 +109,12 @@ $env:APP_API_PASSWORD="ReplaceWithA_Strong#Password1"
 $env:APP_SECURITY_JWT_SECRET="ReplaceWithYourOwnLongRandomSecretAtLeast32Chars"
 ```
 
+Generate a strong JWT secret in PowerShell (32 random bytes, Base64):
+
+```powershell
+$env:APP_SECURITY_JWT_SECRET = [Convert]::ToBase64String((1..32 | ForEach-Object { Get-Random -Maximum 256 }))
+```
+
 Start Spring API:
 
 ```bash
@@ -148,6 +154,12 @@ PowerShell equivalent:
 $env:APP_API_USERNAME="riceguard_api_user"
 $env:APP_API_PASSWORD="ReplaceWithA_Strong#Password1"
 $env:APP_SECURITY_JWT_SECRET="ReplaceWithYourOwnLongRandomSecretAtLeast32Chars"
+```
+
+Generate a strong JWT secret in PowerShell (32 random bytes, Base64):
+
+```powershell
+$env:APP_SECURITY_JWT_SECRET = [Convert]::ToBase64String((1..32 | ForEach-Object { Get-Random -Maximum 256 }))
 ```
 
 Start:
@@ -201,3 +213,4 @@ Note:
 - `mvn not recognized`: install Maven and reopen terminal.
 - `401/403 issues`: verify env vars and restart API process.
 - Upload errors: ensure request is multipart form-data with key `file`.
+
