@@ -21,7 +21,7 @@ class AppTheme {
     card: Color(0xFFFFFFFF),
     cardBorder: Color(0xFFDCEEE1),
     textPrimary: Color(0xFF173125),
-    textSecondary: Color(0xFF5B7568),
+    textSecondary: Color(0xFF3F5C4D),
   );
 
   static const Color warning = Color(0xFFF59E0B);
@@ -158,3 +158,4 @@ class _Palette {
     required this.textSecondary,
   });
 }
+

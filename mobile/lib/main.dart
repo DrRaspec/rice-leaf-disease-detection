@@ -10,16 +10,15 @@ import 'app/routes/app_routes.dart';
 import 'app/theme/app_theme.dart';
 
 Future<void> main() async {
-  WidgetsFlutterBinding.ensureInitialized();
   AppLogger.configure();
   await AppLogger.runWithPrintGuard(() async {
+    WidgetsFlutterBinding.ensureInitialized();
     await AdaptiveUtils.ensureScreenSize();
 
     const breakpoints = AdaptiveBreakpoints(useShortestSide: true);
     final view = WidgetsBinding.instance.platformDispatcher.implicitView;
-    final logicalSize = view == null
-        ? Size.zero
-        : view.physicalSize / view.devicePixelRatio;
+    final logicalSize =
+        view == null ? Size.zero : view.physicalSize / view.devicePixelRatio;
     final deviceType = breakpoints.getDeviceType(
       logicalSize.width,
       logicalSize.height,
@@ -69,7 +68,8 @@ class RiceGuardApp extends StatelessWidget {
       final systemBrightness =
           WidgetsBinding.instance.platformDispatcher.platformBrightness;
       final isDark = appThemeMode == ThemeMode.dark ||
-          (appThemeMode == ThemeMode.system && systemBrightness == Brightness.dark);
+          (appThemeMode == ThemeMode.system &&
+              systemBrightness == Brightness.dark);
 
       SystemChrome.setSystemUIOverlayStyle(
         SystemUiOverlayStyle(

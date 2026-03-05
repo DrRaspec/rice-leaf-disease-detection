@@ -23,7 +23,7 @@ class DiseaseInfoCatalog {
     'healthy': DiseaseInfo(
       key: 'healthy',
       label: 'Healthy',
-      icon: '🌿',
+      icon: 'healthy',
       severity: 'none',
       description: 'Leaf looks healthy. Continue normal care and weekly checks.',
       treatment:
@@ -32,7 +32,7 @@ class DiseaseInfoCatalog {
     'bacterial_leaf_blight': DiseaseInfo(
       key: 'bacterial_leaf_blight',
       label: 'Bacterial Leaf Blight',
-      icon: '🦠',
+      icon: 'bacterial_leaf_blight',
       severity: 'high',
       description: 'Leaf edges yellow and dry quickly.',
       treatment:
@@ -41,7 +41,7 @@ class DiseaseInfoCatalog {
     'leaf_blast': DiseaseInfo(
       key: 'leaf_blast',
       label: 'Leaf Blast',
-      icon: '💥',
+      icon: 'leaf_blast',
       severity: 'high',
       description: 'Gray-centered lesions with dark borders.',
       treatment:
@@ -50,7 +50,7 @@ class DiseaseInfoCatalog {
     'brown_spot': DiseaseInfo(
       key: 'brown_spot',
       label: 'Brown Spot',
-      icon: '🟤',
+      icon: 'brown_spot',
       severity: 'medium',
       description: 'Oval brown spots, sometimes with yellow halo.',
       treatment:
@@ -59,7 +59,7 @@ class DiseaseInfoCatalog {
     'leaf_scald': DiseaseInfo(
       key: 'leaf_scald',
       label: 'Leaf Scald',
-      icon: '🔥',
+      icon: 'leaf_scald',
       severity: 'medium',
       description: 'Scald-like brown lesions often starting from tips.',
       treatment:
@@ -68,7 +68,7 @@ class DiseaseInfoCatalog {
     'narrow_brown_spot': DiseaseInfo(
       key: 'narrow_brown_spot',
       label: 'Narrow Brown Spot',
-      icon: '🟫',
+      icon: 'narrow_brown_spot',
       severity: 'low',
       description: 'Narrow linear lesions on the leaf blade.',
       treatment:
@@ -80,7 +80,7 @@ class DiseaseInfoCatalog {
     'healthy': DiseaseInfo(
       key: 'healthy',
       label: 'Healthy',
-      icon: '🌿',
+      icon: 'healthy',
       severity: 'none',
       description: 'Leaf looks healthy. Continue normal care and weekly checks.',
       treatment:
@@ -89,7 +89,7 @@ class DiseaseInfoCatalog {
     'bacterial_leaf_blight': DiseaseInfo(
       key: 'bacterial_leaf_blight',
       label: 'Bacterial Leaf Blight',
-      icon: '🦠',
+      icon: 'bacterial_leaf_blight',
       severity: 'high',
       description: 'Leaf edges yellow and dry quickly.',
       treatment:
@@ -98,7 +98,7 @@ class DiseaseInfoCatalog {
     'leaf_blast': DiseaseInfo(
       key: 'leaf_blast',
       label: 'Leaf Blast',
-      icon: '💥',
+      icon: 'leaf_blast',
       severity: 'high',
       description: 'Gray-centered lesions with dark borders.',
       treatment:
@@ -107,7 +107,7 @@ class DiseaseInfoCatalog {
     'brown_spot': DiseaseInfo(
       key: 'brown_spot',
       label: 'Brown Spot',
-      icon: '🟤',
+      icon: 'brown_spot',
       severity: 'medium',
       description: 'Oval brown spots, sometimes with yellow halo.',
       treatment:
@@ -116,7 +116,7 @@ class DiseaseInfoCatalog {
     'leaf_scald': DiseaseInfo(
       key: 'leaf_scald',
       label: 'Leaf Scald',
-      icon: '🔥',
+      icon: 'leaf_scald',
       severity: 'medium',
       description: 'Scald-like brown lesions often starting from tips.',
       treatment:
@@ -125,7 +125,7 @@ class DiseaseInfoCatalog {
     'narrow_brown_spot': DiseaseInfo(
       key: 'narrow_brown_spot',
       label: 'Narrow Brown Spot',
-      icon: '🟫',
+      icon: 'narrow_brown_spot',
       severity: 'low',
       description: 'Narrow linear lesions on the leaf blade.',
       treatment:
@@ -139,10 +139,11 @@ class DiseaseInfoCatalog {
         DiseaseInfo(
           key: key,
           label: key.replaceAll('_', ' '),
-          icon: '🌾',
+          icon: 'unknown',
           severity: 'unknown',
           description: '',
           treatment: '',
         );
   }
 }
+

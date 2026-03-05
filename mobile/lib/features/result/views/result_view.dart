@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../../app/core/core_i18n.dart';
 import '../../../app/theme/app_theme.dart';
+import '../../../app/theme/disease_icon_theme.dart';
 import '../../../data/models/prediction_response.dart';
 import '../controllers/disease_info_catalog.dart';
 import '../controllers/result_controller.dart';
@@ -131,7 +132,11 @@ class _MainResultCard extends StatelessWidget {
                   border: Border.all(color: _severityColor.withValues(alpha: 0.3)),
                 ),
                 child: Center(
-                  child: Text(info.icon, style: const TextStyle(fontSize: 26)),
+                  child: Icon(
+                    DiseaseIconTheme.data(info.icon),
+                    size: 28,
+                    color: DiseaseIconTheme.color(info.icon),
+                  ),
                 ),
               ),
               const SizedBox(width: 14),
@@ -426,3 +431,4 @@ class _SeverityBadge extends StatelessWidget {
     );
   }
 }
+

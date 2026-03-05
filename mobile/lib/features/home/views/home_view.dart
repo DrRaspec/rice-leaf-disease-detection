@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import '../../../app/core/core_i18n.dart';
 import '../../../app/core/core_services.dart';
 import '../../../app/theme/app_theme.dart';
+import '../../../app/theme/disease_icon_theme.dart';
 import '../controllers/home_controller.dart';
 
 class HomeView extends GetView<HomeController> {
@@ -15,8 +16,9 @@ class HomeView extends GetView<HomeController> {
       backgroundColor: AppTheme.background,
       body: AdaptiveBuilder(
         phone: (_, __) => _buildPhoneBody(context),
-        tablet: (_, info) =>
-            info.isLandscape ? _buildTabletLandscapeBody(context) : _buildPhoneBody(context),
+        tablet: (_, info) => info.isLandscape
+            ? _buildTabletLandscapeBody(context)
+            : _buildPhoneBody(context),
         desktop: (_, __) => _buildTabletLandscapeBody(context),
         foldable: (_, __) => _buildPhoneBody(context),
       ),
@@ -112,9 +114,10 @@ class HomeView extends GetView<HomeController> {
         const SizedBox(width: 10),
         RichText(
           text: TextSpan(
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 20,
               fontWeight: FontWeight.w800,
+              color: AppTheme.textPrimary,
             ),
             children: [
               const TextSpan(text: 'Rice'),
@@ -142,6 +145,7 @@ class HomeView extends GetView<HomeController> {
   void _showDisplaySettings(BuildContext context) {
     showModalBottomSheet(
       context: context,
+      isScrollControlled: true,
       backgroundColor: Colors.transparent,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
@@ -186,106 +190,113 @@ class _DisplaySettingsSheet extends StatelessWidget {
             borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
             border: Border.all(color: AppTheme.cardBorder),
           ),
-          padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Center(
-                child: Container(
-                  width: 36,
-                  height: 4,
-                  decoration: BoxDecoration(
-                    color: AppTheme.textSecondary.withValues(alpha: 0.35),
-                    borderRadius: BorderRadius.circular(2),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 12),
-              Text(
-                AppText.t(TrKey.displaySettings),
-                style: TextStyle(
-                  color: AppTheme.textPrimary,
-                  fontSize: 18,
-                  fontWeight: FontWeight.w700,
-                ),
-              ),
-              const SizedBox(height: 14),
-              sectionTitle(AppText.t(TrKey.theme)),
-              Wrap(
-                spacing: 8,
+          child: ConstrainedBox(
+            constraints: BoxConstraints(
+              maxHeight: MediaQuery.of(context).size.height * 0.86,
+            ),
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  _ChoiceChip(
-                    label: AppText.t(TrKey.dark),
-                    selected: selectedMode == ThemeMode.dark,
-                    onTap: () => settings.setThemeMode(ThemeMode.dark),
+                  Center(
+                    child: Container(
+                      width: 36,
+                      height: 4,
+                      decoration: BoxDecoration(
+                        color: AppTheme.textSecondary.withValues(alpha: 0.35),
+                        borderRadius: BorderRadius.circular(2),
+                      ),
+                    ),
                   ),
-                  _ChoiceChip(
-                    label: AppText.t(TrKey.light),
-                    selected: selectedMode == ThemeMode.light,
-                    onTap: () => settings.setThemeMode(ThemeMode.light),
+                  const SizedBox(height: 12),
+                  Text(
+                    AppText.t(TrKey.displaySettings),
+                    style: TextStyle(
+                      color: AppTheme.textPrimary,
+                      fontSize: 18,
+                      fontWeight: FontWeight.w700,
+                    ),
                   ),
-                  _ChoiceChip(
-                    label: AppText.t(TrKey.system),
-                    selected: selectedMode == ThemeMode.system,
-                    onTap: () => settings.setThemeMode(ThemeMode.system),
+                  const SizedBox(height: 14),
+                  sectionTitle(AppText.t(TrKey.theme)),
+                  Wrap(
+                    spacing: 8,
+                    children: [
+                      _ChoiceChip(
+                        label: AppText.t(TrKey.dark),
+                        selected: selectedMode == ThemeMode.dark,
+                        onTap: () => settings.setThemeMode(ThemeMode.dark),
+                      ),
+                      _ChoiceChip(
+                        label: AppText.t(TrKey.light),
+                        selected: selectedMode == ThemeMode.light,
+                        onTap: () => settings.setThemeMode(ThemeMode.light),
+                      ),
+                      _ChoiceChip(
+                        label: AppText.t(TrKey.system),
+                        selected: selectedMode == ThemeMode.system,
+                        onTap: () => settings.setThemeMode(ThemeMode.system),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 14),
+                  sectionTitle(AppText.t(TrKey.fontSize)),
+                  Wrap(
+                    spacing: 8,
+                    children: AppSettingsService.fontSizes.map((size) {
+                      return _ChoiceChip(
+                        label: size.toStringAsFixed(0),
+                        selected: selectedFontSize == size,
+                        onTap: () => settings.setFontSize(size),
+                      );
+                    }).toList(),
+                  ),
+                  const SizedBox(height: 14),
+                  sectionTitle(AppText.t(TrKey.zoom)),
+                  Wrap(
+                    spacing: 8,
+                    children: AppSettingsService.zoomScales.map((scale) {
+                      return _ChoiceChip(
+                        label: '${(scale * 100).round()}%',
+                        selected: selectedZoom == scale,
+                        onTap: () => settings.setZoomScale(scale),
+                      );
+                    }).toList(),
+                  ),
+                  const SizedBox(height: 14),
+                  sectionTitle(AppText.t(TrKey.fontFamily)),
+                  Wrap(
+                    spacing: 8,
+                    children: AppSettingsService.fontFamilies.map((family) {
+                      return _ChoiceChip(
+                        label: family,
+                        selected: selectedFamily == family,
+                        onTap: () => settings.setFontFamily(family),
+                      );
+                    }).toList(),
+                  ),
+                  const SizedBox(height: 14),
+                  sectionTitle(AppText.t(TrKey.language)),
+                  Wrap(
+                    spacing: 8,
+                    children: [
+                      _ChoiceChip(
+                        label: AppText.t(TrKey.khmer),
+                        selected: settings.languageCode.value == 'km',
+                        onTap: () => settings.setLanguageCode('km'),
+                      ),
+                      _ChoiceChip(
+                        label: AppText.t(TrKey.english),
+                        selected: settings.languageCode.value == 'en',
+                        onTap: () => settings.setLanguageCode('en'),
+                      ),
+                    ],
                   ),
                 ],
               ),
-              const SizedBox(height: 14),
-              sectionTitle(AppText.t(TrKey.fontSize)),
-              Wrap(
-                spacing: 8,
-                children: AppSettingsService.fontSizes.map((size) {
-                  return _ChoiceChip(
-                    label: size.toStringAsFixed(0),
-                    selected: selectedFontSize == size,
-                    onTap: () => settings.setFontSize(size),
-                  );
-                }).toList(),
-              ),
-              const SizedBox(height: 14),
-              sectionTitle(AppText.t(TrKey.zoom)),
-              Wrap(
-                spacing: 8,
-                children: AppSettingsService.zoomScales.map((scale) {
-                  return _ChoiceChip(
-                    label: '${(scale * 100).round()}%',
-                    selected: selectedZoom == scale,
-                    onTap: () => settings.setZoomScale(scale),
-                  );
-                }).toList(),
-              ),
-              const SizedBox(height: 14),
-              sectionTitle(AppText.t(TrKey.fontFamily)),
-              Wrap(
-                spacing: 8,
-                children: AppSettingsService.fontFamilies.map((family) {
-                  return _ChoiceChip(
-                    label: family,
-                    selected: selectedFamily == family,
-                    onTap: () => settings.setFontFamily(family),
-                  );
-                }).toList(),
-              ),
-              const SizedBox(height: 14),
-              sectionTitle(AppText.t(TrKey.language)),
-              Wrap(
-                spacing: 8,
-                children: [
-                  _ChoiceChip(
-                    label: AppText.t(TrKey.khmer),
-                    selected: settings.languageCode.value == 'km',
-                    onTap: () => settings.setLanguageCode('km'),
-                  ),
-                  _ChoiceChip(
-                    label: AppText.t(TrKey.english),
-                    selected: settings.languageCode.value == 'en',
-                    onTap: () => settings.setLanguageCode('en'),
-                  ),
-                ],
-              ),
-            ],
+            ),
           ),
         );
       }),
@@ -435,7 +446,8 @@ class _UploadCard extends GetView<HomeController> {
             decoration: BoxDecoration(
               color: AppTheme.primary.withValues(alpha: 0.08),
               borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: AppTheme.primary.withValues(alpha: 0.2)),
+              border:
+                  Border.all(color: AppTheme.primary.withValues(alpha: 0.2)),
             ),
             child: Text(
               AppText.t(TrKey.uploadTip),
@@ -489,7 +501,8 @@ class _UploadCard extends GetView<HomeController> {
                           Text(
                             AppText.t(TrKey.cameraGallery),
                             style: TextStyle(
-                              color: AppTheme.textSecondary.withValues(alpha: 0.8),
+                              color:
+                                  AppTheme.textSecondary.withValues(alpha: 0.8),
                               fontSize: 12,
                             ),
                           ),
@@ -569,7 +582,8 @@ class _UploadCard extends GetView<HomeController> {
               onPressed: controller.isLoading.value ? null : controller.analyse,
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppTheme.primary,
-                disabledBackgroundColor: AppTheme.primary700.withValues(alpha: 0.4),
+                disabledBackgroundColor:
+                    AppTheme.primary700.withValues(alpha: 0.4),
                 padding: const EdgeInsets.symmetric(vertical: 18),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(16),
@@ -617,17 +631,27 @@ class _DiseasesSection extends StatelessWidget {
   const _DiseasesSection();
 
   static const _diseases = [
-    ('✅', 'Healthy', 'none', 'No disease detected.'),
+    ('healthy', 'Healthy', 'none', 'No disease detected.'),
     (
-      '🦠',
+      'bacterial_leaf_blight',
       'Bacterial Leaf Blight',
       'high',
       'Yellowing and drying of leaf margins.',
     ),
-    ('💥', 'Leaf Blast', 'high', 'Diamond-shaped gray lesions.'),
-    ('🟤', 'Brown Spot', 'medium', 'Oval brown spots with yellow halos.'),
-    ('🔥', 'Leaf Scald', 'medium', 'Scalded brown lesions from tip.'),
-    ('🟫', 'Narrow Brown Spot', 'low', 'Narrow linear spots on blade.'),
+    ('leaf_blast', 'Leaf Blast', 'high', 'Diamond-shaped gray lesions.'),
+    (
+      'brown_spot',
+      'Brown Spot',
+      'medium',
+      'Oval brown spots with yellow halos.'
+    ),
+    ('leaf_scald', 'Leaf Scald', 'medium', 'Scalded brown lesions from tip.'),
+    (
+      'narrow_brown_spot',
+      'Narrow Brown Spot',
+      'low',
+      'Narrow linear spots on blade.'
+    ),
   ];
 
   @override
@@ -681,7 +705,22 @@ class _DiseaseRow extends StatelessWidget {
       ),
       child: Row(
         children: [
-          Text(icon, style: const TextStyle(fontSize: 28)),
+          Container(
+            width: 44,
+            height: 44,
+            decoration: BoxDecoration(
+              color: DiseaseIconTheme.color(icon).withValues(alpha: 0.14),
+              borderRadius: BorderRadius.circular(13),
+              border: Border.all(
+                color: DiseaseIconTheme.color(icon).withValues(alpha: 0.35),
+              ),
+            ),
+            child: Icon(
+              DiseaseIconTheme.data(icon),
+              size: 24,
+              color: DiseaseIconTheme.color(icon),
+            ),
+          ),
           const SizedBox(width: 14),
           Expanded(
             child: Column(
@@ -728,3 +767,4 @@ class _DiseaseRow extends StatelessWidget {
     );
   }
 }
+
