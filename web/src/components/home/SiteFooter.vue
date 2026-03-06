@@ -13,31 +13,34 @@
             <span class="text-lg font-bold text-[#102016]">RiceGuard AI</span>
           </div>
           <p class="mt-3 max-w-sm text-sm leading-relaxed text-[#38503F]">
-            Helping farmers detect rice disease early and protect harvest quality with practical AI support.
+            {{ t('footer.desc') }}
           </p>
         </div>
 
         <div>
-          <h3 class="text-sm font-semibold uppercase tracking-wider text-[#2E7D32]">Links</h3>
+          <h3 class="text-sm font-semibold uppercase tracking-wider text-[#2E7D32]">{{ t('footer.links') }}</h3>
           <nav class="mt-4 flex flex-col gap-2 text-sm text-[#2D4535]">
-            <router-link :to="{ path: '/', hash: '#home' }" class="footer-link">Home</router-link>
-            <router-link :to="{ path: '/', hash: '#demo' }" class="footer-link">Scanner</router-link>
-            <router-link :to="{ path: '/', hash: '#diseases' }" class="footer-link">Diseases</router-link>
-            <router-link to="/about" class="footer-link">About</router-link>
+            <router-link :to="{ path: '/', hash: '#home' }" class="footer-link">{{ t('footer.home') }}</router-link>
+            <router-link :to="{ path: '/', hash: '#demo' }" class="footer-link">{{ t('footer.scanner') }}</router-link>
+            <router-link :to="{ path: '/', hash: '#diseases' }" class="footer-link">{{ t('footer.diseases') }}</router-link>
+            <router-link to="/about" class="footer-link">{{ t('footer.about') }}</router-link>
           </nav>
         </div>
 
         <div>
-          <h3 class="text-sm font-semibold uppercase tracking-wider text-[#2E7D32]">Built with</h3>
+          <h3 class="text-sm font-semibold uppercase tracking-wider text-[#2E7D32]">{{ t('footer.builtWith') }}</h3>
           <p class="mt-4 text-sm leading-relaxed text-[#2D4535]">Vue 3, Tailwind CSS, Spring Boot, Python, TensorFlow</p>
         </div>
       </div>
 
-      <p class="mt-10 text-xs text-[#557062]">© {{ year }} RiceGuard AI. All rights reserved.</p>
+      <p class="mt-10 text-xs text-[#557062]">© {{ year }} RiceGuard AI. {{ t('footer.rights') }}</p>
     </div>
   </footer>
 </template>
 
 <script setup>
+import { useWebI18n } from '@/composables/useWebI18n'
+
 const year = new Date().getFullYear()
+const { t } = useWebI18n()
 </script>

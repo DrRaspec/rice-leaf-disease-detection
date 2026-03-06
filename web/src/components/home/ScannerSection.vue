@@ -2,10 +2,10 @@
   <section id="demo" class="section-pad scanner-section">
     <div class="site-shell">
       <div class="text-center">
-        <p class="eyebrow">Scanner Demo</p>
-        <h2 class="section-title">Upload and analyze a rice leaf</h2>
+        <p class="eyebrow">{{ t('scanner.eyebrow') }}</p>
+        <h2 class="section-title">{{ t('scanner.title') }}</h2>
         <p class="section-subtitle mx-auto max-w-2xl">
-          Choose a clear leaf photo to get disease name, confidence, and practical treatment guidance.
+          {{ t('scanner.subtitle') }}
         </p>
       </div>
 
@@ -20,9 +20,9 @@
             @remove="removeSelection"
           />
 
-          <p v-if="optimizing" class="mt-4 text-sm text-[#2D4535]">Optimizing image for faster upload...</p>
+          <p v-if="optimizing" class="mt-4 text-sm text-[#2D4535]">{{ t('scanner.optimizing') }}</p>
           <p v-else-if="loading" class="mt-4 text-sm text-[#2D4535]">
-            {{ uploadProgress > 0 && uploadProgress < 100 ? `Uploading ${uploadProgress}%...` : 'Analyzing...' }}
+            {{ uploadProgress > 0 && uploadProgress < 100 ? t('scanner.upload', { progress: uploadProgress }) : t('scanner.analyzing') }}
           </p>
           <p v-if="selectedFile && optimizedInfo" class="mt-2 text-xs text-[#4D6653]">
             {{ optimizedInfo }}
@@ -50,8 +50,10 @@ import UploadCard from '@/components/home/UploadCard.vue'
 import ResultCard from '@/components/home/ResultCard.vue'
 import { usePrediction } from '@/composables/usePrediction'
 import { optimizeImageForUpload } from '@/utils/imageOptimize'
+import { useWebI18n } from '@/composables/useWebI18n'
 
 const { result, loading, error, uploadProgress, predict, reset } = usePrediction()
+const { t } = useWebI18n()
 
 const selectedFile = ref(null)
 const previewUrl = ref('')
@@ -79,7 +81,7 @@ async function handleFileSelected(file) {
     selectedFile.value = optimized
     previewUrl.value = URL.createObjectURL(optimized)
     if (optimized.size < file.size) {
-      optimizedInfo.value = `Optimized from ${formatKB(file.size)} to ${formatKB(optimized.size)}`
+      optimizedInfo.value = t('scanner.optimized', { from: formatKB(file.size), to: formatKB(optimized.size) })
     }
   } catch {
     selectedFile.value = file

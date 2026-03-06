@@ -1,6 +1,6 @@
 <template>
   <article class="surface-card p-6 sm:p-7">
-    <h3 class="text-xl font-semibold text-[#102016]">Upload Rice Leaf Photo</h3>
+    <h3 class="text-xl font-semibold text-[#102016]">{{ t('upload.title') }}</h3>
 
     <div
       class="upload-dropzone mt-5"
@@ -33,7 +33,7 @@
         >
           <div class="preview-frame">
             <img :src="previewSrc" alt="Selected rice leaf preview" class="h-full w-full object-contain" />
-            <div class="preview-overlay">Click to zoom</div>
+            <div class="preview-overlay">{{ t('upload.clickZoom') }}</div>
           </div>
         </button>
 
@@ -52,20 +52,20 @@
           </svg>
         </div>
 
-        <p class="mt-4 text-base font-semibold text-[#102016]">Drag and drop or click to upload</p>
-        <p class="mt-2 text-sm text-[#4D6653]">Use JPG, PNG, WebP, or HEIC image files.</p>
+        <p class="mt-4 text-base font-semibold text-[#102016]">{{ t('upload.drag') }}</p>
+        <p class="mt-2 text-sm text-[#4D6653]">{{ t('upload.note') }}</p>
 
         <ul class="mt-4 space-y-1 text-sm text-[#38503F]">
-          <li>Good light</li>
-          <li>Leaf centered</li>
-          <li>No blur</li>
+          <li>{{ t('upload.tip1') }}</li>
+          <li>{{ t('upload.tip2') }}</li>
+          <li>{{ t('upload.tip3') }}</li>
         </ul>
       </template>
     </div>
 
     <div class="mt-6 flex flex-wrap items-center gap-3">
       <button type="button" class="btn-pill btn-secondary" :disabled="loading" @click="openFilePicker">
-        Replace
+        {{ t('upload.replace') }}
       </button>
       <button
         type="button"
@@ -73,7 +73,7 @@
         :disabled="!previewSrc || loading"
         @click="$emit('remove')"
       >
-        Remove
+        {{ t('upload.remove') }}
       </button>
       <button
         type="button"
@@ -83,21 +83,22 @@
       >
         <span v-if="loading" class="inline-flex items-center gap-2">
           <span class="spinner" aria-hidden="true" />
-          Analyzing...
+          {{ t('upload.analyzing') }}
         </span>
-        <span v-else>Analyze</span>
+        <span v-else>{{ t('upload.analyze') }}</span>
       </button>
     </div>
   </article>
 
   <div v-if="showZoom" class="zoom-modal" role="dialog" aria-modal="true" @click.self="showZoom = false">
-    <button type="button" class="zoom-close" aria-label="Close zoomed preview" @click="showZoom = false">Close</button>
+    <button type="button" class="zoom-close" aria-label="Close zoomed preview" @click="showZoom = false">{{ t('upload.close') }}</button>
     <img :src="previewSrc" alt="Zoomed rice leaf preview" class="zoom-image" />
   </div>
 </template>
 
 <script setup>
 import { computed, onMounted, onUnmounted, ref } from 'vue'
+import { useWebI18n } from '@/composables/useWebI18n'
 
 const props = defineProps({
   selectedFile: {
@@ -115,6 +116,7 @@ const props = defineProps({
 })
 
 const emit = defineEmits(['file-selected', 'analyze', 'remove'])
+const { t } = useWebI18n()
 
 const fileInput = ref(null)
 const isDragging = ref(false)

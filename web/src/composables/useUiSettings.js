@@ -1,11 +1,12 @@
 import { readonly, ref, watch } from 'vue'
 
 const STORAGE_KEYS = {
+  theme: 'ui.theme',
   fontScale: 'ui.fontScale',
   fontFamily: 'ui.fontFamily',
 }
 
-const THEME_OPTIONS = ['light']
+const THEME_OPTIONS = ['light', 'dark']
 const FONT_SCALE_OPTIONS = ['small', 'medium', 'large']
 const FONT_FAMILY_OPTIONS = ['inter', 'jakarta', 'system']
 
@@ -14,10 +15,11 @@ const fontScale = ref('medium')
 const fontFamily = ref('inter')
 
 function loadFromStorage() {
+  const savedTheme = localStorage.getItem(STORAGE_KEYS.theme)
   const savedScale = localStorage.getItem(STORAGE_KEYS.fontScale)
   const savedFamily = localStorage.getItem(STORAGE_KEYS.fontFamily)
 
-  theme.value = 'light'
+  if (savedTheme && THEME_OPTIONS.includes(savedTheme)) theme.value = savedTheme
   if (savedScale && FONT_SCALE_OPTIONS.includes(savedScale)) fontScale.value = savedScale
   if (savedFamily && FONT_FAMILY_OPTIONS.includes(savedFamily)) fontFamily.value = savedFamily
 }
@@ -30,6 +32,7 @@ function applyDomState() {
 }
 
 function persist() {
+  localStorage.setItem(STORAGE_KEYS.theme, theme.value)
   localStorage.setItem(STORAGE_KEYS.fontScale, fontScale.value)
   localStorage.setItem(STORAGE_KEYS.fontFamily, fontFamily.value)
 }

@@ -2,10 +2,10 @@
   <section id="how-it-works" class="section-pad bg-[#F5FBEF]">
     <div class="site-shell">
       <div class="text-center">
-        <p class="eyebrow">How it works</p>
-        <h2 class="section-title">Simple steps for faster field decisions</h2>
+        <p class="eyebrow">{{ t('how.eyebrow') }}</p>
+        <h2 class="section-title">{{ t('how.title') }}</h2>
         <p class="section-subtitle mx-auto max-w-2xl">
-          Built for busy farmers and field teams. Take a photo, check the result, and act quickly.
+          {{ t('how.subtitle') }}
         </p>
       </div>
 
@@ -23,7 +23,8 @@
 </template>
 
 <script setup>
-import { defineComponent, h } from 'vue'
+import { computed, defineComponent, h } from 'vue'
+import { useWebI18n } from '@/composables/useWebI18n'
 
 const CameraIcon = defineComponent({
   name: 'CameraIcon',
@@ -107,21 +108,10 @@ const AdviceIcon = defineComponent({
   },
 })
 
-const steps = [
-  {
-    title: 'Capture',
-    description: 'Take a clear rice leaf photo in good light with the leaf centered.',
-    icon: CameraIcon,
-  },
-  {
-    title: 'Analyze',
-    description: 'Upload once and let the model detect likely disease patterns in seconds.',
-    icon: ScanIcon,
-  },
-  {
-    title: 'Act',
-    description: 'Follow treatment and prevention guidance to protect nearby plants early.',
-    icon: AdviceIcon,
-  },
-]
+const { t } = useWebI18n()
+const steps = computed(() => [
+  { title: t('how.captureTitle'), description: t('how.captureDesc'), icon: CameraIcon },
+  { title: t('how.analyzeTitle'), description: t('how.analyzeDesc'), icon: ScanIcon },
+  { title: t('how.actTitle'), description: t('how.actDesc'), icon: AdviceIcon },
+])
 </script>

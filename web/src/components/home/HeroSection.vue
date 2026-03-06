@@ -5,22 +5,22 @@
     <div class="hero-fade" aria-hidden="true" />
 
     <div class="site-shell relative z-10 flex min-h-[86svh] flex-col items-center justify-center px-6 py-28 text-center sm:px-10">
-      <p class="badge-soft mb-6">AI-Powered Disease Detection</p>
+      <p class="badge-soft mb-6">{{ t('hero.badge') }}</p>
 
       <h1 class="max-w-4xl text-balance text-4xl font-extrabold leading-tight text-white sm:text-5xl md:text-6xl">
-        Protect Your <span class="text-[#81C784]">Rice</span> Harvest
+        {{ t('hero.titlePrefix') }} <span class="text-[#81C784]">{{ t('hero.titleAccent') }}</span> {{ t('hero.titleSuffix') }}
       </h1>
 
       <p class="mt-6 max-w-2xl text-base leading-relaxed text-white/90 sm:text-lg">
-        Upload a rice leaf photo and get instant diagnosis plus treatment tips.
+        {{ t('hero.subtitle') }}
       </p>
 
       <div class="mt-9 flex w-full max-w-md flex-col gap-3 sm:max-w-none sm:w-auto sm:flex-row sm:justify-center">
         <router-link :to="{ path: '/', hash: '#demo' }" class="btn-pill btn-primary">
-          Scan Leaf
+          {{ t('hero.scan') }}
         </router-link>
         <router-link :to="{ path: '/', hash: '#diseases' }" class="btn-pill btn-secondary">
-          Disease Library
+          {{ t('hero.library') }}
         </router-link>
       </div>
 
@@ -35,7 +35,8 @@
 </template>
 
 <script setup>
-import { defineComponent, h } from 'vue'
+import { computed, defineComponent, h } from 'vue'
+import { useWebI18n } from '@/composables/useWebI18n'
 
 // TODO: Replace with your own local asset, e.g. `/images/rice-field.jpg`.
 const heroImage =
@@ -122,9 +123,10 @@ const OfflineIcon = defineComponent({
   },
 })
 
-const trustItems = [
-  { label: 'Works on phone', icon: PhoneIcon },
-  { label: 'Fast', icon: BoltIcon },
-  { label: 'Offline tips', icon: OfflineIcon },
-]
+const { t } = useWebI18n()
+const trustItems = computed(() => [
+  { label: t('hero.trustPhone'), icon: PhoneIcon },
+  { label: t('hero.trustFast'), icon: BoltIcon },
+  { label: t('hero.trustOffline'), icon: OfflineIcon },
+])
 </script>
