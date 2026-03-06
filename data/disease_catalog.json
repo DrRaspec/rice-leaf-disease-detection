@@ -1,25 +1,12 @@
-from io import BytesIO
-import os
-import secrets
-import time
-from contextlib import asynccontextmanager
-
-import jwt
-from fastapi import FastAPI, File, Header, HTTPException, Request, UploadFile
-from fastapi.responses import JSONResponse
-from PIL import Image, UnidentifiedImageError
-from pydantic import BaseModel
-
-from model.inference import predict_image
-
-try:
-    from pillow_heif import register_heif_opener
-except Exception:
-    register_heif_opener = None
-
-
-DISEASES_EN = {
-    "healthy": {
+{
+  "meta": {
+    "version": 1,
+    "source": "api/main.py",
+    "updated": "2026-03-06"
+  },
+  "languages": {
+    "en": {
+      "healthy": {
         "key": "healthy",
         "label": "Healthy",
         "scientific_name": "",
@@ -30,9 +17,9 @@ DISEASES_EN = {
         "symptoms": "Normal green coloration with no spots, lesions, or discoloration.",
         "cause": "N/A – the plant is not affected by disease.",
         "treatment": "Continue normal care: maintain consistent irrigation and balanced fertilization. Inspect weekly.",
-        "prevention": "Use certified disease-free seeds. Maintain balanced nutrition (N-P-K). Ensure proper field drainage and spacing between plants.",
-    },
-    "bacterial_leaf_blight": {
+        "prevention": "Use certified disease-free seeds. Maintain balanced nutrition (N-P-K). Ensure proper field drainage and spacing between plants."
+      },
+      "bacterial_leaf_blight": {
         "key": "bacterial_leaf_blight",
         "label": "Bacterial Leaf Blight",
         "scientific_name": "Xanthomonas oryzae pv. oryzae",
@@ -43,9 +30,9 @@ DISEASES_EN = {
         "symptoms": "Water-soaked streaks appear along leaf edges and veins, turning yellow to white. Leaves dry out from the tip downward. Severely infected leaves become grayish-white and wilt. Milky bacterial ooze may appear on leaf surfaces in humid conditions.",
         "cause": "Caused by the bacterium Xanthomonas oryzae pv. oryzae. Favored by warm temperatures (25–34°C), high humidity, frequent rainfall, excessive nitrogen fertilization, and wounds from wind or insects.",
         "treatment": "Remove and destroy heavily infected leaves immediately. Improve field drainage and reduce standing water. Avoid excessive nitrogen. Apply copper-based bactericide following local agricultural guidelines.",
-        "prevention": "Plant resistant varieties (e.g. IR64, IRBB lines). Use hot-water-treated seeds (53–54°C for 10–12 min). Maintain balanced fertilization. Ensure 25×25 cm spacing for airflow. Plow under crop residues after harvest.",
-    },
-    "leaf_blast": {
+        "prevention": "Plant resistant varieties (e.g. IR64, IRBB lines). Use hot-water-treated seeds (53–54°C for 10–12 min). Maintain balanced fertilization. Ensure 25×25 cm spacing for airflow. Plow under crop residues after harvest."
+      },
+      "leaf_blast": {
         "key": "leaf_blast",
         "label": "Leaf Blast",
         "scientific_name": "Magnaporthe oryzae (Pyricularia oryzae)",
@@ -56,9 +43,9 @@ DISEASES_EN = {
         "symptoms": "Diamond-shaped (spindle) lesions with gray or white centers and dark brown to reddish-brown borders. Lesions typically 1–2 cm long. Under severe infection, lesions merge and leaves wilt entirely. Can also attack nodes and panicles.",
         "cause": "Caused by the fungus Magnaporthe oryzae. Thrives in cool nights (20–25°C), high humidity (>90%), prolonged leaf wetness, and fields with excessive nitrogen fertilization.",
         "treatment": "Avoid excess nitrogen fertilizer immediately. Apply a recommended fungicide (e.g. tricyclazole, isoprothiolane, or edifenphos) at the first sign of lesions. Consult local agricultural extension for approved products.",
-        "prevention": "Use resistant varieties (e.g. IR66, Riang Chay). Apply balanced NPK with low nitrogen. Ensure adequate spacing. Remove and burn crop residues. Drain field during fallow. Treat seeds with fungicide before sowing.",
-    },
-    "brown_spot": {
+        "prevention": "Use resistant varieties (e.g. IR66, Riang Chay). Apply balanced NPK with low nitrogen. Ensure adequate spacing. Remove and burn crop residues. Drain field during fallow. Treat seeds with fungicide before sowing."
+      },
+      "brown_spot": {
         "key": "brown_spot",
         "label": "Brown Spot",
         "scientific_name": "Bipolaris oryzae (Helminthosporium oryzae)",
@@ -69,9 +56,9 @@ DISEASES_EN = {
         "symptoms": "Oval to circular brown spots (0.5–1 cm), often with a gray or lighter center and a yellow halo. Appear on leaves, sheaths, and grain hulls. Spots are dark brown on lower leaf surface. Heavy infection causes premature leaf death.",
         "cause": "Caused by the fungus Bipolaris oryzae. Favored by nutrient-deficient soils (especially low potassium and silicon), drought stress, temperatures of 25–30°C, and high relative humidity.",
         "treatment": "Improve balanced nutrition, especially potassium and silicon. Monitor spread and apply fungicide (mancozeb, carbendazim, or tebuconazole) if infection is progressing rapidly.",
-        "prevention": "Use certified, disease-free seed. Treat seeds with hot water (53–54°C for 10–12 min) or fungicide (carbendazim). Maintain soil fertility with balanced NPK. Avoid drought stress. Plow under crop residues.",
-    },
-    "leaf_scald": {
+        "prevention": "Use certified, disease-free seed. Treat seeds with hot water (53–54°C for 10–12 min) or fungicide (carbendazim). Maintain soil fertility with balanced NPK. Avoid drought stress. Plow under crop residues."
+      },
+      "leaf_scald": {
         "key": "leaf_scald",
         "label": "Leaf Scald",
         "scientific_name": "Monographella albescens (Microdochium oryzae)",
@@ -82,9 +69,9 @@ DISEASES_EN = {
         "symptoms": "Light brown to gray-green water-soaked lesions that start from the leaf tip or edge. The affected area dries out and looks scalded. Lesions often show alternating bands of light and dark brown (chevron pattern). Can infect leaves, leaf sheaths, and panicles.",
         "cause": "Caused by the fungus Monographella albescens. Spread via infected seeds and crop debris. Favored by wet weather, high humidity, excessive nitrogen, and dense planting.",
         "treatment": "Improve airflow between plants by adjusting spacing. Apply a suitable fungicide (mancozeb or thiophanate-methyl) if symptoms are progressing. Avoid excess nitrogen.",
-        "prevention": "Use disease-free seeds. Treat seeds with thiophanate-methyl or carbendazim. Avoid excessive nitrogen. Ensure adequate plant spacing. Remove and destroy crop residues after harvest. Maintain soil silicon levels.",
-    },
-    "narrow_brown_spot": {
+        "prevention": "Use disease-free seeds. Treat seeds with thiophanate-methyl or carbendazim. Avoid excessive nitrogen. Ensure adequate plant spacing. Remove and destroy crop residues after harvest. Maintain soil silicon levels."
+      },
+      "narrow_brown_spot": {
         "key": "narrow_brown_spot",
         "label": "Narrow Brown Spot",
         "scientific_name": "Sphaerulina oryzina (Cercospora janseana)",
@@ -95,12 +82,11 @@ DISEASES_EN = {
         "symptoms": "Short, narrow linear lesions (2–10 mm long, about 1 mm wide) on the leaf blade, running parallel to the veins. Dark brown center with lighter margins. May also appear on leaf sheaths. In severe cases, can cause premature grain ripening.",
         "cause": "Caused by the fungus Sphaerulina oryzina (syn. Cercospora janseana). Typically appears late in the growing season during booting to heading. Favored by temperatures of 25–28°C and potassium-deficient soils.",
         "treatment": "Monitor the crop for 3–5 days. Spray fungicide (propiconazole or carbendazim) only if disease is spreading rapidly. Ensure adequate potassium nutrition.",
-        "prevention": "Plant tolerant varieties. Maintain balanced fertilization with adequate potassium. Remove weeds that can harbor the pathogen. Plow under crop residues after harvest.",
+        "prevention": "Plant tolerant varieties. Maintain balanced fertilization with adequate potassium. Remove weeds that can harbor the pathogen. Plow under crop residues after harvest."
+      }
     },
-}
-
-DISEASES_KM = {
-    "healthy": {
+    "km": {
+      "healthy": {
         "key": "healthy",
         "label": "សុខភាពល្អ",
         "scientific_name": "",
@@ -111,9 +97,9 @@ DISEASES_KM = {
         "symptoms": "ស្លឹកមានពណ៌បៃតងធម្មតា គ្មានចំណុច ដំបៅ ឬការប្រែពណ៌ណាមួយឡើយ។",
         "cause": "មិនពាក់ព័ន្ធ – រុក្ខជាតិមិនមានជំងឺទេ។",
         "treatment": "បន្តថែទាំធម្មតា៖ រក្សាស្រោចទឹកឱ្យសមស្រប និងដាក់ជីឱ្យមានតុល្យភាព។ ពិនិត្យស្រែជារៀងរាល់សប្តាហ៍។",
-        "prevention": "ប្រើគ្រាប់ពូជដែលគ្មានជំងឺ។ រក្សាជីជាតិឱ្យមានតុល្យភាព (អាសូត-ផូស្វ័រ-ប៉ូតាស្យូម)។ ធានាការបង្ហូរទឹក និងគម្លាតដាំសមស្រប។",
-    },
-    "bacterial_leaf_blight": {
+        "prevention": "ប្រើគ្រាប់ពូជដែលគ្មានជំងឺ។ រក្សាជីជាតិឱ្យមានតុល្យភាព (អាសូត-ផូស្វ័រ-ប៉ូតាស្យូម)។ ធានាការបង្ហូរទឹក និងគម្លាតដាំសមស្រប។"
+      },
+      "bacterial_leaf_blight": {
         "key": "bacterial_leaf_blight",
         "label": "ជំងឺរលាកស្លឹកដោយបាក់តេរី",
         "scientific_name": "Xanthomonas oryzae pv. oryzae",
@@ -124,9 +110,9 @@ DISEASES_KM = {
         "symptoms": "ស្នាមជោកទឹកឃើញលើគែមស្លឹក និងសរសៃស្លឹក ផ្លាស់ប្ដូរពណ៌ពីលឿងទៅស។ ស្លឹកស្ងួតពីចុងចុះក្រោម។ ស្លឹកដែលឆ្លងខ្លាំងប្រែពណ៌ប្រផេះស ហើយស្វិត។ ក្នុងស្ថានភាពសើមអាចមើលឃើញទឹករំអិលរបស់បាក់តេរីលើផ្ទៃស្លឹក។",
         "cause": "បង្កដោយបាក់តេរី Xanthomonas oryzae pv. oryzae។ កើតមានច្រើនក្នុងសីតុណ្ហភាព ២៥–៣៤°C ភាពសើមខ្ពស់ ភ្លៀងញឹកញាប់ ការដាក់ជីអាសូតច្រើនលើស និងរបួសពីខ្យល់ឬសត្វល្អិត។",
         "treatment": "ដកស្លឹកដែលឆ្លងខ្លាំង និងបំផ្លាញចោល។ កែលម្អការបង្ហូរទឹកក្នុងស្រែ និងកាត់បន្ថយទឹកស្ថិតនៅ។ កុំដាក់ជីអាសូតច្រើនលើស។ បាញ់ថ្នាំប្រភេទស្ពាន់ (copper-based) តាមការណែនាំកសិកម្មមូលដ្ឋាន។",
-        "prevention": "ដាំពូជធន់នឹងជំងឺ (ឧ. IR64)។ ត្រាំគ្រាប់ពូជក្នុងទឹកក្តៅ (៥៣–៥៤°C រយៈពេល ១០–១២ នាទី)។ រក្សាជីជាតិសមតុល្យ។ ដាំគម្លាត ២៥×២៥ សម ដើម្បីឱ្យខ្យល់ចេញចូល។ ភ្ជួររាស់កាកសំណល់ដំណាំបន្ទាប់ពីប្រមូលផល។",
-    },
-    "leaf_blast": {
+        "prevention": "ដាំពូជធន់នឹងជំងឺ (ឧ. IR64)។ ត្រាំគ្រាប់ពូជក្នុងទឹកក្តៅ (៥៣–៥៤°C រយៈពេល ១០–១២ នាទី)។ រក្សាជីជាតិសមតុល្យ។ ដាំគម្លាត ២៥×២៥ សម ដើម្បីឱ្យខ្យល់ចេញចូល។ ភ្ជួររាស់កាកសំណល់ដំណាំបន្ទាប់ពីប្រមូលផល។"
+      },
+      "leaf_blast": {
         "key": "leaf_blast",
         "label": "ជំងឺក្រុង",
         "scientific_name": "Magnaporthe oryzae (Pyricularia oryzae)",
@@ -137,9 +123,9 @@ DISEASES_KM = {
         "symptoms": "ស្នាមរាងពេជ្រ (រាងពងក្រពើចុងស្រួច) មានកណ្ដាលពណ៌ប្រផេះឬស និងគែមពណ៌ត្នោតងងឹតដល់ក្រហមត្នោត។ ដំបៅវែងប្រហែល ១–២ សម។ នៅពេលឆ្លងធ្ងន់ ស្នាមបញ្ចូលគ្នា ហើយស្លឹកស្វិតទាំងមូល។ អាចវាយប្រហារថ្នាំង និងទងផ្កាផងដែរ។",
         "cause": "បង្កដោយផ្សិត Magnaporthe oryzae។ កើតច្រើនក្នុងពេលយប់ត្រជាក់ (២០–២៥°C) ភាពសើម >៩០% ស្លឹកជោកទឹកយូរ និងដាក់ជីអាសូតច្រើនលើស។",
         "treatment": "ជៀសវាងជីអាសូតលើសភ្លាមៗ។ បាញ់ថ្នាំកម្ចាត់ផ្សិត (ឧ. tricyclazole, isoprothiolane ឬ edifenphos) ភ្លាមពេលឃើញស្នាម។ ពិគ្រោះជាមួយអ្នកជំនាញកសិកម្មមូលដ្ឋានសម្រាប់ផលិតផលដែលអនុញ្ញាត។",
-        "prevention": "ដាំពូជធន់នឹងជំងឺ (ឧ. IR66, Riang Chay)។ ដាក់ជី NPK សមតុល្យ អាសូតទាប។ ធានាគម្លាតដាំគ្រប់គ្រាន់។ ដកចេញ និងដុតកាកសំណល់ដំណាំ។ បន្សុកស្រែពេលនៅទំនេរ។ ត្រាំគ្រាប់ពូជជាមួយថ្នាំផ្សិតមុនពេលសាប។",
-    },
-    "brown_spot": {
+        "prevention": "ដាំពូជធន់នឹងជំងឺ (ឧ. IR66, Riang Chay)។ ដាក់ជី NPK សមតុល្យ អាសូតទាប។ ធានាគម្លាតដាំគ្រប់គ្រាន់។ ដកចេញ និងដុតកាកសំណល់ដំណាំ។ បន្សុកស្រែពេលនៅទំនេរ។ ត្រាំគ្រាប់ពូជជាមួយថ្នាំផ្សិតមុនពេលសាប។"
+      },
+      "brown_spot": {
         "key": "brown_spot",
         "label": "ជំងឺអុចត្នោត",
         "scientific_name": "Bipolaris oryzae (Helminthosporium oryzae)",
@@ -150,9 +136,9 @@ DISEASES_KM = {
         "symptoms": "ចំណុចអូវ៉ាល់ដល់រាងមូល ពណ៌ត្នោត (០.៥–១ សម) ជាមួយកណ្ដាលពណ៌ប្រផេះស្រាល និងរង្វង់លឿង។ ឃើញលើស្លឹក សំបក និងគ្រាប់ស្រូវ។ ចំណុចមានពណ៌ត្នោតចាស់នៅផ្ទៃក្រោមស្លឹក។ ការឆ្លងខ្លាំងធ្វើឱ្យស្លឹកស្ងួតមុនពេល។",
         "cause": "បង្កដោយផ្សិត Bipolaris oryzae។ កើតច្រើនក្នុងដីខ្វះជីជាតិ (ជាពិសេសប៉ូតាស្យូម និងស៊ីលីកូន) ភាពស្ងួត សីតុណ្ហភាព ២៥–៣០°C និងសំណើមខ្ពស់។",
         "treatment": "កែលម្អជីជាតិដោយបន្ថែមប៉ូតាស្យូម និងស៊ីលីកូន។ តាមដានការរាលដាល ហើយបាញ់ថ្នាំផ្សិត (mancozeb, carbendazim ឬ tebuconazole) បើឆ្លងកាន់តែខ្លាំង។",
-        "prevention": "ប្រើគ្រាប់ពូជគ្មានជំងឺដែលបានផ្ទៀងផ្ទាត់។ ត្រាំគ្រាប់ពូជក្នុងទឹកក្តៅ (៥៣–៥៤°C រយៈពេល ១០–១២ នាទី) ឬថ្នាំផ្សិត carbendazim។ រក្សាជីជាតិដីសមតុល្យ។ ចៀសវាងភាពស្ងួត។ ភ្ជួររាស់កាកដំណាំបន្ទាប់ប្រមូលផល។",
-    },
-    "leaf_scald": {
+        "prevention": "ប្រើគ្រាប់ពូជគ្មានជំងឺដែលបានផ្ទៀងផ្ទាត់។ ត្រាំគ្រាប់ពូជក្នុងទឹកក្តៅ (៥៣–៥៤°C រយៈពេល ១០–១២ នាទី) ឬថ្នាំផ្សិត carbendazim។ រក្សាជីជាតិដីសមតុល្យ។ ចៀសវាងភាពស្ងួត។ ភ្ជួររាស់កាកដំណាំបន្ទាប់ប្រមូលផល។"
+      },
+      "leaf_scald": {
         "key": "leaf_scald",
         "label": "ជំងឺដំបៅស្លឹក",
         "scientific_name": "Monographella albescens (Microdochium oryzae)",
@@ -163,9 +149,9 @@ DISEASES_KM = {
         "symptoms": "ដំបៅពណ៌ត្នោតស្រាលដល់បៃតងប្រផេះ ជោកទឹក ចាប់ផ្ដើមពីចុង ឬគែមស្លឹក។ ផ្នែកដែលរងប៉ះពាល់ស្ងួត ហើយមើលទៅដូចត្រូវទឹកក្តៅរលាក។ ដំបៅបង្ហាញលំនាំកៅអក (chevron pattern) ពណ៌ត្នោតស្រាល និងចាស់។ អាចឆ្លងស្លឹក សំបកស្លឹក និងទងផ្កា។",
         "cause": "បង្កដោយផ្សិត Monographella albescens។ ឆ្លងតាមគ្រាប់ពូជ និងកាកដំណាំ។ កើតច្រើនក្នុងអាកាសធាតុសើម ភាពសើមខ្ពស់ ជីអាសូតច្រើន និងដាំក្នុងគម្លាតជិត។",
         "treatment": "កែលម្អខ្យល់ចេញចូលរវាងដើមស្រូវដោយកែតម្រូវគម្លាតដាំ។ បាញ់ថ្នាំផ្សិត (mancozeb ឬ thiophanate-methyl) បើរោគសញ្ញាកាន់តែខ្លាំង។ ជៀសវាងជីអាសូតលើស។",
-        "prevention": "ប្រើគ្រាប់ពូជគ្មានជំងឺ។ ត្រាំគ្រាប់ពូជជាមួយ thiophanate-methyl ឬ carbendazim។ ជៀសវាងជីអាសូតលើស។ ធានាគម្លាតដាំសមស្រប។ ដកចេញ និងបំផ្លាញកាកដំណាំបន្ទាប់ប្រមូលផល។ រក្សាកម្រិតស៊ីលីកូនក្នុងដី។",
-    },
-    "narrow_brown_spot": {
+        "prevention": "ប្រើគ្រាប់ពូជគ្មានជំងឺ។ ត្រាំគ្រាប់ពូជជាមួយ thiophanate-methyl ឬ carbendazim។ ជៀសវាងជីអាសូតលើស។ ធានាគម្លាតដាំសមស្រប។ ដកចេញ និងបំផ្លាញកាកដំណាំបន្ទាប់ប្រមូលផល។ រក្សាកម្រិតស៊ីលីកូនក្នុងដី។"
+      },
+      "narrow_brown_spot": {
         "key": "narrow_brown_spot",
         "label": "ជំងឺចំណុចត្នោតចង្អៀត",
         "scientific_name": "Sphaerulina oryzina (Cercospora janseana)",
@@ -176,277 +162,8 @@ DISEASES_KM = {
         "symptoms": "ដំបៅតូចចង្អៀត រាងបន្ទាត់ (វែង ២–១០ មម ទទឹង ~១ មម) នៅលើផ្ទៃស្លឹក ស្របទៅនឹងសរសៃស្លឹក។ កណ្ដាលពណ៌ត្នោតចាស់ មានគែមពណ៌ស្រាល។ អាចឃើញនៅលើសំបកដើម។ ក្នុងករណីធ្ងន់ អាចធ្វើឱ្យគ្រាប់ស្រូវទុំមុនពេល។",
         "cause": "បង្កដោយផ្សិត Sphaerulina oryzina (syn. Cercospora janseana)។ ជាធម្មតាលេចឡើងចុងរដូវដាំដុះ ក្នុងដំណាក់កាលចេញផ្កា។ កើតច្រើនក្នុងសីតុណ្ហភាព ២៥–២៨°C និងដីខ្វះប៉ូតាស្យូម។",
         "treatment": "តាមដានរយៈពេល ៣–៥ ថ្ងៃ។ បាញ់ថ្នាំផ្សិត (propiconazole ឬ carbendazim) បើជំងឺរាលដាលលឿន។ ធានាជីជាតិប៉ូតាស្យូមគ្រប់គ្រាន់។",
-        "prevention": "ដាំពូជដែលទ្រាំនឹងជំងឺ។ រក្សាជីជាតិសមតុល្យជាមួយប៉ូតាស្យូមគ្រប់គ្រាន់។ កម្ចាត់ស្មៅដែលជាជម្រកផ្សិត។ ភ្ជួររាស់កាកដំណាំបន្ទាប់ប្រមូលផល។",
-    },
-}
-
-
-def _resolve_language(lang: str | None, accept_language: str | None) -> str:
-    candidate = lang or accept_language
-    if not candidate:
-        return "en"
-
-    normalized = candidate.strip().lower()
-    if "," in normalized:
-        normalized = normalized.split(",", maxsplit=1)[0]
-    return "km" if normalized.startswith("km") else "en"
-
-
-def _localized_disease_info(predicted_class: str, language: str) -> dict[str, str]:
-    db = DISEASES_KM if language == "km" else DISEASES_EN
-    return db.get(
-        predicted_class,
-        {
-            "key": predicted_class,
-            "label": predicted_class.replace("_", " "),
-            "scientific_name": "",
-            "icon": "unknown",
-            "severity": "unknown",
-            "severity_label": "Unknown",
-            "description": "",
-            "symptoms": "",
-            "cause": "",
-            "treatment": "",
-            "prevention": "",
-        },
-    )
-
-
-def _validate_security_config() -> None:
-    if not API_USERNAME or not API_PASSWORD or not JWT_SECRET:
-        raise RuntimeError(
-            "APP_API_USERNAME, APP_API_PASSWORD, and APP_SECURITY_JWT_SECRET must be set."
-        )
-    if API_USERNAME.strip().lower() in _BANNED_USERNAMES:
-        raise RuntimeError("APP_API_USERNAME uses an insecure default/common value.")
-    if API_PASSWORD.strip() in _BANNED_PASSWORDS:
-        raise RuntimeError("APP_API_PASSWORD uses an insecure default/common value.")
-    if JWT_SECRET.strip() in _BANNED_JWT_SECRETS or len(JWT_SECRET) < 32:
-        raise RuntimeError(
-            "APP_SECURITY_JWT_SECRET is insecure. Use a unique random secret with at least 32 characters."
-        )
-
-
-@asynccontextmanager
-async def _lifespan(application: FastAPI):
-    if register_heif_opener is not None:
-        register_heif_opener()
-    _validate_security_config()
-    yield
-
-
-app = FastAPI(title="Rice Leaf Disease Detection API", version="1.0.0", lifespan=_lifespan)
-
-API_USERNAME = os.getenv("APP_API_USERNAME")
-API_PASSWORD = os.getenv("APP_API_PASSWORD")
-JWT_SECRET = os.getenv("APP_SECURITY_JWT_SECRET")
-JWT_ISSUER = os.getenv("APP_JWT_ISSUER", "rice-disease-api")
-ACCESS_TOKEN_TTL_SECONDS = int(os.getenv("APP_ACCESS_TOKEN_TTL_SECONDS", "900"))
-REFRESH_TOKEN_TTL_SECONDS = int(os.getenv("APP_REFRESH_TOKEN_TTL_SECONDS", "604800"))
-RATE_LIMIT_WINDOW_SECONDS = int(os.getenv("APP_RATE_LIMIT_WINDOW_SECONDS", "60"))
-RATE_LIMIT_MAX_REQUESTS = int(os.getenv("APP_RATE_LIMIT_MAX_REQUESTS", "60"))
-MAX_UPLOAD_BYTES = int(os.getenv("APP_MAX_UPLOAD_BYTES", str(6 * 1024 * 1024)))
-TRUST_X_FORWARDED_FOR = os.getenv("APP_TRUST_X_FORWARDED_FOR", "false").lower() == "true"
-
-_refresh_store: dict[str, tuple[str, int]] = {}
-_rate_limit_store: dict[str, tuple[int, int]] = {}
-_BANNED_USERNAMES = {"admin", "root", "riceguard"}
-_BANNED_PASSWORDS = {"password", "changeme", "changeit", "ChangeThisPassword123!"}
-_BANNED_JWT_SECRETS = {
-    "ReplaceWithYourOwnLongJwtSecretAtLeast32Chars",
-    "secret",
-    "changeme",
-    "changeit",
-}
-
-
-class LoginRequest(BaseModel):
-    username: str
-    password: str
-
-
-class RefreshRequest(BaseModel):
-    refreshToken: str
-
-
-class AuthTokensResponse(BaseModel):
-    tokenType: str
-    accessToken: str
-    expiresInSeconds: int
-    refreshToken: str
-    refreshExpiresInSeconds: int
-
-
-def _unix_now() -> int:
-    return int(time.time())
-
-
-def _create_access_token(username: str, now: int) -> str:
-    payload = {
-        "iss": JWT_ISSUER,
-        "sub": username,
-        "type": "access",
-        "iat": now,
-        "exp": now + ACCESS_TOKEN_TTL_SECONDS,
+        "prevention": "ដាំពូជដែលទ្រាំនឹងជំងឺ។ រក្សាជីជាតិសមតុល្យជាមួយប៉ូតាស្យូមគ្រប់គ្រាន់។ កម្ចាត់ស្មៅដែលជាជម្រកផ្សិត។ ភ្ជួររាស់កាកដំណាំបន្ទាប់ប្រមូលផល។"
+      }
     }
-    return jwt.encode(payload, JWT_SECRET, algorithm="HS256")
-
-
-def _create_refresh_token(username: str, refresh_id: str, now: int) -> str:
-    payload = {
-        "iss": JWT_ISSUER,
-        "sub": username,
-        "jti": refresh_id,
-        "type": "refresh",
-        "iat": now,
-        "exp": now + REFRESH_TOKEN_TTL_SECONDS,
-    }
-    return jwt.encode(payload, JWT_SECRET, algorithm="HS256")
-
-
-def _issue_tokens(username: str, now: int) -> AuthTokensResponse:
-    refresh_id = secrets.token_urlsafe(32)
-    _refresh_store[refresh_id] = (username, now + REFRESH_TOKEN_TTL_SECONDS)
-    return AuthTokensResponse(
-        tokenType="Bearer",
-        accessToken=_create_access_token(username, now),
-        expiresInSeconds=ACCESS_TOKEN_TTL_SECONDS,
-        refreshToken=_create_refresh_token(username, refresh_id, now),
-        refreshExpiresInSeconds=REFRESH_TOKEN_TTL_SECONDS,
-    )
-
-
-def _consume_refresh_token(refresh_id: str, username: str, now: int) -> bool:
-    stored = _refresh_store.pop(refresh_id, None)
-    if stored is None:
-        return False
-    stored_username, expires_at = stored
-    return stored_username == username and expires_at > now
-
-
-def _parse_refresh_token(token: str) -> tuple[str, str]:
-    try:
-        payload = jwt.decode(
-            token,
-            JWT_SECRET,
-            algorithms=["HS256"],
-            issuer=JWT_ISSUER,
-            options={"require": ["iss", "sub", "exp", "type", "jti"]},
-        )
-    except jwt.PyJWTError as exc:
-        raise HTTPException(status_code=401, detail="Invalid refresh token.") from exc
-
-    if payload.get("type") != "refresh":
-        raise HTTPException(status_code=401, detail="Invalid refresh token.")
-
-    username = payload.get("sub")
-    refresh_id = payload.get("jti")
-    if not isinstance(username, str) or not isinstance(refresh_id, str):
-        raise HTTPException(status_code=401, detail="Invalid refresh token.")
-    return username, refresh_id
-
-
-def _client_ip(request: Request) -> str:
-    if TRUST_X_FORWARDED_FOR:
-        forwarded = request.headers.get("x-forwarded-for")
-        if forwarded:
-            return forwarded.split(",")[0].strip()
-    client = request.client
-    return client.host if client else "unknown"
-
-
-def _cleanup_rate_limit(now: int) -> None:
-    stale_before = now - RATE_LIMIT_WINDOW_SECONDS
-    stale_keys = [
-        key for key, (window_start, _) in _rate_limit_store.items() if window_start < stale_before
-    ]
-    for key in stale_keys:
-        _rate_limit_store.pop(key, None)
-
-
-@app.middleware("http")
-async def rate_limit_middleware(request: Request, call_next):
-    if request.method.upper() == "POST" and request.url.path in {
-        "/predict",
-        "/auth/login",
-        "/auth/refresh",
-        "/api/v1/predict",
-        "/api/v1/auth/login",
-        "/api/v1/auth/refresh",
-    }:
-        now = _unix_now()
-        key = f"{_client_ip(request)}:{request.url.path}"
-        window_start, count = _rate_limit_store.get(key, (now, 0))
-        if now - window_start >= RATE_LIMIT_WINDOW_SECONDS:
-            window_start, count = now, 0
-
-        if count >= RATE_LIMIT_MAX_REQUESTS:
-            retry_after = max(1, RATE_LIMIT_WINDOW_SECONDS - (now - window_start))
-            return JSONResponse(
-                status_code=429,
-                content={"detail": "Rate limit exceeded. Please retry later."},
-                headers={"Retry-After": str(retry_after)},
-            )
-
-        _rate_limit_store[key] = (window_start, count + 1)
-        if len(_rate_limit_store) > 5000:
-            _cleanup_rate_limit(now)
-
-    return await call_next(request)
-
-
-@app.get("/health")
-@app.get("/api/v1/health")
-def health_check() -> dict[str, str]:
-    return {"status": "ok"}
-
-
-@app.post("/auth/login", response_model=AuthTokensResponse)
-@app.post("/api/v1/auth/login", response_model=AuthTokensResponse)
-def login(request: LoginRequest) -> AuthTokensResponse:
-    if request.username != API_USERNAME or request.password != API_PASSWORD:
-        raise HTTPException(status_code=401, detail="Invalid credentials.")
-    return _issue_tokens(request.username, _unix_now())
-
-
-@app.post("/auth/refresh", response_model=AuthTokensResponse)
-@app.post("/api/v1/auth/refresh", response_model=AuthTokensResponse)
-def refresh(request: RefreshRequest) -> AuthTokensResponse:
-    username, refresh_id = _parse_refresh_token(request.refreshToken)
-    now = _unix_now()
-    if not _consume_refresh_token(refresh_id, username, now):
-        raise HTTPException(status_code=401, detail="Refresh token expired or revoked.")
-    return _issue_tokens(username, now)
-
-
-@app.post("/predict")
-@app.post("/api/v1/predict")
-async def predict(
-    file: UploadFile = File(...),
-    lang: str | None = None,
-    accept_language: str | None = Header(default=None, alias="Accept-Language"),
-) -> dict:
-    if not file.content_type or not file.content_type.startswith("image/"):
-        raise HTTPException(status_code=400, detail="Please upload an image file.")
-
-    content = await file.read()
-    if not content:
-        raise HTTPException(status_code=400, detail="Empty file uploaded.")
-    if len(content) > MAX_UPLOAD_BYTES:
-        raise HTTPException(status_code=413, detail="Image is too large. Please upload up to 6 MB.")
-
-    try:
-        image = Image.open(BytesIO(content))
-    except UnidentifiedImageError as exc:
-        raise HTTPException(status_code=400, detail="Invalid image format.") from exc
-
-    try:
-        result = predict_image(image)
-    except FileNotFoundError as exc:
-        raise HTTPException(status_code=500, detail=str(exc)) from exc
-
-    language = _resolve_language(lang, accept_language)
-    predicted_class = str(result.get("predicted_class", ""))
-    result["disease_info"] = _localized_disease_info(predicted_class, language)
-    result["language"] = language
-    return result
+  }
+}
