@@ -71,13 +71,13 @@ export function usePrediction() {
           },
         })
         const key = data.predicted_class
-        const language = data.language || preferredLanguage
+        const responseLanguage = data.language || preferredLanguage
         const apiInfo = data.disease_info ?? {}
         const severity = apiInfo.severity || 'unknown'
-        const fallback = fallbackInfo(key, language)
+        const fallback = fallbackInfo(key, responseLanguage)
         result.value = {
           ...data,
-          language,
+          language: responseLanguage,
           info: {
             label: apiInfo.label || fallback.label,
             icon: apiInfo.icon || 'unknown',

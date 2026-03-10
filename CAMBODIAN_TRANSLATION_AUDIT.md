@@ -3,7 +3,7 @@
 ## Translation Accuracy Report
 
 **Date:** March 5, 2026 (initial) · Updated March 6, 2026
-**Status:** ✅ **ALL CRITICAL FIXES APPLIED**
+**Status:** **ALL CRITICAL FIXES APPLIED**
 
 ### Summary
 
@@ -12,24 +12,24 @@ and web app uncovered **three critical bugs** and confirmed that the remaining
 disease labels are descriptive, unambiguous, and consistent with Cambodian
 agricultural extension terminology.
 
-| # | Issue | Severity | Resolution |
-|---|-------|----------|------------|
-| 1 | **Leaf Blast** label was a transliteration (`ជំងឺប្លាស`, "phlas") instead of the farmer term `ជំងឺក្រុង` ("krong") | High | Fixed in both Java & Dart |
-| 2 | **English "org" corruption** in Java `narrow_brown_spot` treatment — the Khmer word ថ្ងៃ ("thngai" = day) had its ង (U+1784) replaced by ASCII letters "org" | High | Fixed in Java |
-| 3 | **Informal "day" spelling** in Dart — ថ ង (two separate consonants) instead of the correct conjunct ថ្ងៃ (thngai) | Medium | Fixed in Dart |
+| #   | Issue                                                                                                                                                        | Severity | Resolution                |
+| --- | ------------------------------------------------------------------------------------------------------------------------------------------------------------ | -------- | ------------------------- |
+| 1   | **Leaf Blast** label was a transliteration (`ជំងឺប្លាស`, "phlas") instead of the farmer term `ជំងឺក្រុង` ("krong")                                           | High     | Fixed in both Java & Dart |
+| 2   | **English "org" corruption** in Java `narrow_brown_spot` treatment — the Khmer word ថ្ងៃ ("thngai" = day) had its ង (U+1784) replaced by ASCII letters "org" | High     | Fixed in Java             |
+| 3   | **Informal "day" spelling** in Dart — ថ ង (two separate consonants) instead of the correct conjunct ថ្ងៃ (thngai)                                            | Medium   | Fixed in Dart             |
 
 ---
 
 ## Disease Names — Current Cambodian Labels (All Files Consistent)
 
-| Disease | English | Cambodian Label | Meaning | Status |
-|---------|---------|-----------------|---------|--------|
-| Healthy | — | សុខភាពល្អ | "good health" | ✅ |
-| Bacterial Leaf Blight | *Xanthomonas oryzae* | ជំងឺរលាកស្លឹកដោយបាក់តេរី | "bacterial leaf blight" | ✅ |
-| Leaf Blast | *Magnaporthe oryzae* | **ជំងឺក្រុង** | "krong" — the universal farmer term for rice blast | ✅ Fixed |
-| Brown Spot | *Bipolaris oryzae* | ជំងឺអុចត្នោត | "brown dot disease" — specific & unambiguous | ✅ |
-| Leaf Scald | *Monographella albescens* | ជំងឺដំបៅស្លឹក | "leaf lesion disease" — descriptive of visible sores | ✅ |
-| Narrow Brown Spot | *Sphaerulina oryzina* | ជំងឺចំណុចត្នោតចង្អៀត | "narrow brown spot disease" — direct & precise | ✅ |
+| Disease               | English                   | Cambodian Label          | Meaning                                              | Status |
+| --------------------- | ------------------------- | ------------------------ | ---------------------------------------------------- | ------ |
+| Healthy               | —                         | សុខភាពល្អ                | "good health"                                        |        |
+| Bacterial Leaf Blight | _Xanthomonas oryzae_      | ជំងឺរលាកស្លឹកដោយបាក់តេរី | "bacterial leaf blight"                              |        |
+| Leaf Blast            | _Magnaporthe oryzae_      | **ជំងឺក្រុង**            | "krong" — the universal farmer term for rice blast   | Fixed  |
+| Brown Spot            | _Bipolaris oryzae_        | ជំងឺអុចត្នោត             | "brown dot disease" — specific & unambiguous         |        |
+| Leaf Scald            | _Monographella albescens_ | ជំងឺដំបៅស្លឹក            | "leaf lesion disease" — descriptive of visible sores |        |
+| Narrow Brown Spot     | _Sphaerulina oryzina_     | ជំងឺឆ្នូតត្នោត            | preferred farmer-facing term                           | Updated |
 
 ### Label Rationale
 
@@ -45,8 +45,8 @@ agricultural extension terminology.
   descriptive and widely understood. The previously suggested `ជំងឺលាក់ស្លឹក`
   (leak sleuk = "hide leaf") was a mistranslation.
 
-- **Narrow Brown Spot → ជំងឺចំណុចត្នោតចង្អៀត (chamnoch tnao changaet):** A complete, precise
-  translation; no change needed.
+- **Narrow Brown Spot → ជំងឺឆ្នូតត្នោត:** Updated to the preferred farmer-facing
+  term requested during review and applied consistently across the project.
 
 ---
 
@@ -54,65 +54,66 @@ agricultural extension terminology.
 
 ### 1. Spring API — `DiseaseInfoCatalog.java`
 
-**Status:** ✅ **FIXED & VERIFIED**
+**Status:** **FIXED & VERIFIED**
 
-| Disease | Label | Notes |
-|---------|-------|-------|
-| Healthy | សុខភាពល្អ | — |
-| Bacterial Leaf Blight | ជំងឺរលាកស្លឹកដោយបាក់តេរី | — |
-| Leaf Blast | **ជំងឺក្រុង** | Changed from ជំងឺប្លាស (phlas) |
-| Brown Spot | ជំងឺអុចត្នោត | — |
-| Leaf Scald | ជំងឺដំបៅស្លឹក | — |
-| Narrow Brown Spot | ជំងឺចំណុចត្នោតចង្អៀត | Treatment text fixed (ASCII "org" → ង) |
+| Disease               | Label                    | Notes                                  |
+| --------------------- | ------------------------ | -------------------------------------- |
+| Healthy               | សុខភាពល្អ                | —                                      |
+| Bacterial Leaf Blight | ជំងឺរលាកស្លឹកដោយបាក់តេរី | —                                      |
+| Leaf Blast            | **ជំងឺក្រុង**            | Changed from ជំងឺប្លាស (phlas)         |
+| Brown Spot            | ជំងឺអុចត្នោត             | —                                      |
+| Leaf Scald            | ជំងឺដំបៅស្លឹក            | —                                      |
+| Narrow Brown Spot     | ជំងឺឆ្នូតត្នោត            | Treatment text fixed (ASCII "org" → ង) |
 
 ### 2. Flutter Mobile — `disease_info_catalog.dart`
 
-**Status:** ✅ **FIXED & VERIFIED**
+**Status:** **FIXED & VERIFIED**
 
 Labels mirror the Spring API exactly. Additional fix:
+
 - `narrow_brown_spot` treatment: informal ថ ង → correct ថ្ងៃ (thngai = day)
 
 ### 3. Web App
 
-**Status:** ✅ **NO CHANGES NEEDED** — all disease text comes from the API dynamically.
+**Status:** **NO CHANGES NEEDED** — all disease text comes from the API dynamically.
 
 ### 4. Flutter UI Translations — `app_translations.dart`
 
-**Status:** ✅ **GOOD** — general UI strings (settings, upload flow, severity
+**Status:** **GOOD** — general UI strings (settings, upload flow, severity
 labels, error messages) are grammatically correct and farmer-friendly.
 
 ---
 
 ## Cambodian Agricultural Terminology Reference
 
-| Khmer | Romanization | English |
-|-------|-------------|---------|
-| ជំងឺ | chomngeu | disease |
-| ស្លឹក | sleuk | leaf |
-| ដំបៅ | dambav | lesion / sore |
-| ចំណុច | chamnoch | spot / point |
-| ត្នោត | tnao | brown (colour) |
-| ចង្អៀត | changaet | narrow |
-| ក្រុង | krong | blast (rice) |
-| ផ្សិត | phsat | fungus |
-| បាក់តេរី | bakterei | bacteria |
-| រលាក | raleak | blight / inflammation |
-| លើង | lueng | yellow |
-| សីតុណ្ហភាព | sittunahpheap | temperature |
-| ភាពសើម | pheap saem | humidity |
+| Khmer      | Romanization  | English               |
+| ---------- | ------------- | --------------------- |
+| ជំងឺ       | chomngeu      | disease               |
+| ស្លឹក      | sleuk         | leaf                  |
+| ដំបៅ       | dambav        | lesion / sore         |
+| ចំណុច      | chamnoch      | spot / point          |
+| ត្នោត      | tnao          | brown (colour)        |
+| ឆ្កួត       | chkout        | farmer-facing name used for narrow brown spot |
+| ក្រុង      | krong         | blast (rice)          |
+| ផ្សិត      | phsat         | fungus                |
+| បាក់តេរី   | bakterei      | bacteria              |
+| រលាក       | raleak        | blight / inflammation |
+| លើង        | lueng         | yellow                |
+| សីតុណ្ហភាព | sittunahpheap | temperature           |
+| ភាពសើម     | pheap saem    | humidity              |
 
 ---
 
 ## Quality Checklist
 
-| Aspect | Status | Notes |
-|--------|--------|-------|
-| Correct Khmer Unicode | ✅ | No ASCII corruption remaining |
-| Consistent across files | ✅ | Java & Dart labels match |
-| Agriculturally accurate | ✅ | Farmer terms verified (ក្រុង for blast, etc.) |
-| Farmer-comprehensible | ✅ | Descriptive labels avoid transliterations |
-| Mobile-friendly | ✅ | Conversational without overly technical phrasing |
-| API documentation-ready | ✅ | Full descriptions, symptoms, cause, treatment, prevention |
+| Aspect                  | Status | Notes                                                     |
+| ----------------------- | ------ | --------------------------------------------------------- |
+| Correct Khmer Unicode   |        | No ASCII corruption remaining                             |
+| Consistent across files |        | Java & Dart labels match                                  |
+| Agriculturally accurate |        | Farmer terms verified (ក្រុង for blast, etc.)             |
+| Farmer-comprehensible   |        | Descriptive labels avoid transliterations                 |
+| Mobile-friendly         |        | Conversational without overly technical phrasing          |
+| API documentation-ready |        | Full descriptions, symptoms, cause, treatment, prevention |
 
 ---
 
