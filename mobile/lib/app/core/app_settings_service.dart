@@ -28,6 +28,7 @@ class AppSettingsService extends GetxService {
     final rawMode = _prefs.getString(_themeModeKey);
     themeMode.value = switch (rawMode) {
       'light' => ThemeMode.light,
+      'dark' => ThemeMode.dark,
       'system' => ThemeMode.system,
       _ => ThemeMode.light,
     };
@@ -91,3 +92,4 @@ class AppSettingsService extends GetxService {
     Get.updateLocale(value == 'km' ? const Locale('km', 'KH') : const Locale('en', 'US'));
   }
 }
+

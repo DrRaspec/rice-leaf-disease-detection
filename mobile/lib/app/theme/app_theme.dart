@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import '../core/app_settings_service.dart';
 
 class AppTheme {
   static const _dark = _Palette(
@@ -28,7 +29,17 @@ class AppTheme {
   static const Color danger = Color(0xFFEF4444);
   static const Color earth = Color(0xFFD97706);
 
-  static _Palette get _current => Get.isDarkMode ? _dark : _light;
+  static _Palette get _current {
+    if (Get.isRegistered<AppSettingsService>()) {
+      final mode = Get.find<AppSettingsService>().themeMode.value;
+      final systemBrightness =
+          WidgetsBinding.instance.platformDispatcher.platformBrightness;
+      final isDark = mode == ThemeMode.dark ||
+          (mode == ThemeMode.system && systemBrightness == Brightness.dark);
+      return isDark ? _dark : _light;
+    }
+    return Get.isDarkMode ? _dark : _light;
+  }
   static Color get primary => _current.primary;
   static Color get primary700 => _current.primary700;
   static Color get surface => _current.surface;

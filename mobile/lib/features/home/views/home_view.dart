@@ -5,6 +5,7 @@ import '../../../app/core/core_i18n.dart';
 import '../../../app/core/core_services.dart';
 import '../../../app/theme/app_theme.dart';
 import '../../../app/theme/disease_icon_theme.dart';
+import '../../result/controllers/disease_info_catalog.dart';
 import '../controllers/home_controller.dart';
 
 class HomeView extends GetView<HomeController> {
@@ -32,11 +33,11 @@ class HomeView extends GetView<HomeController> {
         SliverPadding(
           padding: const EdgeInsets.fromLTRB(20, 0, 20, 40),
           sliver: SliverList(
-            delegate: SliverChildListDelegate([
+            delegate: SliverChildListDelegate(const [
               _HeroCard(),
-              const SizedBox(height: 20),
+              SizedBox(height: 20),
               _UploadCard(),
-              const SizedBox(height: 20),
+              SizedBox(height: 20),
               _DiseasesSection(),
             ]),
           ),
@@ -60,17 +61,17 @@ class HomeView extends GetView<HomeController> {
                   Expanded(
                     flex: 11,
                     child: ListView(
-                      children: [
+                      children: const [
                         _HeroCard(),
-                        const SizedBox(height: 20),
+                        SizedBox(height: 20),
                         _UploadCard(),
                       ],
                     ),
                   ),
                   const SizedBox(width: 20),
-                  Expanded(
+                  const Expanded(
                     flex: 9,
-                    child: const SingleChildScrollView(
+                    child: SingleChildScrollView(
                       child: _DiseasesSection(),
                     ),
                   ),
@@ -317,21 +318,37 @@ class _ChoiceChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final selectedFill = AppTheme.primary.withValues(alpha: 0.22);
+    final selectedPressedFill = AppTheme.primary.withValues(alpha: 0.32);
+    final unselectedFill = AppTheme.background;
+    final unselectedPressedFill = AppTheme.primary.withValues(alpha: 0.12);
+
     return ChoiceChip(
       label: Text(label),
       selected: selected,
       onSelected: (_) => onTap(),
-      side: BorderSide(
-        color: selected
-            ? AppTheme.primary
-            : AppTheme.cardBorder.withValues(alpha: 0.8),
-      ),
+      color: WidgetStateProperty.resolveWith((states) {
+        final isSelected = states.contains(WidgetState.selected);
+        final isPressed = states.contains(WidgetState.pressed);
+        if (isSelected && isPressed) return selectedPressedFill;
+        if (isSelected) return selectedFill;
+        if (isPressed) return unselectedPressedFill;
+        return unselectedFill;
+      }),
+      side: WidgetStateBorderSide.resolveWith((states) {
+        if (states.contains(WidgetState.selected)) {
+          return BorderSide(color: AppTheme.primary);
+        }
+        if (states.contains(WidgetState.pressed)) {
+          return BorderSide(color: AppTheme.primary.withValues(alpha: 0.55));
+        }
+        return BorderSide(color: AppTheme.cardBorder.withValues(alpha: 0.8));
+      }),
       labelStyle: TextStyle(
         color: selected ? AppTheme.primary : AppTheme.textPrimary,
         fontWeight: FontWeight.w600,
       ),
-      backgroundColor: AppTheme.background,
-      selectedColor: AppTheme.primary.withValues(alpha: 0.18),
+      pressElevation: 0,
       showCheckmark: false,
     );
   }
@@ -339,6 +356,8 @@ class _ChoiceChip extends StatelessWidget {
 
 // ── Hero Card ─────────────────────────────────────────────────────────────────
 class _HeroCard extends StatelessWidget {
+  const _HeroCard();
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -415,6 +434,8 @@ class _HeroCard extends StatelessWidget {
 
 // ── Upload Card ───────────────────────────────────────────────────────────────
 class _UploadCard extends GetView<HomeController> {
+  const _UploadCard();
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -630,32 +651,20 @@ class _UploadCard extends GetView<HomeController> {
 class _DiseasesSection extends StatelessWidget {
   const _DiseasesSection();
 
-  static const _diseases = [
-    ('healthy', 'Healthy', 'none', 'No disease detected.'),
-    (
-      'bacterial_leaf_blight',
-      'Bacterial Leaf Blight',
-      'high',
-      'Yellowing and drying of leaf margins.',
-    ),
-    ('leaf_blast', 'Leaf Blast', 'high', 'Diamond-shaped gray lesions.'),
-    (
-      'brown_spot',
-      'Brown Spot',
-      'medium',
-      'Oval brown spots with yellow halos.'
-    ),
-    ('leaf_scald', 'Leaf Scald', 'medium', 'Scalded brown lesions from tip.'),
-    (
-      'narrow_brown_spot',
-      'Narrow Brown Spot',
-      'low',
-      'Narrow linear spots on blade.'
-    ),
+  static const _diseaseKeys = [
+    'healthy',
+    'bacterial_leaf_blight',
+    'leaf_blast',
+    'brown_spot',
+    'leaf_scald',
+    'narrow_brown_spot',
   ];
 
   @override
   Widget build(BuildContext context) {
+    final diseases =
+        _diseaseKeys.map(DiseaseInfoCatalog.byClass).toList(growable: false);
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -668,9 +677,13 @@ class _DiseasesSection extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 14),
-        ...(_diseases.map(
-          (d) =>
-              _DiseaseRow(icon: d.$1, label: d.$2, severity: d.$3, desc: d.$4),
+        ...(diseases.map(
+          (d) => _DiseaseRow(
+            icon: d.icon,
+            label: d.label,
+            severity: d.severity,
+            desc: d.description,
+          ),
         )),
       ],
     );
@@ -737,6 +750,8 @@ class _DiseaseRow extends StatelessWidget {
                 const SizedBox(height: 2),
                 Text(
                   desc,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
                   style: TextStyle(
                     color: AppTheme.textSecondary,
                     fontSize: 13,
@@ -767,4 +782,3 @@ class _DiseaseRow extends StatelessWidget {
     );
   }
 }
-

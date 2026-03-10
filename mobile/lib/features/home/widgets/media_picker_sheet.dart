@@ -46,11 +46,11 @@ class _PickerContent extends GetView<HomeController> {
     return Container(
       decoration: BoxDecoration(
         color: AppTheme.card,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
       ),
       child: Column(
         children: [
-          _Header(),
+          const _Header(),
           Expanded(child: _PhotoGrid(scrollController: scrollController)),
         ],
       ),
@@ -60,6 +60,8 @@ class _PickerContent extends GetView<HomeController> {
 
 // ── Header ─────────────────────────────────────────────────────────────────
 class _Header extends GetView<HomeController> {
+  const _Header();
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -146,14 +148,14 @@ class _Header extends GetView<HomeController> {
                               children: [
                                 Text(
                                   AppText.t(TrKey.send),
-                                  style: TextStyle(
+                                  style: const TextStyle(
                                     color: Colors.black,
                                     fontWeight: FontWeight.w700,
                                     fontSize: 14,
                                   ),
                                 ),
                                 const SizedBox(width: 4),
-                                Icon(
+                                const Icon(
                                   Icons.send_rounded,
                                   color: Colors.black,
                                   size: 14,
@@ -181,7 +183,7 @@ class _Header extends GetView<HomeController> {
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
-      builder: (_) => _AlbumListSheet(),
+      builder: (_) => const _AlbumListSheet(),
     );
   }
 }
@@ -216,7 +218,7 @@ class _PhotoGrid extends GetView<HomeController> {
         ),
         itemCount: totalCount,
         itemBuilder: (ctx, idx) {
-          if (idx == 0) return _CameraTile();
+          if (idx == 0) return const _CameraTile();
           final asset = controller.assets[idx - 1];
           return _PhotoTile(asset: asset, index: idx - 1);
         },
@@ -227,6 +229,8 @@ class _PhotoGrid extends GetView<HomeController> {
 
 // ── Camera Tile ────────────────────────────────────────────────────────────
 class _CameraTile extends GetView<HomeController> {
+  const _CameraTile();
+
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
@@ -369,6 +373,8 @@ class _PhotoTile extends GetView<HomeController> {
 
 // ── Album List Sheet ───────────────────────────────────────────────────────
 class _AlbumListSheet extends GetView<HomeController> {
+  const _AlbumListSheet();
+
   @override
   Widget build(BuildContext context) {
     return Obx(() {

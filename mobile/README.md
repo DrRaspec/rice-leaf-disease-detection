@@ -15,6 +15,7 @@ API calls target the versioned backend routes (`/api/v1/*`).
 ## Display Settings
 
 Open the tune icon on the home app bar to change:
+
 - Light / dark / system theme
 - Font size
 - Font family

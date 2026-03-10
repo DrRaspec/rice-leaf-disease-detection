@@ -93,12 +93,12 @@ class _MainResultCard extends StatelessWidget {
   const _MainResultCard({required this.result, required this.info});
 
   Color get _severityColor => switch (info.severity) {
-    'high' => AppTheme.danger,
-    'medium' => AppTheme.warning,
-    'low' => AppTheme.earth,
-    'none' => AppTheme.success,
-    _ => AppTheme.textSecondary,
-  };
+        'high' => AppTheme.danger,
+        'medium' => AppTheme.warning,
+        'low' => AppTheme.earth,
+        'none' => AppTheme.success,
+        _ => AppTheme.textSecondary,
+      };
 
   @override
   Widget build(BuildContext context) {
@@ -129,7 +129,8 @@ class _MainResultCard extends StatelessWidget {
                 decoration: BoxDecoration(
                   color: _severityColor.withValues(alpha: 0.12),
                   borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: _severityColor.withValues(alpha: 0.3)),
+                  border:
+                      Border.all(color: _severityColor.withValues(alpha: 0.3)),
                 ),
                 child: Center(
                   child: Icon(
@@ -218,14 +219,15 @@ class _MainResultCard extends StatelessWidget {
               decoration: BoxDecoration(
                 color: AppTheme.warning.withValues(alpha: 0.12),
                 borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: AppTheme.warning.withValues(alpha: 0.35)),
+                border:
+                    Border.all(color: AppTheme.warning.withValues(alpha: 0.35)),
               ),
               child: Text(
                 AppText.t(TrKey.lowConfidence).replaceFirst(
                   '{classes}',
                   _possibleClassesLabel(result),
                 ),
-                style: TextStyle(
+                style: const TextStyle(
                   color: AppTheme.warning,
                   fontSize: 12,
                   fontWeight: FontWeight.w600,
@@ -239,7 +241,9 @@ class _MainResultCard extends StatelessWidget {
   }
 
   String _possibleClassesLabel(PredictionResult prediction) {
-    if (prediction.possibleClasses.isEmpty) return AppText.t(TrKey.unknownClass);
+    if (prediction.possibleClasses.isEmpty) {
+      return AppText.t(TrKey.unknownClass);
+    }
     return prediction.possibleClasses
         .take(2)
         .map((item) => item.replaceAll('_', ' '))
@@ -354,7 +358,8 @@ class _TopPredictionsCard extends StatelessWidget {
                         builder: (_, v, __) => LinearProgressIndicator(
                           value: v,
                           minHeight: 6,
-                          backgroundColor: AppTheme.cardBorder.withValues(alpha: 0.5),
+                          backgroundColor:
+                              AppTheme.cardBorder.withValues(alpha: 0.5),
                           valueColor: AlwaysStoppedAnimation(
                             AppTheme.primary,
                           ),
@@ -384,6 +389,7 @@ class _TopPredictionsCard extends StatelessWidget {
 // ── Analyse Another Button ────────────────────────────────────────────────────
 class _AnalyseAnotherButton extends StatelessWidget {
   final VoidCallback onTap;
+
   const _AnalyseAnotherButton({required this.onTap});
 
   @override
@@ -431,4 +437,3 @@ class _SeverityBadge extends StatelessWidget {
     );
   }
 }
-
