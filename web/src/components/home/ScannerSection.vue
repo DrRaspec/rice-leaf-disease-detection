@@ -20,17 +20,18 @@
             @remove="removeSelection"
           />
 
-          <p v-if="optimizing" class="mt-4 text-sm text-[#2D4535]">{{ t('scanner.optimizing') }}</p>
-          <p v-else-if="loading" class="mt-4 text-sm text-[#2D4535]">
+          <p v-if="optimizing" class="mt-4 text-sm" style="color: var(--rg-text-secondary)">{{ t('scanner.optimizing') }}</p>
+          <p v-else-if="loading" class="mt-4 text-sm" style="color: var(--rg-text-secondary)">
             {{ uploadProgress > 0 && uploadProgress < 100 ? t('scanner.upload', { progress: uploadProgress }) : t('scanner.analyzing') }}
           </p>
-          <p v-if="selectedFile && optimizedInfo" class="mt-2 text-xs text-[#4D6653]">
+          <p v-if="selectedFile && optimizedInfo" class="mt-2 text-xs" style="color: var(--rg-text-tertiary)">
             {{ optimizedInfo }}
           </p>
 
           <div
             v-if="error"
-            class="mt-4 rounded-2xl border border-[#F5C2C2] bg-[#FFF2F2] p-4 text-sm text-[#8A1F1F]"
+            class="mt-4 rounded-2xl border p-4 text-sm"
+            style="border-color: var(--rg-error-border); background: var(--rg-error-bg); color: var(--rg-error-text)"
             role="status"
             aria-live="polite"
           >

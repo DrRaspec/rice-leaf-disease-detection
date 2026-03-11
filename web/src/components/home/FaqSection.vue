@@ -1,5 +1,5 @@
 <template>
-  <section id="faq" class="section-pad bg-[#F5FBEF]">
+  <section id="faq" class="section-pad" style="background: var(--rg-bg)">
     <div class="site-shell max-w-4xl">
       <div class="text-center">
         <p class="eyebrow">{{ t('faq.eyebrow') }}</p>

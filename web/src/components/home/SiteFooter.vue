@@ -1,5 +1,5 @@
 <template>
-  <footer class="border-t border-[#E6EFE3] bg-white/80">
+  <footer class="border-t" style="border-color: var(--rg-border); background: color-mix(in srgb, var(--rg-surface) 80%, var(--rg-bg))">
     <div class="site-shell px-6 py-12 sm:px-10 sm:py-14">
       <div class="grid gap-8 md:grid-cols-3">
         <div>
@@ -10,16 +10,16 @@
                 <path d="M7.5 17.3c1.5-2.5 3.6-4.4 6.8-6" stroke-linecap="round" />
               </svg>
             </span>
-            <span class="text-lg font-bold text-[#102016]">RiceGuard AI</span>
+            <span class="text-lg font-bold" style="color: var(--rg-text)">RiceGuard AI</span>
           </div>
-          <p class="mt-3 max-w-sm text-sm leading-relaxed text-[#38503F]">
+          <p class="mt-3 max-w-sm text-sm leading-relaxed" style="color: var(--rg-text-secondary)">
             {{ t('footer.desc') }}
           </p>
         </div>
 
         <div>
-          <h3 class="text-sm font-semibold uppercase tracking-wider text-[#2E7D32]">{{ t('footer.links') }}</h3>
-          <nav class="mt-4 flex flex-col gap-2 text-sm text-[#2D4535]">
+          <h3 class="text-sm font-semibold uppercase tracking-wider" style="color: var(--rg-primary)">{{ t('footer.links') }}</h3>
+          <nav class="mt-4 flex flex-col gap-2 text-sm" style="color: var(--rg-text-secondary)">
             <router-link :to="{ path: '/', hash: '#home' }" class="footer-link">{{ t('footer.home') }}</router-link>
             <router-link :to="{ path: '/', hash: '#demo' }" class="footer-link">{{ t('footer.scanner') }}</router-link>
             <router-link :to="{ path: '/', hash: '#diseases' }" class="footer-link">{{ t('footer.diseases') }}</router-link>
@@ -28,12 +28,12 @@
         </div>
 
         <div>
-          <h3 class="text-sm font-semibold uppercase tracking-wider text-[#2E7D32]">{{ t('footer.builtWith') }}</h3>
-          <p class="mt-4 text-sm leading-relaxed text-[#2D4535]">Vue 3, Tailwind CSS, Spring Boot, Python, TensorFlow</p>
+          <h3 class="text-sm font-semibold uppercase tracking-wider" style="color: var(--rg-primary)">{{ t('footer.builtWith') }}</h3>
+          <p class="mt-4 text-sm leading-relaxed" style="color: var(--rg-text-secondary)">Vue 3, Tailwind CSS, Spring Boot, Python, TensorFlow</p>
         </div>
       </div>
 
-      <p class="mt-10 text-xs text-[#557062]">© {{ year }} RiceGuard AI. {{ t('footer.rights') }}</p>
+      <p class="mt-10 text-xs" style="color: var(--rg-text-faint)">© {{ year }} RiceGuard AI. {{ t('footer.rights') }}</p>
     </div>
   </footer>
 </template>

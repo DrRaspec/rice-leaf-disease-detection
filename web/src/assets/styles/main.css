@@ -9,19 +9,43 @@
   --rg-accent: #81C784;
   --rg-bg: #F5FBEF;
   --rg-text: #102016;
+  --rg-text-secondary: #38503F;
+  --rg-text-tertiary: #4D6653;
+  --rg-text-faint: #557062;
   --rg-border: #E6EFE3;
   --rg-surface: #FFFFFF;
+  --rg-surface-alt: #F8FCF3;
+  --rg-surface-tint: #E9F5E6;
+  --rg-surface-soft: #EEF6EA;
   --rg-shadow: 0 10px 28px rgba(16, 32, 22, 0.08);
+  --rg-error-bg: #FFF2F2;
+  --rg-error-border: #F5C2C2;
+  --rg-error-text: #8A1F1F;
+  --rg-warning-bg: #FFF8E6;
+  --rg-warning-border: #F4D48B;
+  --rg-warning-text: #7A5314;
 }
 
 :root[data-theme='dark'] {
-  --rg-primary: #6FCF79;
-  --rg-accent: #9AE6A4;
-  --rg-bg: #0E1A12;
-  --rg-text: #EAF4EC;
-  --rg-border: #274134;
-  --rg-surface: #13231A;
-  --rg-shadow: 0 12px 30px rgba(0, 0, 0, 0.32);
+  --rg-primary: #4ADE80;
+  --rg-accent: #86EFAC;
+  --rg-bg: #0A120E;
+  --rg-text: #E8F5E9;
+  --rg-text-secondary: #9DB3A6;
+  --rg-text-tertiary: #7A9988;
+  --rg-text-faint: #5C7A6B;
+  --rg-border: #1C3128;
+  --rg-surface: #111D16;
+  --rg-surface-alt: #0D1812;
+  --rg-surface-tint: #172520;
+  --rg-surface-soft: #1A2820;
+  --rg-shadow: 0 12px 30px rgba(0, 0, 0, 0.5);
+  --rg-error-bg: #2A1215;
+  --rg-error-border: #5C2024;
+  --rg-error-text: #FCA5A5;
+  --rg-warning-bg: #2A2212;
+  --rg-warning-border: #5C4A1E;
+  --rg-warning-text: #FCD34D;
 }
 
 @layer base {
@@ -38,7 +62,7 @@
   }
 
   ::selection {
-    background: color-mix(in srgb, var(--rg-accent) 52%, white);
+    background: color-mix(in srgb, var(--rg-accent) 52%, var(--rg-surface));
     color: var(--rg-text);
   }
 
@@ -48,7 +72,7 @@
   select,
   textarea {
     @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2;
-    --tw-ring-color: color-mix(in srgb, var(--rg-primary) 60%, white);
+    --tw-ring-color: color-mix(in srgb, var(--rg-primary) 60%, var(--rg-surface));
     --tw-ring-offset-color: var(--rg-bg);
   }
 }
@@ -64,9 +88,9 @@
 
   .eyebrow {
     @apply inline-flex rounded-full border px-4 py-1 text-xs font-semibold uppercase tracking-[0.14em];
-    border-color: color-mix(in srgb, var(--rg-primary) 20%, white);
+    border-color: color-mix(in srgb, var(--rg-primary) 20%, var(--rg-surface));
     color: var(--rg-primary);
-    background: color-mix(in srgb, var(--rg-accent) 18%, white);
+    background: color-mix(in srgb, var(--rg-accent) 18%, var(--rg-surface));
   }
 
   .section-title {
@@ -106,34 +130,34 @@
 
   .btn-secondary {
     color: var(--rg-primary);
-    background: color-mix(in srgb, var(--rg-accent) 22%, white);
-    border: 1px solid color-mix(in srgb, var(--rg-primary) 20%, white);
+    background: color-mix(in srgb, var(--rg-accent) 22%, var(--rg-surface));
+    border: 1px solid color-mix(in srgb, var(--rg-primary) 20%, var(--rg-surface));
   }
 
   .btn-secondary:hover:not(:disabled) {
-    background: color-mix(in srgb, var(--rg-accent) 32%, white);
+    background: color-mix(in srgb, var(--rg-accent) 32%, var(--rg-surface));
   }
 
   .btn-ghost-danger {
     @apply border;
-    border-color: color-mix(in srgb, #C62828 22%, white);
-    color: #9F1D1D;
-    background: #fff;
+    border-color: color-mix(in srgb, #C62828 22%, var(--rg-surface));
+    color: var(--rg-error-text);
+    background: var(--rg-surface);
   }
 
   .btn-ghost-danger:hover:not(:disabled) {
-    background: #FFF4F4;
+    background: var(--rg-error-bg);
   }
 
   .badge-soft {
     @apply inline-flex rounded-full px-4 py-2 text-sm font-medium;
-    background: color-mix(in srgb, var(--rg-accent) 26%, white);
-    color: #1D5D29;
+    background: color-mix(in srgb, var(--rg-accent) 26%, var(--rg-surface));
+    color: var(--rg-primary);
   }
 
   .icon-pill {
     @apply inline-flex h-10 w-10 items-center justify-center rounded-full;
-    background: #E9F5E6;
+    background: var(--rg-surface-tint);
     color: var(--rg-primary);
   }
 
@@ -150,7 +174,7 @@
 
   .nav-link:hover {
     color: var(--rg-primary);
-    background: color-mix(in srgb, var(--rg-accent) 20%, white);
+    background: color-mix(in srgb, var(--rg-accent) 20%, var(--rg-surface));
   }
 
   .mobile-menu-btn {
@@ -193,12 +217,12 @@
   .upload-dropzone {
     @apply rounded-2xl border-2 border-dashed px-5 py-6 text-center transition-colors;
     min-height: 300px;
-    border-color: color-mix(in srgb, var(--rg-primary) 30%, white);
+    border-color: color-mix(in srgb, var(--rg-primary) 30%, var(--rg-surface));
     background: color-mix(in srgb, var(--rg-surface) 90%, #0E1A12);
   }
 
   .upload-dropzone:hover {
-    border-color: color-mix(in srgb, var(--rg-primary) 50%, white);
+    border-color: color-mix(in srgb, var(--rg-primary) 50%, var(--rg-surface));
   }
 
   .upload-dropzone.is-dragging {
@@ -236,7 +260,8 @@
   }
 
   .zoom-image {
-    @apply max-h-[78vh] w-full max-w-5xl rounded-2xl border bg-white object-contain;
+    @apply max-h-[78vh] w-full max-w-5xl rounded-2xl border object-contain;
+    background: var(--rg-surface);
     border-color: rgba(255, 255, 255, 0.3);
   }
 
@@ -245,7 +270,9 @@
   }
 
   .spinner-lg {
-    @apply h-8 w-8 border-[#2E7D32]/30 border-t-[#2E7D32];
+    @apply h-8 w-8;
+    border-color: color-mix(in srgb, var(--rg-primary) 30%, transparent);
+    border-top-color: var(--rg-primary);
   }
 
   .risk-chip {
@@ -254,20 +281,20 @@
 
   .chip-risk-low {
     color: #1C5D21;
-    background: color-mix(in srgb, #2E7D32 14%, white);
-    border: 1px solid color-mix(in srgb, #2E7D32 26%, white);
+    background: color-mix(in srgb, #2E7D32 14%, var(--rg-surface));
+    border: 1px solid color-mix(in srgb, #2E7D32 26%, var(--rg-surface));
   }
 
   .chip-risk-medium {
     color: #8B5A00;
-    background: color-mix(in srgb, #F9A825 20%, white);
-    border: 1px solid color-mix(in srgb, #F9A825 36%, white);
+    background: color-mix(in srgb, #F9A825 20%, var(--rg-surface));
+    border: 1px solid color-mix(in srgb, #F9A825 36%, var(--rg-surface));
   }
 
   .chip-risk-high {
     color: #8B1E1E;
-    background: color-mix(in srgb, #C62828 16%, white);
-    border: 1px solid color-mix(in srgb, #C62828 30%, white);
+    background: color-mix(in srgb, #C62828 16%, var(--rg-surface));
+    border: 1px solid color-mix(in srgb, #C62828 30%, var(--rg-surface));
   }
 
   .disease-card {
@@ -279,17 +306,19 @@
   }
 
   .faq-trigger {
-    @apply flex w-full items-center justify-between gap-3 rounded-[20px] px-5 py-4 text-left text-base font-semibold text-[#102016];
+    @apply flex w-full items-center justify-between gap-3 rounded-[20px] px-5 py-4 text-left text-base font-semibold;
+    color: var(--rg-text);
   }
 
   .faq-icon {
     @apply inline-flex h-8 w-8 items-center justify-center rounded-full text-lg;
-    background: #E9F5E6;
+    background: var(--rg-surface-tint);
     color: var(--rg-primary);
   }
 
   .faq-panel {
-    @apply px-5 pb-5 text-sm leading-relaxed text-[#38503F];
+    @apply px-5 pb-5 text-sm leading-relaxed;
+    color: var(--rg-text-secondary);
   }
 
   .footer-link {
@@ -326,19 +355,5 @@
 }
 
 :root[data-theme='dark'] .risk-chip {
-  color: #EAF4EC;
-}
-
-:root[data-theme='dark'] .faq-panel {
-  color: color-mix(in srgb, var(--rg-text) 76%, #A8BDAF);
-}
-
-:root[data-theme='dark'] header {
-  background: color-mix(in srgb, var(--rg-bg) 92%, #101B14) !important;
-  border-color: var(--rg-border) !important;
-}
-
-:root[data-theme='dark'] footer {
-  background: color-mix(in srgb, var(--rg-surface) 84%, #0E1A12) !important;
-  border-color: var(--rg-border) !important;
+  color: var(--rg-text);
 }

@@ -1,5 +1,5 @@
 <template>
-  <main class="bg-[#F5FBEF]">
+  <main style="background: var(--rg-bg)">
     <HeroSection />
     <HowItWorksSection />
     <ScannerSection />

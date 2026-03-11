@@ -1,6 +1,6 @@
 <template>
   <article class="surface-card p-6 sm:p-7">
-    <h3 class="text-xl font-semibold text-[#102016]">{{ t('upload.title') }}</h3>
+    <h3 class="text-xl font-semibold" style="color: var(--rg-text)">{{ t('upload.title') }}</h3>
 
     <div
       class="upload-dropzone mt-5"
@@ -37,14 +37,14 @@
           </div>
         </button>
 
-        <div class="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-[#38503F]">
-          <span class="font-medium text-[#102016]">{{ selectedFile?.name }}</span>
+        <div class="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2 text-sm" style="color: var(--rg-text-secondary)">
+          <span class="font-medium" style="color: var(--rg-text)">{{ selectedFile?.name }}</span>
           <span>{{ formattedSize }}</span>
         </div>
       </template>
 
       <template v-else>
-        <div class="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-[#E9F5E6] text-[#2E7D32]">
+        <div class="mx-auto flex h-16 w-16 items-center justify-center rounded-full" style="background: var(--rg-surface-tint); color: var(--rg-primary)">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" class="h-8 w-8">
             <path d="M4 14.5 8.8 9.7a2 2 0 0 1 2.8 0l4.8 4.8" stroke-linecap="round" stroke-linejoin="round" />
             <path d="m14.5 12 1.7-1.7a2 2 0 0 1 2.8 0L21 12.3" stroke-linecap="round" stroke-linejoin="round" />
@@ -52,10 +52,10 @@
           </svg>
         </div>
 
-        <p class="mt-4 text-base font-semibold text-[#102016]">{{ t('upload.drag') }}</p>
-        <p class="mt-2 text-sm text-[#4D6653]">{{ t('upload.note') }}</p>
+        <p class="mt-4 text-base font-semibold" style="color: var(--rg-text)">{{ t('upload.drag') }}</p>
+        <p class="mt-2 text-sm" style="color: var(--rg-text-tertiary)">{{ t('upload.note') }}</p>
 
-        <ul class="mt-4 space-y-1 text-sm text-[#38503F]">
+        <ul class="mt-4 space-y-1 text-sm" style="color: var(--rg-text-secondary)">
           <li>{{ t('upload.tip1') }}</li>
           <li>{{ t('upload.tip2') }}</li>
           <li>{{ t('upload.tip3') }}</li>

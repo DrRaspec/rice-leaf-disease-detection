@@ -19,11 +19,11 @@ function readTheme() {
 function applySceneTheme() {
   if (!scene) return
   if (currentTheme === 'light') {
-    scene.background = new THREE.Color(0xf5faf6)
-    scene.fog = new THREE.FogExp2(0xf0f8f2, 0.030)
+    scene.background = new THREE.Color(0xf5fbef)
+    scene.fog = new THREE.FogExp2(0xf5fbef, 0.030)
   } else {
-    scene.background = new THREE.Color(0x061a0f)
-    scene.fog = new THREE.FogExp2(0x081e12, 0.042)
+    scene.background = new THREE.Color(0x0a120e)
+    scene.fog = new THREE.FogExp2(0x0a120e, 0.042)
   }
 }
 

@@ -1,5 +1,5 @@
 <template>
-  <section id="diseases" class="section-pad bg-[#F8FCF3]">
+  <section id="diseases" class="section-pad" style="background: var(--rg-surface-alt)">
     <div class="site-shell">
       <div class="text-center">
         <p class="eyebrow">{{ t('diseases.eyebrow') }}</p>
@@ -15,8 +15,8 @@
           <div class="icon-pill mb-4" aria-hidden="true">
             <component :is="disease.icon" class="h-5 w-5" />
           </div>
-          <h3 class="text-lg font-semibold text-[#102016]">{{ disease.name }}</h3>
-          <p class="mt-2 text-sm leading-relaxed text-[#38503F]">{{ disease.description }}</p>
+          <h3 class="text-lg font-semibold" style="color: var(--rg-text)">{{ disease.name }}</h3>
+          <p class="mt-2 text-sm leading-relaxed" style="color: var(--rg-text-secondary)">{{ disease.description }}</p>
           <span class="risk-chip mt-4 inline-flex" :class="riskChipClass(disease.risk)">
             {{ disease.risk }} {{ t('diseases.risk') }}
           </span>

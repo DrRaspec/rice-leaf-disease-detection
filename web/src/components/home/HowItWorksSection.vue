@@ -1,5 +1,5 @@
 <template>
-  <section id="how-it-works" class="section-pad bg-[#F5FBEF]">
+  <section id="how-it-works" class="section-pad" style="background: var(--rg-bg)">
     <div class="site-shell">
       <div class="text-center">
         <p class="eyebrow">{{ t('how.eyebrow') }}</p>
@@ -14,8 +14,8 @@
           <div class="icon-pill mb-4" aria-hidden="true">
             <component :is="step.icon" class="h-5 w-5" />
           </div>
-          <h3 class="text-lg font-semibold text-[#102016]">{{ step.title }}</h3>
-          <p class="mt-2 text-sm leading-relaxed text-[#38503F]">{{ step.description }}</p>
+          <h3 class="text-lg font-semibold" style="color: var(--rg-text)">{{ step.title }}</h3>
+          <p class="mt-2 text-sm leading-relaxed" style="color: var(--rg-text-secondary)">{{ step.description }}</p>
         </article>
       </div>
     </div>

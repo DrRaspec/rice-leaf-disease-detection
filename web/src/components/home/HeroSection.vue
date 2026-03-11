@@ -8,7 +8,7 @@
       <p class="badge-soft mb-6">{{ t('hero.badge') }}</p>
 
       <h1 class="max-w-4xl text-balance text-4xl font-extrabold leading-tight text-white sm:text-5xl md:text-6xl">
-        {{ t('hero.titlePrefix') }} <span class="text-[#81C784]">{{ t('hero.titleAccent') }}</span> {{ t('hero.titleSuffix') }}
+        {{ t('hero.titlePrefix') }} <span style="color: var(--rg-accent)">{{ t('hero.titleAccent') }}</span> {{ t('hero.titleSuffix') }}
       </h1>
 
       <p class="mt-6 max-w-2xl text-base leading-relaxed text-white/90 sm:text-lg">

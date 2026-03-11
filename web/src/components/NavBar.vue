@@ -1,14 +1,14 @@
 <template>
-  <header class="sticky top-0 z-50 border-b border-[#E6EFE3] bg-[#F5FBEF]/95 backdrop-blur">
+  <header class="sticky top-0 z-50 border-b backdrop-blur" style="border-color: var(--rg-border); background: color-mix(in srgb, var(--rg-bg) 95%, transparent)">
     <div class="site-shell flex h-20 items-center justify-between px-6 sm:px-10">
-      <router-link to="/" class="flex items-center gap-3 rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2E7D32]">
+      <router-link to="/" class="flex items-center gap-3 rounded-full focus-visible:outline-none focus-visible:ring-2" style="--tw-ring-color: var(--rg-primary)">
         <span class="icon-pill">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" class="h-5 w-5">
             <path d="M6 14c0-4.8 2.8-8.6 8.2-9 2.8-.2 4.4.3 5.8 1.3-.8 6-4.4 10.6-10.8 10.6-1.2 0-2.2-.1-3.2-.4" stroke-linecap="round" stroke-linejoin="round" />
             <path d="M7.5 17.3c1.5-2.5 3.6-4.4 6.8-6" stroke-linecap="round" />
           </svg>
         </span>
-        <span class="text-lg font-bold tracking-tight text-[#102016]">RiceGuard AI</span>
+        <span class="text-lg font-bold tracking-tight" style="color: var(--rg-text)">RiceGuard AI</span>
       </router-link>
 
       <nav class="hidden items-center gap-2 lg:flex" aria-label="Primary">
@@ -44,7 +44,7 @@
       </div>
     </div>
 
-    <nav v-if="menuOpen" id="mobile-menu" class="border-t border-[#E6EFE3] bg-[#F5FBEF] px-6 py-4 lg:hidden" aria-label="Mobile">
+    <nav v-if="menuOpen" id="mobile-menu" class="border-t px-6 py-4 lg:hidden" style="border-color: var(--rg-border); background: var(--rg-bg)" aria-label="Mobile">
       <div class="site-shell flex flex-col gap-2">
         <router-link
           v-for="link in links"
