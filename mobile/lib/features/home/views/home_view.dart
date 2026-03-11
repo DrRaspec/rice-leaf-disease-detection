@@ -182,7 +182,8 @@ class _DisplaySettingsSheet extends StatelessWidget {
         final selectedMode = settings.themeMode.value;
         final selectedFontSize = settings.fontSize.value;
         final selectedZoom = settings.zoomScale.value;
-        final selectedFamily = settings.fontFamily.value;
+        final selectedFamily = settings.selectedFontFamily;
+        final visibleFontFamilies = settings.visibleFontFamilies;
 
         return AnimatedContainer(
           duration: const Duration(milliseconds: 180),
@@ -270,7 +271,7 @@ class _DisplaySettingsSheet extends StatelessWidget {
                   sectionTitle(AppText.t(TrKey.fontFamily)),
                   Wrap(
                     spacing: 8,
-                    children: AppSettingsService.fontFamilies.map((family) {
+                    children: visibleFontFamilies.map((family) {
                       return _ChoiceChip(
                         label: family,
                         selected: selectedFamily == family,

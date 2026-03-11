@@ -70,6 +70,8 @@ class RiceGuardApp extends StatelessWidget {
       final isDark = appThemeMode == ThemeMode.dark ||
           (appThemeMode == ThemeMode.system &&
               systemBrightness == Brightness.dark);
+      final activeFontFamily = settings.activeFontFamily;
+      final activeFontFallbacks = settings.activeFontFallbacks;
 
       SystemChrome.setSystemUIOverlayStyle(
         SystemUiOverlayStyle(
@@ -84,8 +86,14 @@ class RiceGuardApp extends StatelessWidget {
         child: GetMaterialApp(
           title: 'RiceGuard AI',
           debugShowCheckedModeBanner: false,
-          theme: AppTheme.light(fontFamily: settings.fontFamily.value),
-          darkTheme: AppTheme.dark(fontFamily: settings.fontFamily.value),
+          theme: AppTheme.light(
+            fontFamily: activeFontFamily,
+            fontFamilyFallback: activeFontFallbacks,
+          ),
+          darkTheme: AppTheme.dark(
+            fontFamily: activeFontFamily,
+            fontFamilyFallback: activeFontFallbacks,
+          ),
           themeMode: appThemeMode,
           translations: AppTranslations(),
           fallbackLocale: const Locale('en', 'US'),

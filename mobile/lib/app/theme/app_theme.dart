@@ -40,6 +40,7 @@ class AppTheme {
     }
     return Get.isDarkMode ? _dark : _light;
   }
+
   static Color get primary => _current.primary;
   static Color get primary700 => _current.primary700;
   static Color get surface => _current.surface;
@@ -50,22 +51,40 @@ class AppTheme {
   static Color get textSecondary => _current.textSecondary;
   static Color get success => primary;
 
-  static ThemeData dark({required String fontFamily}) =>
-      _buildTheme(_dark, Brightness.dark, fontFamily);
+  static ThemeData dark({
+    String? fontFamily,
+    List<String> fontFamilyFallback = const [],
+  }) =>
+      _buildTheme(
+        _dark,
+        Brightness.dark,
+        fontFamily,
+        fontFamilyFallback,
+      );
 
-  static ThemeData light({required String fontFamily}) =>
-      _buildTheme(_light, Brightness.light, fontFamily);
+  static ThemeData light({
+    String? fontFamily,
+    List<String> fontFamilyFallback = const [],
+  }) =>
+      _buildTheme(
+        _light,
+        Brightness.light,
+        fontFamily,
+        fontFamilyFallback,
+      );
 
   static ThemeData _buildTheme(
     _Palette palette,
     Brightness brightness,
-    String fontFamily,
+    String? fontFamily,
+    List<String> fontFamilyFallback,
   ) {
     final baseTextTheme = ThemeData(brightness: brightness).textTheme.apply(
-      bodyColor: palette.textPrimary,
-      displayColor: palette.textPrimary,
-      fontFamily: fontFamily,
-    );
+          bodyColor: palette.textPrimary,
+          displayColor: palette.textPrimary,
+          fontFamily: fontFamily,
+          fontFamilyFallback: fontFamilyFallback,
+        );
 
     final colorScheme = brightness == Brightness.dark
         ? ColorScheme.dark(
@@ -86,6 +105,9 @@ class AppTheme {
     return ThemeData(
       useMaterial3: true,
       brightness: brightness,
+      fontFamily: fontFamily,
+      fontFamilyFallback:
+          fontFamilyFallback.isEmpty ? null : fontFamilyFallback,
       scaffoldBackgroundColor: palette.background,
       colorScheme: colorScheme,
       appBarTheme: AppBarTheme(
@@ -105,7 +127,8 @@ class AppTheme {
           backgroundColor: palette.primary,
           foregroundColor: Colors.black,
           padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 16),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
           textStyle: baseTextTheme.labelLarge?.copyWith(
             fontSize: 15,
             fontWeight: FontWeight.w700,
@@ -133,7 +156,8 @@ class AppTheme {
         headlineMedium: baseTextTheme.headlineMedium?.copyWith(
           fontWeight: FontWeight.w700,
         ),
-        titleLarge: baseTextTheme.titleLarge?.copyWith(fontWeight: FontWeight.w600),
+        titleLarge:
+            baseTextTheme.titleLarge?.copyWith(fontWeight: FontWeight.w600),
         bodyLarge: baseTextTheme.bodyLarge?.copyWith(height: 1.5),
         bodyMedium: baseTextTheme.bodyMedium?.copyWith(
           height: 1.5,
@@ -169,4 +193,3 @@ class _Palette {
     required this.textSecondary,
   });
 }
-

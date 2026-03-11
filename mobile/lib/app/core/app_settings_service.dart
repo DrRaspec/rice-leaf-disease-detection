@@ -8,7 +8,19 @@ class AppSettingsService extends GetxService {
   static const _legacyFontScaleKey = 'settings.fontScale';
   static const _fontSizeKey = 'settings.fontSize';
   static const _fontFamilyKey = 'settings.fontFamily';
+  static const _khmerFontFamilyKey = 'settings.khmerFontFamily';
   static const _languageKey = 'settings.language';
+
+  static const String khmerLanguageCode = 'km';
+  static const String englishLanguageCode = 'en';
+  static const String defaultKhmerFontFamily = 'Noto Sans Khmer';
+  static const List<String> khmerFontFamilies = [
+    'Noto Sans Khmer',
+    'Khmer OS Battambang',
+    'Khmer OS Siemreap',
+    'Khmer Sangam MN',
+    'Khmer MN',
+  ];
 
   static const List<String> fontFamilies = ['Roboto', 'serif', 'monospace'];
   static const List<double> zoomScales = [0.9, 1.0, 1.1];
@@ -18,7 +30,26 @@ class AppSettingsService extends GetxService {
   final RxDouble zoomScale = 1.0.obs;
   final RxDouble fontSize = 14.0.obs;
   final RxString fontFamily = 'Roboto'.obs;
-  final RxString languageCode = 'km'.obs;
+  final RxString khmerFontFamily = defaultKhmerFontFamily.obs;
+  final RxString languageCode = khmerLanguageCode.obs;
+
+  bool get isKhmerLanguage => languageCode.value == khmerLanguageCode;
+
+  String get selectedFontFamily =>
+      isKhmerLanguage ? khmerFontFamily.value : fontFamily.value;
+
+  List<String> get visibleFontFamilies =>
+      isKhmerLanguage ? khmerFontFamilies : fontFamilies;
+
+  String get activeFontFamily => selectedFontFamily;
+
+  List<String> get activeFontFallbacks {
+    if (!isKhmerLanguage) return const [];
+    return {
+      khmerFontFamily.value,
+      ...khmerFontFamilies,
+    }.toList(growable: false);
+  }
 
   late SharedPreferences _prefs;
 
@@ -33,8 +64,8 @@ class AppSettingsService extends GetxService {
       _ => ThemeMode.light,
     };
 
-    final savedZoom =
-        _prefs.getDouble(_zoomScaleKey) ?? _prefs.getDouble(_legacyFontScaleKey);
+    final savedZoom = _prefs.getDouble(_zoomScaleKey) ??
+        _prefs.getDouble(_legacyFontScaleKey);
     if (savedZoom != null && zoomScales.contains(savedZoom)) {
       zoomScale.value = savedZoom;
     }
@@ -49,11 +80,19 @@ class AppSettingsService extends GetxService {
       fontFamily.value = savedFamily;
     }
 
+    final savedKhmerFamily = _prefs.getString(_khmerFontFamilyKey);
+    if (savedKhmerFamily != null &&
+        khmerFontFamilies.contains(savedKhmerFamily)) {
+      khmerFontFamily.value = savedKhmerFamily;
+    }
+
     final savedLanguage = _prefs.getString(_languageKey);
-    if (savedLanguage != null && (savedLanguage == 'km' || savedLanguage == 'en')) {
+    if (savedLanguage != null &&
+        (savedLanguage == khmerLanguageCode ||
+            savedLanguage == englishLanguageCode)) {
       languageCode.value = savedLanguage;
     } else {
-      languageCode.value = 'km';
+      languageCode.value = khmerLanguageCode;
     }
 
     return this;
@@ -81,15 +120,25 @@ class AppSettingsService extends GetxService {
   }
 
   Future<void> setFontFamily(String value) async {
+    if (isKhmerLanguage) {
+      if (!khmerFontFamilies.contains(value)) return;
+      khmerFontFamily.value = value;
+      await _prefs.setString(_khmerFontFamilyKey, value);
+      return;
+    }
+    if (!fontFamilies.contains(value)) return;
     fontFamily.value = value;
     await _prefs.setString(_fontFamilyKey, value);
   }
 
   Future<void> setLanguageCode(String value) async {
-    if (value != 'km' && value != 'en') return;
+    if (value != khmerLanguageCode && value != englishLanguageCode) return;
     languageCode.value = value;
     await _prefs.setString(_languageKey, value);
-    Get.updateLocale(value == 'km' ? const Locale('km', 'KH') : const Locale('en', 'US'));
+    Get.updateLocale(
+      value == khmerLanguageCode
+          ? const Locale('km', 'KH')
+          : const Locale('en', 'US'),
+    );
   }
 }
-
