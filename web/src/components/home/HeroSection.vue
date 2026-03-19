@@ -4,129 +4,42 @@
     <div class="hero-overlay" aria-hidden="true" />
     <div class="hero-fade" aria-hidden="true" />
 
-    <div class="site-shell relative z-10 flex min-h-[86svh] flex-col items-center justify-center px-6 py-28 text-center sm:px-10">
-      <p class="badge-soft mb-6">{{ t('hero.badge') }}</p>
+    <div class="site-shell relative z-10 px-6 py-24 sm:px-10 sm:py-28">
+      <div class="flex min-h-[72svh] items-end">
+        <div class="max-w-2xl">
+          <h1
+            class="max-w-3xl text-balance text-4xl leading-[0.96] text-white sm:text-5xl md:text-6xl lg:text-7xl"
+            style="font-family: var(--rg-font-display); font-weight: 700"
+          >
+            {{ t('hero.titlePrefix') }}
+            <span style="color: var(--rg-accent)">{{ t('hero.titleAccent') }}</span>
+            {{ t('hero.titleSuffix') }}
+          </h1>
 
-      <h1 class="max-w-4xl text-balance text-4xl font-extrabold leading-tight text-white sm:text-5xl md:text-6xl">
-        {{ t('hero.titlePrefix') }} <span style="color: var(--rg-accent)">{{ t('hero.titleAccent') }}</span> {{ t('hero.titleSuffix') }}
-      </h1>
+          <p class="mt-5 max-w-lg text-base leading-relaxed text-white/88 sm:text-lg">
+            {{ t('hero.subtitle') }}
+          </p>
 
-      <p class="mt-6 max-w-2xl text-base leading-relaxed text-white/90 sm:text-lg">
-        {{ t('hero.subtitle') }}
-      </p>
-
-      <div class="mt-9 flex w-full max-w-md flex-col gap-3 sm:max-w-none sm:w-auto sm:flex-row sm:justify-center">
-        <router-link :to="{ path: '/', hash: '#demo' }" class="btn-pill btn-primary">
-          {{ t('hero.scan') }}
-        </router-link>
-        <router-link :to="{ path: '/', hash: '#diseases' }" class="btn-pill btn-secondary">
-          {{ t('hero.library') }}
-        </router-link>
+          <div class="mt-8 flex w-full max-w-md flex-col gap-3 sm:max-w-none sm:w-auto sm:flex-row sm:items-center">
+            <router-link :to="{ path: '/', hash: '#demo' }" class="btn-pill btn-primary min-w-[170px]">
+              {{ t('hero.scan') }}
+            </router-link>
+            <router-link :to="{ path: '/', hash: '#diseases' }" class="btn-pill btn-secondary min-w-[170px]">
+              {{ t('hero.library') }}
+            </router-link>
+          </div>
+        </div>
       </div>
-
-      <ul class="mt-10 flex flex-wrap items-center justify-center gap-3 text-sm text-white/95 sm:gap-5">
-        <li v-for="item in trustItems" :key="item.label" class="trust-chip">
-          <component :is="item.icon" class="h-4 w-4" aria-hidden="true" />
-          <span>{{ item.label }}</span>
-        </li>
-      </ul>
     </div>
   </section>
 </template>
 
 <script setup>
-import { computed, defineComponent, h } from 'vue'
 import { useWebI18n } from '@/composables/useWebI18n'
 
 // TODO: Replace with your own local asset, e.g. `/images/rice-field.jpg`.
 const heroImage =
   'https://images.pexels.com/photos/247599/pexels-photo-247599.jpeg?auto=compress&cs=tinysrgb&w=1600'
 
-const PhoneIcon = defineComponent({
-  name: 'PhoneIcon',
-  render() {
-    return h(
-      'svg',
-      {
-        viewBox: '0 0 24 24',
-        fill: 'none',
-        stroke: 'currentColor',
-        'stroke-width': '1.8',
-      },
-      [
-        h('rect', {
-          x: '7',
-          y: '2.5',
-          width: '10',
-          height: '19',
-          rx: '2.5',
-          'stroke-linejoin': 'round',
-        }),
-        h('path', {
-          d: 'M11 18.5h2',
-          'stroke-linecap': 'round',
-        }),
-      ],
-    )
-  },
-})
-
-const BoltIcon = defineComponent({
-  name: 'BoltIcon',
-  render() {
-    return h(
-      'svg',
-      {
-        viewBox: '0 0 24 24',
-        fill: 'none',
-        stroke: 'currentColor',
-        'stroke-width': '1.8',
-      },
-      [
-        h('path', {
-          d: 'M13 2 5 14h6l-1 8 9-13h-6z',
-          'stroke-linejoin': 'round',
-          'stroke-linecap': 'round',
-        }),
-      ],
-    )
-  },
-})
-
-const OfflineIcon = defineComponent({
-  name: 'OfflineIcon',
-  render() {
-    return h(
-      'svg',
-      {
-        viewBox: '0 0 24 24',
-        fill: 'none',
-        stroke: 'currentColor',
-        'stroke-width': '1.8',
-      },
-      [
-        h('path', {
-          d: 'm4 4 16 16',
-          'stroke-linecap': 'round',
-        }),
-        h('path', {
-          d: 'M8.5 8.5A5 5 0 0 1 17 12a5 5 0 0 1-5 5 5 5 0 0 1-3.5-1.5',
-          'stroke-linecap': 'round',
-          'stroke-linejoin': 'round',
-        }),
-        h('path', {
-          d: 'M7 12h.01M12 12h.01M17 12h.01',
-          'stroke-linecap': 'round',
-        }),
-      ],
-    )
-  },
-})
-
 const { t } = useWebI18n()
-const trustItems = computed(() => [
-  { label: t('hero.trustPhone'), icon: PhoneIcon },
-  { label: t('hero.trustFast'), icon: BoltIcon },
-  { label: t('hero.trustOffline'), icon: OfflineIcon },
-])
 </script>

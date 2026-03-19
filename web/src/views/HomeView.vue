@@ -1,7 +1,12 @@
 <template>
-  <main style="background: var(--rg-bg)">
+  <main
+    style="
+      background:
+        radial-gradient(circle at top, color-mix(in srgb, var(--rg-accent) 10%, transparent), transparent 30%),
+        linear-gradient(180deg, var(--rg-bg) 0%, var(--rg-bg) 100%);
+    "
+  >
     <HeroSection />
-    <HowItWorksSection />
     <ScannerSection />
     <DiseasesGrid />
     <FaqSection />
@@ -11,7 +16,6 @@
 
 <script setup>
 import HeroSection from '@/components/home/HeroSection.vue'
-import HowItWorksSection from '@/components/home/HowItWorksSection.vue'
 import ScannerSection from '@/components/home/ScannerSection.vue'
 import DiseasesGrid from '@/components/home/DiseasesGrid.vue'
 import FaqSection from '@/components/home/FaqSection.vue'

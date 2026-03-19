@@ -1,22 +1,29 @@
 <template>
   <section id="how-it-works" class="section-pad" style="background: var(--rg-bg)">
     <div class="site-shell">
-      <div class="text-center">
-        <p class="eyebrow">{{ t('how.eyebrow') }}</p>
-        <h2 class="section-title">{{ t('how.title') }}</h2>
-        <p class="section-subtitle mx-auto max-w-2xl">
-          {{ t('how.subtitle') }}
-        </p>
-      </div>
+      <div class="grid gap-8 lg:grid-cols-[minmax(0,0.75fr)_minmax(0,1.25fr)] lg:items-start">
+        <div class="max-w-xl">
+          <p class="eyebrow">{{ t('how.eyebrow') }}</p>
+          <h2 class="section-title">{{ t('how.title') }}</h2>
+          <p class="section-subtitle max-w-lg">
+            {{ t('how.subtitle') }}
+          </p>
+        </div>
 
-      <div class="mt-10 grid gap-5 md:grid-cols-3">
-        <article v-for="step in steps" :key="step.title" class="surface-card p-6">
-          <div class="icon-pill mb-4" aria-hidden="true">
-            <component :is="step.icon" class="h-5 w-5" />
-          </div>
-          <h3 class="text-lg font-semibold" style="color: var(--rg-text)">{{ step.title }}</h3>
-          <p class="mt-2 text-sm leading-relaxed" style="color: var(--rg-text-secondary)">{{ step.description }}</p>
-        </article>
+        <div class="grid gap-5 md:grid-cols-3">
+          <article v-for="(step, index) in steps" :key="step.title" class="surface-card p-6">
+            <div class="flex items-center justify-between gap-4">
+              <div class="icon-pill" aria-hidden="true">
+                <component :is="step.icon" class="h-5 w-5" />
+              </div>
+              <span class="text-xs font-bold uppercase tracking-[0.18em]" style="color: var(--rg-text-faint)">
+                0{{ index + 1 }}
+              </span>
+            </div>
+            <h3 class="mt-5 text-lg font-semibold" style="color: var(--rg-text)">{{ step.title }}</h3>
+            <p class="mt-2 text-sm leading-relaxed" style="color: var(--rg-text-secondary)">{{ step.description }}</p>
+          </article>
+        </div>
       </div>
     </div>
   </section>

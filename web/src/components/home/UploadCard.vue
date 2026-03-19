@@ -1,9 +1,26 @@
 <template>
   <article class="surface-card p-6 sm:p-7">
-    <h3 class="text-xl font-semibold" style="color: var(--rg-text)">{{ t('upload.title') }}</h3>
+    <div class="flex flex-wrap items-start justify-between gap-4">
+      <div class="max-w-lg">
+        <p class="text-xs font-bold uppercase tracking-[0.18em]" style="color: var(--rg-primary)">
+          {{ t('scanner.eyebrow') }}
+        </p>
+        <h3 class="mt-3 text-2xl sm:text-[1.9rem]" style="color: var(--rg-text); font-family: var(--rg-font-display); line-height: 1.05">
+          {{ t('upload.title') }}
+        </h3>
+        <p class="mt-3 text-sm leading-relaxed" style="color: var(--rg-text-secondary)">
+          {{ t('upload.note') }}
+        </p>
+      </div>
+
+      <div class="rounded-[22px] border px-4 py-3 text-sm" style="border-color: var(--rg-border); background: var(--rg-surface-soft); color: var(--rg-text-secondary)">
+        <p class="font-semibold" style="color: var(--rg-text)">{{ t('upload.tip1') }}</p>
+        <p class="mt-1">{{ t('upload.tip2') }}</p>
+      </div>
+    </div>
 
     <div
-      class="upload-dropzone mt-5"
+      class="upload-dropzone mt-6"
       :class="{ 'is-dragging': isDragging, 'is-disabled': loading }"
       role="button"
       tabindex="0"
@@ -44,7 +61,10 @@
       </template>
 
       <template v-else>
-        <div class="mx-auto flex h-16 w-16 items-center justify-center rounded-full" style="background: var(--rg-surface-tint); color: var(--rg-primary)">
+        <div
+          class="mx-auto flex h-20 w-20 items-center justify-center rounded-[28px]"
+          style="background: linear-gradient(135deg, color-mix(in srgb, var(--rg-accent) 26%, var(--rg-surface)), color-mix(in srgb, var(--rg-primary) 18%, var(--rg-surface))); color: var(--rg-primary-deep)"
+        >
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" class="h-8 w-8">
             <path d="M4 14.5 8.8 9.7a2 2 0 0 1 2.8 0l4.8 4.8" stroke-linecap="round" stroke-linejoin="round" />
             <path d="m14.5 12 1.7-1.7a2 2 0 0 1 2.8 0L21 12.3" stroke-linecap="round" stroke-linejoin="round" />
@@ -52,14 +72,20 @@
           </svg>
         </div>
 
-        <p class="mt-4 text-base font-semibold" style="color: var(--rg-text)">{{ t('upload.drag') }}</p>
+        <p class="mt-5 text-lg font-semibold" style="color: var(--rg-text)">{{ t('upload.drag') }}</p>
         <p class="mt-2 text-sm" style="color: var(--rg-text-tertiary)">{{ t('upload.note') }}</p>
 
-        <ul class="mt-4 space-y-1 text-sm" style="color: var(--rg-text-secondary)">
-          <li>{{ t('upload.tip1') }}</li>
-          <li>{{ t('upload.tip2') }}</li>
-          <li>{{ t('upload.tip3') }}</li>
-        </ul>
+        <div class="mt-5 grid gap-3 text-left sm:grid-cols-3">
+          <div class="rounded-[22px] border p-4 text-sm" style="border-color: var(--rg-border); background: var(--rg-surface)">
+            <p class="font-semibold" style="color: var(--rg-text)">{{ t('upload.tip1') }}</p>
+          </div>
+          <div class="rounded-[22px] border p-4 text-sm" style="border-color: var(--rg-border); background: var(--rg-surface)">
+            <p class="font-semibold" style="color: var(--rg-text)">{{ t('upload.tip2') }}</p>
+          </div>
+          <div class="rounded-[22px] border p-4 text-sm" style="border-color: var(--rg-border); background: var(--rg-surface)">
+            <p class="font-semibold" style="color: var(--rg-text)">{{ t('upload.tip3') }}</p>
+          </div>
+        </div>
       </template>
     </div>
 
@@ -75,12 +101,7 @@
       >
         {{ t('upload.remove') }}
       </button>
-      <button
-        type="button"
-        class="btn-pill btn-primary ml-auto"
-        :disabled="!selectedFile || loading"
-        @click="$emit('analyze')"
-      >
+      <button type="button" class="btn-pill btn-primary ml-auto min-w-[180px]" :disabled="!selectedFile || loading" @click="$emit('analyze')">
         <span v-if="loading" class="inline-flex items-center gap-2">
           <span class="spinner" aria-hidden="true" />
           {{ t('upload.analyzing') }}

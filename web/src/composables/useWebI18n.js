@@ -7,16 +7,13 @@ const messages = {
   en: {
     nav: { how: 'How it works', diseases: 'Diseases', demo: 'Demo', about: 'About', scan: 'Scan Leaf' },
     hero: {
-      badge: 'AI-Powered Disease Detection',
+      badge: 'Rice Leaf Scanner',
       titlePrefix: 'Protect Your',
       titleAccent: 'Rice',
       titleSuffix: 'Harvest',
       subtitle: 'Upload a rice leaf photo and get instant diagnosis plus treatment tips.',
       scan: 'Scan Leaf',
       library: 'Disease Library',
-      trustPhone: 'Works on phone',
-      trustFast: 'Fast',
-      trustOffline: 'Offline tips',
     },
     how: {
       eyebrow: 'How it works',
@@ -68,16 +65,13 @@ const messages = {
   km: {
     nav: { how: 'របៀបដំណើរការ', diseases: 'ជំងឺ', demo: 'សាកល្បង', about: 'អំពី', scan: 'ស្កេនស្លឹក' },
     hero: {
-      badge: 'ប្រព័ន្ធ AI រកជំងឺ',
+      badge: 'ឧបករណ៍ស្កេនស្លឹកស្រូវ',
       titlePrefix: 'ការពារ',
       titleAccent: 'ដំណាំស្រូវ',
       titleSuffix: 'របស់អ្នក',
       subtitle: 'បញ្ចូលរូបស្លឹកស្រូវ ដើម្បីទទួលលទ្ធផលវិភាគ និងការណែនាំព្យាបាលភ្លាមៗ។',
       scan: 'ស្កេនស្លឹក',
       library: 'បណ្ណាល័យជំងឺ',
-      trustPhone: 'ប្រើបានលើទូរស័ព្ទ',
-      trustFast: 'លឿន',
-      trustOffline: 'មើលគន្លឹះក្រៅបណ្ដាញ',
     },
     how: {
       eyebrow: 'របៀបដំណើរការ',

@@ -1,6 +1,22 @@
 <template>
   <article class="surface-card min-h-[420px] p-6 sm:p-7">
-    <h3 class="text-xl font-semibold" style="color: var(--rg-text)">{{ labels.title }}</h3>
+    <div class="flex items-start justify-between gap-4">
+      <div>
+        <p class="text-xs font-bold uppercase tracking-[0.18em]" style="color: var(--rg-primary)">
+          {{ labels.title }}
+        </p>
+        <h3 class="mt-3 text-2xl sm:text-[1.9rem]" style="color: var(--rg-text); font-family: var(--rg-font-display); line-height: 1.05">
+          {{ result ? result.info.label : labels.emptyTitle }}
+        </h3>
+      </div>
+      <span
+        v-if="result"
+        class="risk-chip inline-flex"
+        :class="chipClass"
+      >
+        {{ riskLabel }}{{ labels.riskSuffix }}
+      </span>
+    </div>
 
     <div v-if="loading" class="mt-10 flex flex-col items-center justify-center gap-4 text-center" style="color: var(--rg-text-secondary)">
       <span class="spinner spinner-lg" aria-hidden="true" />
@@ -19,12 +35,7 @@
       <p class="text-sm">{{ labels.emptyBody }}</p>
     </div>
 
-    <div v-else class="mt-5 space-y-6">
-      <div class="flex flex-wrap items-center gap-3">
-        <h4 class="text-2xl font-bold" style="color: var(--rg-text)">{{ result.info.label }}</h4>
-        <span class="risk-chip" :class="chipClass">{{ riskLabel }}{{ labels.riskSuffix }}</span>
-      </div>
-
+    <div v-else class="mt-6 space-y-6">
       <div>
         <div class="mb-2 flex items-center justify-between text-sm" style="color: var(--rg-text-secondary)">
           <span>{{ labels.confidence }}</span>
@@ -35,7 +46,7 @@
         </div>
       </div>
 
-      <p class="rounded-2xl p-4 text-sm leading-relaxed" style="background: var(--rg-surface-soft); color: var(--rg-text-secondary)">
+      <p class="rounded-[24px] p-5 text-sm leading-relaxed" style="background: var(--rg-surface-soft); color: var(--rg-text-secondary)">
         {{ result.info.summary }}
       </p>
 
@@ -54,19 +65,19 @@
 
       <section class="space-y-3">
         <h5 class="text-sm font-semibold uppercase tracking-wide" style="color: var(--rg-primary)">{{ labels.whatToDo }}</h5>
-        <p class="rounded-2xl border p-4 text-sm leading-relaxed" style="border-color: var(--rg-border); background: var(--rg-surface); color: var(--rg-text-secondary)">
+        <p class="rounded-[24px] border p-5 text-sm leading-relaxed" style="border-color: var(--rg-border); background: var(--rg-surface); color: var(--rg-text-secondary)">
           {{ result.info.whatToDo }}
         </p>
       </section>
 
       <section class="space-y-3">
         <h5 class="text-sm font-semibold uppercase tracking-wide" style="color: var(--rg-primary)">{{ labels.prevention }}</h5>
-        <p class="rounded-2xl border p-4 text-sm leading-relaxed" style="border-color: var(--rg-border); background: var(--rg-surface); color: var(--rg-text-secondary)">
+        <p class="rounded-[24px] border p-5 text-sm leading-relaxed" style="border-color: var(--rg-border); background: var(--rg-surface); color: var(--rg-text-secondary)">
           {{ result.info.prevention }}
         </p>
       </section>
 
-      <button type="button" class="text-sm font-medium underline-offset-4 hover:underline" style="color: var(--rg-primary)" @click="$emit('scan-another')">
+      <button type="button" class="btn-pill btn-secondary" @click="$emit('scan-another')">
         {{ labels.scanAnother }}
       </button>
     </div>

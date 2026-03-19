@@ -1,12 +1,14 @@
 <template>
   <section id="diseases" class="section-pad" style="background: var(--rg-surface-alt)">
     <div class="site-shell">
-      <div class="text-center">
-        <p class="eyebrow">{{ t('diseases.eyebrow') }}</p>
-        <h2 class="section-title">{{ t('diseases.title') }}</h2>
+      <div class="grid gap-8 lg:grid-cols-[minmax(0,0.78fr)_minmax(0,1.22fr)] lg:items-end">
+        <div class="max-w-xl">
+          <p class="eyebrow">{{ t('diseases.eyebrow') }}</p>
+          <h2 class="section-title">{{ t('diseases.title') }}</h2>
+        </div>
       </div>
 
-      <div class="mt-10 grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
+      <div class="mt-8 grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
         <article
           v-for="disease in diseases"
           :key="disease.name"
@@ -16,7 +18,7 @@
             <component :is="disease.icon" class="h-5 w-5" />
           </div>
           <h3 class="text-lg font-semibold" style="color: var(--rg-text)">{{ disease.name }}</h3>
-          <p class="mt-2 text-sm leading-relaxed" style="color: var(--rg-text-secondary)">{{ disease.description }}</p>
+          <p class="mt-1.5 text-sm leading-relaxed" style="color: var(--rg-text-secondary)">{{ disease.description }}</p>
           <span class="risk-chip mt-4 inline-flex" :class="riskChipClass(disease.risk)">
             {{ disease.risk }} {{ t('diseases.risk') }}
           </span>

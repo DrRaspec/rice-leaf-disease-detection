@@ -29,7 +29,7 @@
 
         <div>
           <h3 class="text-sm font-semibold uppercase tracking-wider" style="color: var(--rg-primary)">{{ t('footer.builtWith') }}</h3>
-          <p class="mt-4 text-sm leading-relaxed" style="color: var(--rg-text-secondary)">Vue 3, Tailwind CSS, Spring Boot, Python, TensorFlow</p>
+          <p class="mt-4 text-sm leading-relaxed" style="color: var(--rg-text-secondary)">Open-source tools powering modern agriculture.</p>
         </div>
       </div>
 

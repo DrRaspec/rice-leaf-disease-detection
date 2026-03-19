@@ -1,16 +1,16 @@
 <template>
   <section id="demo" class="section-pad scanner-section">
     <div class="site-shell">
-      <div class="text-center">
-        <p class="eyebrow">{{ t('scanner.eyebrow') }}</p>
-        <h2 class="section-title">{{ t('scanner.title') }}</h2>
-        <p class="section-subtitle mx-auto max-w-2xl">
-          {{ t('scanner.subtitle') }}
-        </p>
-      </div>
+        <div class="max-w-xl">
+          <p class="eyebrow">{{ t('scanner.eyebrow') }}</p>
+          <h2 class="section-title">{{ t('scanner.title') }}</h2>
+          <p class="section-subtitle max-w-xl">
+            {{ t('scanner.subtitle') }}
+          </p>
+        </div>
 
-      <div class="mt-10 grid gap-6 lg:grid-cols-2 lg:gap-8">
-        <div>
+      <div class="mt-8 grid gap-6 xl:grid-cols-[minmax(0,1.08fr)_minmax(360px,0.92fr)] xl:gap-8">
+        <div class="space-y-4">
           <UploadCard
             :selected-file="selectedFile"
             :preview-src="previewUrl"
@@ -46,7 +46,7 @@
 </template>
 
 <script setup>
-import { onBeforeUnmount, ref } from 'vue'
+import { computed, onBeforeUnmount, ref } from 'vue'
 import UploadCard from '@/components/home/UploadCard.vue'
 import ResultCard from '@/components/home/ResultCard.vue'
 import { usePrediction } from '@/composables/usePrediction'
@@ -60,6 +60,8 @@ const selectedFile = ref(null)
 const previewUrl = ref('')
 const optimizing = ref(false)
 const optimizedInfo = ref('')
+
+
 
 function revokePreview() {
   if (previewUrl.value) {
