@@ -1,39 +1,188 @@
 # Running Guide
 
-This guide explains how to run the project locally, starting with the simplest Python-only path and then covering training, Spring Boot, web, and mobile.
+Get RiceGuard AI running from scratch. This guide covers the full setup path for Python inference, Spring Boot, the web frontend, and the mobile app.
 
-For the model pipeline details, see `docs/AI_PROCESS_FLOW.md`.
+For the model pipeline details, see [AI_PROCESS_FLOW.md](AI_PROCESS_FLOW.md).
 
-## 1. What you need before running anything
+---
 
-Install these tools if you plan to use the matching part of the project:
+## Table of Contents
 
-- Python 3.11 for model training, FastAPI, and Python inference used by Spring
-- Java 17+ and Maven for `spring-api/`
-- Node.js 18+ for `web/`
-- Flutter SDK for `mobile/`
+1. [What You Need Before Starting](#1-what-you-need-before-starting)
+2. [Project Layout and Important Paths](#2-project-layout-and-important-paths)
+3. [Windows Python Setup](#3-windows-python-setup)
+4. [Linux or WSL2 Setup for Training](#4-linux-or-wsl2-setup-for-training)
+5. [Required Local Assets](#5-required-local-assets)
+6. [Sanity Checks Before Running Anything](#6-sanity-checks-before-running-anything)
+7. [Run Direct Python Inference](#7-run-direct-python-inference)
+8. [Run the FastAPI Backend](#8-run-the-fastapi-backend)
+9. [Run the Spring Boot Backend](#9-run-the-spring-boot-backend)
+10. [Run the Web Frontend](#10-run-the-web-frontend)
+11. [Run the Mobile App](#11-run-the-mobile-app)
+12. [Train the Model](#12-train-the-model)
+13. [Recommended Run Combinations](#13-recommended-run-combinations)
+14. [Useful Commands Summary](#14-useful-commands-summary)
+15. [Common Problems](#15-common-problems)
+16. [Cleanup](#16-cleanup)
 
-Open a terminal in the project root:
+---
+
+## 1. What You Need Before Starting
+
+Install only the tools required for the parts you plan to run:
+
+| Tool | Required For | Install |
+|------|-------------|---------|
+| Python 3.11 | Inference, FastAPI, training | [python.org](https://www.python.org/downloads/) |
+| Java 17+ | Spring Boot backend (`spring-api/`) | [adoptium.net](https://adoptium.net/) |
+| Maven | Spring Boot backend (`spring-api/`) | [maven.apache.org](https://maven.apache.org/) |
+| Node.js 18+ | Web frontend (`web/`) | [nodejs.org](https://nodejs.org/) |
+| Flutter SDK | Mobile app (`mobile/`) | [flutter.dev](https://flutter.dev/) |
+| WSL2 + Ubuntu | GPU training with NVIDIA | [learn.microsoft.com](https://learn.microsoft.com/en-us/windows/wsl/install) |
+
+### Verify the tools
+
+**Windows PowerShell**
+
+```powershell
+py -3.11 --version
+java --version
+mvn --version
+node --version
+```
+
+**Linux / WSL2**
+
+```bash
+python3.11 --version
+node --version
+```
+
+> [!WARNING]
+> On Windows, do **not** use `python3.11` unless you specifically installed a command with that name.
+> Use `py -3.11` or a known Python 3.11 executable.
+
+---
+
+## 2. Project Layout and Important Paths
+
+Open a terminal in the repository root:
 
 ```powershell
 cd "D:\MyProject\python\num\AI Rice Disease Detection System\RiceLeafsDisease"
 ```
 
-## 2. Understand the missing local assets
+Important folders:
 
-This repository intentionally does not commit:
+- `model/` contains Python training and inference code
+- `api/` contains the FastAPI application
+- `spring-api/` contains the Spring Boot backend
+- `web/` contains the Vite frontend
+- `mobile/` contains the Flutter app
+- `artifacts/` contains trained model files
+- `dataset/` contains training images
 
-- `dataset/`
-- `artifacts/`
+> [!IMPORTANT]
+> The Python package name is `model`, and it lives in the repository root.
+> Any command using `python -m model.predict_cli` must run with the repository root available on Python's import path.
+> For Spring Boot, the safest approach is to set `APP_PROJECT_ROOT` to the repository root every time.
 
-Those are ignored by Git. Prediction requires model artifacts, so you must have one of the following:
+---
 
-1. Existing artifacts:
-   - `artifacts/rice_disease_model.keras`
-   - `artifacts/class_names.json`
-2. A training dataset so you can generate the artifacts yourself
+## 3. Windows Python Setup
 
-Training expects this folder structure:
+Use this setup for local inference, FastAPI, and Spring Boot on Windows.
+
+### Step 1 - Create the virtual environment
+
+```powershell
+cd "D:\MyProject\python\num\AI Rice Disease Detection System\RiceLeafsDisease"
+py -3.11 -m venv .venv
+```
+
+### Step 2 - Activate it
+
+```powershell
+.\.venv\Scripts\Activate.ps1
+```
+
+If PowerShell blocks activation, run this once and reopen the terminal:
+
+```powershell
+Set-ExecutionPolicy -Scope CurrentUser RemoteSigned
+```
+
+### Step 3 - Install dependencies
+
+```powershell
+python -m pip install --upgrade pip
+python -m pip install -r requirements.txt
+```
+
+### Step 4 - Verify the environment
+
+```powershell
+python --version
+python -c "import sys; print(sys.executable)"
+```
+
+Expected results:
+
+- Python version is `3.11.x`
+- Executable points to `...\RiceLeafsDisease\.venv\Scripts\python.exe`
+
+> [!TIP]
+> Always keep project packages inside a virtual environment. It avoids conflicts and makes troubleshooting much simpler.
+
+---
+
+## 4. Linux or WSL2 Setup for Training
+
+Use this only if you want Linux-based or GPU-based training.
+
+### Step 1 - Open WSL2 and move into the project
+
+```bash
+cd /mnt/d/MyProject/python/num/AI\ Rice\ Disease\ Detection\ System/RiceLeafsDisease
+```
+
+### Step 2 - Create and activate a Linux virtual environment
+
+```bash
+python3.11 -m venv ~/rice-env
+source ~/rice-env/bin/activate
+python -m pip install --upgrade pip
+python -m pip install -r requirements.txt
+```
+
+### Step 3 - Verify it
+
+```bash
+python --version
+which python
+```
+
+Expected results:
+
+- Python version is `3.11.x`
+- Executable points to `~/rice-env/bin/python`
+
+---
+
+## 5. Required Local Assets
+
+This repository does not commit large local assets that are needed for prediction or training.
+
+### Prediction requires
+
+Place these files in `artifacts/`:
+
+- `artifacts/rice_disease_model.keras`
+- `artifacts/class_names.json`
+
+### Training requires
+
+Place training data in this structure:
 
 ```text
 dataset/
@@ -47,51 +196,83 @@ dataset/
     ...
 ```
 
-If `artifacts/` is missing, `/predict` will fail with a model or class-names error.
+If `artifacts/` is missing, prediction endpoints and CLI inference will fail.
+If `dataset/` is missing, training will fail.
 
-## 3. Python setup
+---
 
-Create and activate a virtual environment from the project root.
+## 6. Sanity Checks Before Running Anything
 
-### PowerShell on Windows
+Run these checks from the repository root after activating the correct Python environment.
+
+### Check 1 - Confirm the `model` package is importable
 
 ```powershell
-py -3.11 -m venv .venv
+python -c "import model; print(model.__file__)"
+```
+
+Expected result:
+
+- A path inside `...\RiceLeafsDisease\model\__init__.py`
+
+### Check 2 - Confirm artifacts exist
+
+```powershell
+Get-ChildItem artifacts
+```
+
+You should see at least:
+
+- `rice_disease_model.keras`
+- `class_names.json`
+
+### Check 3 - Confirm direct CLI help works
+
+```powershell
+python -m model.predict_cli --help
+```
+
+If this command fails with `No module named 'model'`, you are not running from the repository root or you are using the wrong Python interpreter.
+
+---
+
+## 7. Run Direct Python Inference
+
+This is the fastest way to confirm Python inference works before involving Spring or FastAPI.
+
+### Step 1 - Activate the Windows environment
+
+```powershell
+cd "D:\MyProject\python\num\AI Rice Disease Detection System\RiceLeafsDisease"
 .\.venv\Scripts\Activate.ps1
-python -m pip install --upgrade pip
-python -m pip install -r requirements.txt
 ```
 
-If PowerShell blocks activation, run this once in a PowerShell window:
+### Step 2 - Run a prediction from the repository root
 
 ```powershell
-Set-ExecutionPolicy -Scope CurrentUser RemoteSigned
+python -m model.predict_cli --image path\to\leaf.jpg
 ```
 
-### Verify Python version
+Expected result:
+
+- JSON output printed to the terminal
+
+If this does not work, do not continue to Spring Boot yet. Fix Python inference first.
+
+---
+
+## 8. Run the FastAPI Backend
+
+FastAPI is the simplest backend path because it runs entirely in Python.
+
+### Step 1 - Activate the virtual environment
 
 ```powershell
-python --version
+cd "D:\MyProject\python\num\AI Rice Disease Detection System\RiceLeafsDisease"
+.\.venv\Scripts\Activate.ps1
 ```
 
-You should see Python `3.11.x`.
-
-## 4. Fastest way to run: Python backend only
-
-This is the simplest working backend and the best choice if you only want to test the API.
-
-### Step 1: make sure artifacts exist
-
-You need:
-
-- `artifacts/rice_disease_model.keras`
-- `artifacts/class_names.json`
-
-If you do not have them yet, go to section 5 and train the model first.
-
-### Step 2: set required environment variables
-
-Both backends validate these at startup even though prediction itself is public.
+### Step 2 - Set required environment variables
 
 ```powershell
 $env:APP_API_USERNAME="riceguard_api_user"
@@ -99,13 +280,13 @@ $env:APP_API_PASSWORD="ReplaceWithA_Strong#Password1"
 $env:APP_SECURITY_JWT_SECRET=[Convert]::ToBase64String((1..32 | ForEach-Object { Get-Random -Maximum 256 }))
 ```
 
-### Step 3: start FastAPI
+### Step 3 - Start FastAPI from the repository root
 
 ```powershell
 python -m uvicorn api.main:app --reload
 ```
 
-### Step 4: verify it is running
+### Step 4 - Verify it is running
 
 Health endpoint:
 
@@ -113,84 +294,37 @@ Health endpoint:
 http://127.0.0.1:8000/api/v1/health
 ```
 
-PowerShell test:
+Test commands:
 
 ```powershell
 curl.exe http://127.0.0.1:8000/api/v1/health
-```
-
-Prediction test:
-
-```powershell
 curl.exe -X POST "http://127.0.0.1:8000/api/v1/predict" -F "file=@sample.jpg"
 ```
 
-### Step 5: optional direct CLI prediction
+---
 
-This bypasses the API and tests Python inference directly:
+## 9. Run the Spring Boot Backend
 
-```powershell
-python -m model.predict_cli --image path\to\leaf.jpg
-```
+Spring Boot does not perform inference directly. It launches Python with `python -m model.predict_cli`.
 
-## 5. Train the model
+This means two settings must be correct:
 
-Run training only if you have the dataset available.
+- `APP_PYTHON_COMMAND` must point to the correct Python interpreter
+- `APP_PROJECT_ROOT` must point to the repository root so Python can import `model`
 
-### Step 1: confirm dataset folders exist
-
-These directories must exist:
-
-- `dataset/train`
-- `dataset/validation`
-
-### Step 2: train
+### Step 1 - Open a terminal in the repository root
 
 ```powershell
-python -m model.train
+cd "D:\MyProject\python\num\AI Rice Disease Detection System\RiceLeafsDisease"
 ```
 
-Training writes:
-
-- `artifacts/rice_disease_model.keras`
-- `artifacts/class_names.json`
-
-### Step 3: evaluate
-
-```powershell
-python -m model.evaluate
-```
-
-Evaluation writes:
-
-- `artifacts/confusion_matrix_validation.txt`
-- `artifacts/confusion_matrix_validation.png`
-
-### Optional: GPU training
-
-TensorFlow GPU support is typically easier through WSL2 on Windows.
-
-Basic check:
-
-```powershell
-python scripts/check_tf_gpu.py
-```
-
-If you train in WSL2, create a separate Linux virtual environment there and install the same `requirements.txt`.
-
-## 6. Run the Spring Boot backend
-
-Use Spring if you want the main backend used by the web app. Spring does not run the model itself; it launches the Python CLI in `model.predict_cli`.
-
-### Step 1: activate the Python virtual environment
-
-If not already active:
+### Step 2 - Activate the Python virtual environment
 
 ```powershell
 .\.venv\Scripts\Activate.ps1
 ```
 
-### Step 2: set required environment variables
+### Step 3 - Set required security environment variables
 
 ```powershell
 $env:APP_API_USERNAME="riceguard_api_user"
@@ -198,28 +332,34 @@ $env:APP_API_PASSWORD="ReplaceWithA_Strong#Password1"
 $env:APP_SECURITY_JWT_SECRET=[Convert]::ToBase64String((1..32 | ForEach-Object { Get-Random -Maximum 256 }))
 ```
 
-### Step 3: point Spring to the correct Python interpreter
-
-This is important. If you skip it, Spring may use the wrong Python installation.
+### Step 4 - Set the Python interpreter and project root
 
 ```powershell
 $env:APP_PYTHON_COMMAND="$PWD\.venv\Scripts\python.exe"
-```
-
-Optional override if Spring cannot resolve the project root:
-
-```powershell
 $env:APP_PROJECT_ROOT="$PWD"
 ```
 
-### Step 4: start Spring
+> [!IMPORTANT]
+> Treat `APP_PROJECT_ROOT` as required for local Spring runs.
+> If Spring launches Python from `spring-api/` or from an IDE with a different working directory, Python may fail with:
+> `ModuleNotFoundError: No module named 'model'`
+
+### Step 5 - Verify Python inference before starting Spring
+
+```powershell
+& $env:APP_PYTHON_COMMAND -m model.predict_cli --help
+```
+
+If this fails, Spring prediction will also fail.
+
+### Step 6 - Start Spring
 
 ```powershell
 cd spring-api
 mvn spring-boot:run
 ```
 
-### Step 5: verify it is running
+### Step 7 - Verify it is running
 
 Health endpoint:
 
@@ -227,15 +367,10 @@ Health endpoint:
 http://127.0.0.1:8080/api/v1/health
 ```
 
-PowerShell test:
+Test commands:
 
 ```powershell
 curl.exe http://127.0.0.1:8080/api/v1/health
-```
-
-Prediction test:
-
-```powershell
 curl.exe -X POST "http://127.0.0.1:8080/api/v1/predict" -F "file=@sample.jpg"
 ```
 
@@ -243,28 +378,23 @@ curl.exe -X POST "http://127.0.0.1:8080/api/v1/predict" -F "file=@sample.jpg"
 
 - Max upload size is `6 MB`
 - Spring expects multipart form-data with key `file`
-- Spring will fail prediction if Python dependencies or model artifacts are missing
+- Spring prediction depends on Python dependencies and model artifacts being present
+- If you restart the terminal, you must set the environment variables again before launching Spring
 
-## 7. Run the web frontend
+---
 
-The web app is in `web/` and uses Vite.
+## 10. Run the Web Frontend
 
-### Default behavior
+The web app lives in `web/` and uses Vite.
 
-The Vite dev server proxies `/api` requests to:
+### Default setup with Spring Boot
 
-```text
-http://localhost:8080
-```
-
-That means the web app works out of the box with the Spring backend on port `8080`.
-
-### Run against Spring backend
+The Vite dev server proxies `/api` requests to `http://localhost:8080`, so this is the default local setup.
 
 Start Spring first, then run:
 
 ```powershell
-cd web
+cd "D:\MyProject\python\num\AI Rice Disease Detection System\RiceLeafsDisease\web"
 npm install
 npm run dev
 ```
@@ -275,9 +405,9 @@ Open:
 http://localhost:5173
 ```
 
-### Run against FastAPI instead
+### Use FastAPI instead of Spring
 
-If you want the web app to call FastAPI on port `8000`, create `web/.env.local` with:
+Create `web/.env.local` with:
 
 ```env
 VITE_API_BASE_URL=http://127.0.0.1:8000/api/v1
@@ -286,193 +416,381 @@ VITE_API_BASE_URL=http://127.0.0.1:8000/api/v1
 Then run:
 
 ```powershell
-cd web
+cd "D:\MyProject\python\num\AI Rice Disease Detection System\RiceLeafsDisease\web"
 npm install
 npm run dev
 ```
 
-## 8. Run the mobile app
+---
 
-The mobile app is in `mobile/`.
+## 11. Run the Mobile App
 
-### Step 1: install packages
+The mobile app lives in `mobile/`.
+
+### Step 1 - Install packages
 
 ```powershell
-cd mobile
+cd "D:\MyProject\python\num\AI Rice Disease Detection System\RiceLeafsDisease\mobile"
 flutter pub get
 ```
 
-### Step 2: choose backend URL
+### Step 2 - Choose the backend URL
 
-Use one of these:
+| Scenario | URL |
+|---|---|
+| Android emulator to Spring | `http://10.0.2.2:8080` |
+| Android emulator to FastAPI | `http://10.0.2.2:8000` |
+| Real device on same network | `http://YOUR_COMPUTER_LAN_IP:8080` or `:8000` |
 
-- Android emulator + Spring: `http://10.0.2.2:8080`
-- Android emulator + FastAPI: `http://10.0.2.2:8000`
-- Real device: `http://YOUR_COMPUTER_LAN_IP:8080` or `:8000`
+### Step 3 - Run the app
 
-### Step 3: run
-
-Example with Spring backend:
+With Spring backend:
 
 ```powershell
 flutter run --dart-define=ENV=dev --dart-define=API_BASE_URL=http://10.0.2.2:8080
 ```
 
-Example with FastAPI backend:
+With FastAPI backend:
 
 ```powershell
 flutter run --dart-define=ENV=dev --dart-define=API_BASE_URL=http://10.0.2.2:8000
 ```
 
-## 9. Recommended run combinations
+---
 
-### Easiest local API test
+## 12. Train the Model
 
-1. Set up Python
-2. Make sure artifacts exist
-3. Run FastAPI
+Run training only if you have the dataset available.
 
-### Main local web setup
+### Step 1 - Confirm dataset folders exist
 
-1. Set up Python
-2. Make sure artifacts exist
-3. Run Spring
-4. Run the web app
+These directories must exist:
 
-### Full development setup
+- `dataset/train`
+- `dataset/validation`
 
-1. Set up Python
-2. Train or copy model artifacts
-3. Run Spring or FastAPI
-4. Run web or mobile client
+### Step 2 - Choose your environment
 
-## 10. Common problems
+| Environment | Speed | Notes |
+|---|---|---|
+| Windows `.venv` | CPU only | Simplest local setup |
+| WSL2 / Linux | Faster with NVIDIA GPU | Recommended for larger training runs |
 
-### `Model not found` or `Class names not found`
+### Step 3 - Train
 
-Cause:
-
-- `artifacts/rice_disease_model.keras` or `artifacts/class_names.json` is missing
-
-Fix:
-
-- Copy existing artifacts into `artifacts/`, or
-- Train the model with `python -m model.train`
-
-### `Expected dataset folders` error
-
-Cause:
-
-- `dataset/train` and `dataset/validation` do not exist
-
-Fix:
-
-- Add the dataset in the expected structure before training
-
-### `mvn` not recognized
-
-Cause:
-
-- Maven is not installed or not on `PATH`
-
-Fix:
-
-- Install Maven and reopen the terminal
-
-### Spring starts but prediction fails
-
-Cause:
-
-- Spring is using the wrong Python interpreter
-- Python dependencies are not installed in that interpreter
-- Artifacts are missing
-
-Fix:
-
-1. Activate `.venv`
-2. Set `APP_PYTHON_COMMAND` to `.venv\Scripts\python.exe`
-3. Confirm `python -m model.predict_cli --image ...` works directly
-4. Restart Spring
-
-### PowerShell says script execution is disabled
-
-Fix:
+**Windows CPU**
 
 ```powershell
-Set-ExecutionPolicy -Scope CurrentUser RemoteSigned
-```
-
-### Web app cannot reach the backend
-
-Cause:
-
-- Spring is not running on `8080`
-- You are using FastAPI but did not set `VITE_API_BASE_URL`
-
-Fix:
-
-- Use Spring on `8080`, or
-- Create `web/.env.local` with `VITE_API_BASE_URL=http://127.0.0.1:8000/api/v1`
-
-### Mobile app cannot reach localhost
-
-Cause:
-
-- Android emulator cannot use plain `localhost` to reach your computer
-
-Fix:
-
-- Use `http://10.0.2.2:8080` or `http://10.0.2.2:8000`
-
-## 11. Useful commands summary
-
-Create venv and install dependencies:
-
-```powershell
-py -3.11 -m venv .venv
+cd "D:\MyProject\python\num\AI Rice Disease Detection System\RiceLeafsDisease"
 .\.venv\Scripts\Activate.ps1
-python -m pip install --upgrade pip
-python -m pip install -r requirements.txt
-```
-
-Train:
-
-```powershell
 python -m model.train
 ```
 
-Evaluate:
+**WSL2 GPU**
+
+First verify GPU detection:
+
+```bash
+bash scripts/check_gpu_wsl.sh
+```
+
+Then train:
+
+```bash
+bash scripts/train_gpu_wsl.sh
+```
+
+Training writes:
+
+- `artifacts/rice_disease_model.keras`
+- `artifacts/class_names.json`
+
+### Step 4 - Evaluate
+
+**Windows CPU**
 
 ```powershell
 python -m model.evaluate
 ```
 
-Run FastAPI:
+**WSL2 GPU**
 
-```powershell
-python -m uvicorn api.main:app --reload
+```bash
+bash scripts/evaluate_wsl.sh
 ```
 
-Run Spring:
+Evaluation writes:
+
+- `artifacts/confusion_matrix_validation.txt`
+- `artifacts/confusion_matrix_validation.png`
+
+If you stay on Windows, you can confirm TensorFlow is not seeing a GPU with:
 
 ```powershell
+python scripts/check_tf_gpu.py
+```
+
+---
+
+## 13. Recommended Run Combinations
+
+### Fastest way to test the API
+
+1. Complete Windows Python setup.
+2. Confirm `artifacts/` exists.
+3. Run direct CLI inference.
+4. Run FastAPI.
+
+### Main local web setup
+
+1. Complete Windows Python setup.
+2. Confirm `artifacts/` exists.
+3. Set `APP_PYTHON_COMMAND` and `APP_PROJECT_ROOT`.
+4. Run Spring Boot.
+5. Run the web frontend.
+
+### GPU training plus Windows inference
+
+1. Train in WSL2.
+2. Keep inference on Windows with the repository `.venv`.
+3. Run Spring or FastAPI from Windows.
+4. Run web or mobile against that backend.
+
+---
+
+## 14. Useful Commands Summary
+
+### Windows PowerShell
+
+```powershell
+# Go to repo root
+cd "D:\MyProject\python\num\AI Rice Disease Detection System\RiceLeafsDisease"
+
+# Create and activate venv
+py -3.11 -m venv .venv
+.\.venv\Scripts\Activate.ps1
+python -m pip install --upgrade pip
+python -m pip install -r requirements.txt
+
+# Sanity checks
+python -c "import model; print(model.__file__)"
+python -m model.predict_cli --help
+
+# Direct inference
+python -m model.predict_cli --image path\to\leaf.jpg
+
+# Run FastAPI
+$env:APP_API_USERNAME="riceguard_api_user"
+$env:APP_API_PASSWORD="ReplaceWithA_Strong#Password1"
+$env:APP_SECURITY_JWT_SECRET=[Convert]::ToBase64String((1..32 | ForEach-Object { Get-Random -Maximum 256 }))
+python -m uvicorn api.main:app --reload
+
+# Run Spring
+$env:APP_API_USERNAME="riceguard_api_user"
+$env:APP_API_PASSWORD="ReplaceWithA_Strong#Password1"
+$env:APP_SECURITY_JWT_SECRET=[Convert]::ToBase64String((1..32 | ForEach-Object { Get-Random -Maximum 256 }))
 $env:APP_PYTHON_COMMAND="$PWD\.venv\Scripts\python.exe"
+$env:APP_PROJECT_ROOT="$PWD"
 cd spring-api
 mvn spring-boot:run
-```
 
-Run web:
-
-```powershell
-cd web
+# Run web
+cd ..\web
 npm install
 npm run dev
-```
 
-Run mobile:
-
-```powershell
-cd mobile
+# Run mobile
+cd ..\mobile
 flutter pub get
 flutter run --dart-define=ENV=dev --dart-define=API_BASE_URL=http://10.0.2.2:8080
 ```
+
+### Linux / WSL2
+
+```bash
+# Enter project
+cd /mnt/d/MyProject/python/num/AI\ Rice\ Disease\ Detection\ System/RiceLeafsDisease
+
+# Create and activate venv
+python3.11 -m venv ~/rice-env
+source ~/rice-env/bin/activate
+python -m pip install --upgrade pip
+python -m pip install -r requirements.txt
+
+# Check GPU
+bash scripts/check_gpu_wsl.sh
+
+# Train on GPU
+bash scripts/train_gpu_wsl.sh
+
+# Evaluate
+bash scripts/evaluate_wsl.sh
+```
+
+---
+
+## 15. Common Problems
+
+### `ModuleNotFoundError: No module named 'model'`
+
+**Cause:** Python was started without the repository root on its import path. This usually happens when Spring launches Python from `spring-api/` or when the wrong `APP_PROJECT_ROOT` is used.
+
+**Fix:**
+
+1. Open a terminal in the repository root.
+2. Activate `.venv`.
+3. Set `APP_PYTHON_COMMAND` to the repository `.venv` interpreter.
+4. Set `APP_PROJECT_ROOT` to the repository root.
+5. Verify `python -m model.predict_cli --help` works before starting Spring.
+
+Example:
+
+```powershell
+cd "D:\MyProject\python\num\AI Rice Disease Detection System\RiceLeafsDisease"
+.\.venv\Scripts\Activate.ps1
+$env:APP_PYTHON_COMMAND="$PWD\.venv\Scripts\python.exe"
+$env:APP_PROJECT_ROOT="$PWD"
+& $env:APP_PYTHON_COMMAND -m model.predict_cli --help
+```
+
+---
+
+### `Model not found` or `Class names not found`
+
+**Cause:** `artifacts/rice_disease_model.keras` or `artifacts/class_names.json` is missing.
+
+**Fix:** Copy existing artifacts into `artifacts/`, or train the model with `python -m model.train`.
+
+---
+
+### `python3.11` is not recognized on Windows
+
+**Cause:** `python3.11` is a Linux naming convention and usually does not exist on Windows.
+
+**Fix:** Use `py -3.11` instead.
+
+---
+
+### `source` is not recognized on Windows
+
+**Cause:** `source` is a bash command, not a PowerShell command.
+
+**Fix:** Use `./.venv/Scripts/Activate.ps1` in PowerShell.
+
+---
+
+### `python` resolves to the wrong interpreter
+
+**Cause:** Another Python installation appears earlier on `PATH`.
+
+**Fix:** Activate the project `.venv`, then verify with:
+
+```powershell
+python -c "import sys; print(sys.executable)"
+```
+
+---
+
+### `Expected dataset folders` error
+
+**Cause:** `dataset/train` and `dataset/validation` do not exist.
+
+**Fix:** Add the dataset in the expected structure before training.
+
+---
+
+### `mvn` is not recognized
+
+**Cause:** Maven is not installed or not on `PATH`.
+
+**Fix:** Install Maven and reopen the terminal.
+
+---
+
+### Training is using CPU instead of GPU
+
+**Cause:**
+
+- Training is running in Windows instead of WSL2
+- TensorFlow GPU support is not available in the Linux environment
+- WSL2 GPU support is not configured correctly
+
+**Fix:**
+
+1. Open WSL2.
+2. Activate the Linux environment.
+3. Run `bash scripts/check_gpu_wsl.sh`.
+4. Train with `bash scripts/train_gpu_wsl.sh`.
+
+---
+
+### Spring starts but prediction fails
+
+**Cause:** The Python interpreter is wrong, the project root is wrong, dependencies are missing, or artifacts are missing.
+
+**Fix:**
+
+1. Activate `.venv`.
+2. Set `APP_PYTHON_COMMAND`.
+3. Set `APP_PROJECT_ROOT`.
+4. Confirm `python -m model.predict_cli --help` works.
+5. Restart Spring.
+
+---
+
+### PowerShell says script execution is disabled
+
+**Fix:**
+
+```powershell
+Set-ExecutionPolicy -Scope CurrentUser RemoteSigned
+```
+
+---
+
+### Web app cannot reach the backend
+
+**Cause:** Spring is not running on `8080`, or you are using FastAPI without setting `VITE_API_BASE_URL`.
+
+**Fix:** Run the expected backend, or create `web/.env.local` with:
+
+```env
+VITE_API_BASE_URL=http://127.0.0.1:8000/api/v1
+```
+
+---
+
+### Mobile app cannot reach localhost
+
+**Cause:** Android emulators cannot use plain `localhost` to reach your computer.
+
+**Fix:** Use `http://10.0.2.2:8080` or `http://10.0.2.2:8000`.
+
+---
+
+## 16. Cleanup
+
+When you stop developing and want to reclaim disk space:
+
+### Delete the Windows virtual environment
+
+```powershell
+deactivate
+Remove-Item -Recurse .\.venv
+```
+
+### Delete the Linux / WSL2 virtual environment
+
+```bash
+deactivate
+rm -rf ~/rice-env
+```
+
+### Uninstall globally installed packages if needed
+
+```powershell
+py -3.11 -m pip uninstall -r requirements.txt -y
+```
+
+> [!TIP]
+> Deleting a virtual environment removes all packages installed inside it, which is usually the fastest cleanup path.

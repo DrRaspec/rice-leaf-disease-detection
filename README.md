@@ -25,29 +25,50 @@ That means prediction only works if you already have one of these:
 
 If those files are missing, the backends can start but prediction will fail.
 
+## Training on Windows vs GPU
+
+- Windows `py -3.11 -m venv .venv` plus `pip install -r requirements.txt` runs TensorFlow on CPU in this project.
+- If you want NVIDIA GPU training on a Windows machine, use WSL2/Linux and install the same `requirements.txt` there.
+- Windows local setup is still fine for FastAPI, Spring Boot, the web app, and CPU inference.
+
 ## Choose how you want to run it
 
-### Option A: Python only
+### Option A: Windows demo or CPU inference
 
-Use this if you want the simplest local setup.
+Use this if you want the simplest local setup for inference, the API, or the web demo.
 
 1. Create and activate a Python 3.11 virtual environment
 2. Install `requirements.txt`
-3. Make sure `artifacts/` exists or train the model
+3. Make sure `artifacts/` exists or train the model elsewhere first
 4. Run FastAPI with `python -m uvicorn api.main:app --reload`
 
 Backend URL:
 
 - `http://127.0.0.1:8000/api/v1/health`
 
-### Option B: Recommended full stack
+### Option B: WSL2 GPU training
+
+Use this if you want to train with an NVIDIA GPU.
+
+1. Open Ubuntu or another Linux distro in WSL2
+2. Create and activate a Linux Python 3.11 virtual environment
+3. Install `requirements.txt`
+4. Run `bash scripts/check_gpu_wsl.sh`
+5. Run `bash scripts/train_gpu_wsl.sh`
+
+Generated files:
+
+- `artifacts/rice_disease_model.keras`
+- `artifacts/class_names.json`
+
+### Option C: Recommended full stack demo
 
 Use this if you want the main backend and the web app.
 
 1. Set up Python 3.11 and install `requirements.txt`
-2. Make sure `artifacts/` exists or train the model
+2. Make sure `artifacts/` exists from an earlier run or WSL2 training
 3. Set Spring security environment variables
-4. Point Spring to the same Python interpreter used for the model
+4. Point Spring to the same Python interpreter used for inference
 5. Run `mvn spring-boot:run` in `spring-api/`
 6. Run `npm install` and `npm run dev` in `web/`
 
@@ -61,9 +82,29 @@ Web URL:
 
 ## Quick start
 
-### 1. Python environment
+### 1. GPU training in WSL2
 
-From the project root:
+From WSL2:
+
+```bash
+cd /mnt/<drive>/MyProject/python/num/RiceLeafsDisease
+python3.11 -m venv ~/rice-env
+source ~/rice-env/bin/activate
+python -m pip install --upgrade pip
+python -m pip install -r requirements.txt
+bash scripts/check_gpu_wsl.sh
+bash scripts/train_gpu_wsl.sh
+```
+
+Optional evaluation:
+
+```bash
+bash scripts/evaluate_wsl.sh
+```
+
+### 2. Windows environment for API, web, or CPU inference
+
+From the project root in PowerShell:
 
 ```powershell
 py -3.11 -m venv .venv
@@ -72,26 +113,19 @@ python -m pip install --upgrade pip
 python -m pip install -r requirements.txt
 ```
 
-### 2. Prepare model files
+### 3. Prepare model files
 
 If you already have trained artifacts, place them here:
 
 - `artifacts/rice_disease_model.keras`
 - `artifacts/class_names.json`
 
-If you have the dataset instead, train the model:
+If you have the dataset instead:
 
-```powershell
-python -m model.train
-```
+- Use WSL2 and the GPU commands above if you want GPU training
+- Use `python -m model.train` only if CPU training is acceptable
 
-Optional evaluation:
-
-```powershell
-python -m model.evaluate
-```
-
-### 3. Run the Python backend
+### 4. Run the Python backend
 
 Set required environment variables in PowerShell:
 
@@ -102,7 +136,7 @@ $env:APP_SECURITY_JWT_SECRET=[Convert]::ToBase64String((1..32 | ForEach-Object {
 python -m uvicorn api.main:app --reload
 ```
 
-### 4. Run the Spring backend
+### 5. Run the Spring backend
 
 Spring uses Python for inference, so set `APP_PYTHON_COMMAND` to the virtual environment interpreter:
 
@@ -115,7 +149,7 @@ cd spring-api
 mvn spring-boot:run
 ```
 
-### 5. Run the web app
+### 6. Run the web app
 
 The Vite dev server already proxies `/api` to `http://localhost:8080`, so no `.env` file is required when using the Spring backend.
 
@@ -131,7 +165,7 @@ If you want the web app to talk to FastAPI on port `8000`, create `web/.env.loca
 VITE_API_BASE_URL=http://127.0.0.1:8000/api/v1
 ```
 
-### 6. Run the mobile app
+### 7. Run the mobile app
 
 ```powershell
 cd mobile
@@ -148,11 +182,27 @@ Use:
 
 Train model:
 
+WSL2 GPU:
+
+```bash
+bash scripts/train_gpu_wsl.sh
+```
+
+Windows CPU:
+
 ```powershell
 python -m model.train
 ```
 
 Evaluate model:
+
+WSL2 GPU:
+
+```bash
+bash scripts/evaluate_wsl.sh
+```
+
+Windows CPU:
 
 ```powershell
 python -m model.evaluate
