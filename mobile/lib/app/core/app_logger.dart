@@ -54,7 +54,9 @@ class AppLogger {
     ZoneDelegate parent,
     Zone zone,
     String line,
-  ) {}
+  ) {
+    parent.print(zone, line);
+  }
 
   static void d(String scope, String message, {Map<String, Object?>? fields}) {
     ShadowLog.logger(scope).d(message, fields: fields);

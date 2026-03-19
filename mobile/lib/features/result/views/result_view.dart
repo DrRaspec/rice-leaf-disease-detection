@@ -1,3 +1,6 @@
+import 'dart:io';
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../../app/core/core_i18n.dart';
@@ -19,17 +22,17 @@ class ResultView extends GetView<ResultController> {
       backgroundColor: AppTheme.background,
       body: CustomScrollView(
         slivers: [
-          _buildHeader(result, info),
+          _ResultHeader(image: controller.image, result: result, info: info),
           SliverPadding(
             padding: const EdgeInsets.fromLTRB(20, 0, 20, 40),
             sliver: SliverList(
               delegate: SliverChildListDelegate([
                 _MainResultCard(result: result, info: info),
-                const SizedBox(height: 16),
+                const SizedBox(height: 18),
                 _TreatmentCard(info: info),
-                const SizedBox(height: 16),
+                const SizedBox(height: 18),
                 _TopPredictionsCard(result: result),
-                const SizedBox(height: 24),
+                const SizedBox(height: 28),
                 _AnalyseAnotherButton(onTap: controller.analyseAnother),
               ]),
             ),
@@ -38,43 +41,107 @@ class ResultView extends GetView<ResultController> {
       ),
     );
   }
+}
 
-  SliverAppBar _buildHeader(PredictionResult result, DiseaseInfo info) {
+class _ResultHeader extends StatelessWidget {
+  final File image;
+  final PredictionResult result;
+  final DiseaseInfo info;
+
+  const _ResultHeader({
+    required this.image,
+    required this.result,
+    required this.info,
+  });
+
+  Color get _severityColor => switch (info.severity) {
+        'high' => AppTheme.danger,
+        'medium' => AppTheme.warning,
+        'low' => AppTheme.earth,
+        'none' => AppTheme.success,
+        _ => AppTheme.textSecondary,
+      };
+
+  @override
+  Widget build(BuildContext context) {
     return SliverAppBar(
-      expandedHeight: 260,
+      expandedHeight: 340,
       pinned: true,
+      stretch: true,
+      elevation: 0,
       backgroundColor: AppTheme.background,
-      leading: GestureDetector(
-        onTap: Get.back,
-        child: Container(
-          margin: const EdgeInsets.all(8),
-          decoration: BoxDecoration(
-            color: Colors.black45,
-            borderRadius: BorderRadius.circular(12),
-          ),
-          child: const Icon(
-            Icons.arrow_back_ios_new_rounded,
-            size: 18,
-            color: Colors.white,
-          ),
+      leadingWidth: 72,
+      leading: Padding(
+        padding: const EdgeInsets.only(left: 16, top: 10, bottom: 10),
+        child: _GlassActionButton(
+          icon: Icons.arrow_back_ios_new_rounded,
+          onTap: Get.back,
         ),
       ),
       flexibleSpace: FlexibleSpaceBar(
+        stretchModes: const [StretchMode.zoomBackground],
         background: Stack(
           fit: StackFit.expand,
           children: [
-            Image.file(controller.image, fit: BoxFit.cover),
-            Container(
+            Image.file(image, fit: BoxFit.cover),
+            DecoratedBox(
               decoration: BoxDecoration(
                 gradient: LinearGradient(
                   colors: [
-                    Colors.transparent,
-                    AppTheme.background.withValues(alpha: 0.7),
+                    Colors.black.withValues(alpha: 0.12),
+                    Colors.black.withValues(alpha: 0.16),
+                    AppTheme.background.withValues(alpha: 0.82),
                     AppTheme.background,
                   ],
                   begin: Alignment.topCenter,
                   end: Alignment.bottomCenter,
-                  stops: const [0.3, 0.75, 1.0],
+                  stops: const [0.0, 0.3, 0.75, 1.0],
+                ),
+              ),
+            ),
+            Align(
+              alignment: Alignment.bottomLeft,
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(20, 0, 20, 26),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        _HeaderBadge(
+                          icon: DiseaseIconTheme.data(info.icon),
+                          color: _severityColor,
+                          label: AppText.severityLabel(info.severity),
+                        ),
+                        const SizedBox(width: 10),
+                        _HeaderBadge(
+                          icon: Icons.analytics_rounded,
+                          color: AppTheme.highlight,
+                          label:
+                              '${(result.confidence * 100).toStringAsFixed(1)}%',
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 16),
+                    Text(
+                      info.label,
+                      style: Theme.of(context).textTheme.displaySmall?.copyWith(
+                            color: Colors.white,
+                            fontWeight: FontWeight.w800,
+                            height: 1.04,
+                          ),
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      info.description,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                            color: Colors.white.withValues(alpha: 0.84),
+                          ),
+                    ),
+                  ],
                 ),
               ),
             ),
@@ -85,7 +152,72 @@ class ResultView extends GetView<ResultController> {
   }
 }
 
-// ── Main Result Card ──────────────────────────────────────────────────────────
+class _GlassActionButton extends StatelessWidget {
+  final IconData icon;
+  final VoidCallback onTap;
+
+  const _GlassActionButton({required this.icon, required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(18),
+      child: BackdropFilter(
+        filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+        child: Material(
+          color: Colors.black.withValues(alpha: 0.24),
+          child: InkWell(
+            onTap: onTap,
+            child: SizedBox(
+              width: 48,
+              height: 48,
+              child: Icon(icon, color: Colors.white, size: 18),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _HeaderBadge extends StatelessWidget {
+  final IconData icon;
+  final Color color;
+  final String label;
+
+  const _HeaderBadge({
+    required this.icon,
+    required this.color,
+    required this.label,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      decoration: BoxDecoration(
+        color: Colors.black.withValues(alpha: 0.22),
+        borderRadius: BorderRadius.circular(999),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.12)),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 16, color: color),
+          const SizedBox(width: 8),
+          Text(
+            label,
+            style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                  color: Colors.white,
+                  fontWeight: FontWeight.w700,
+                ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
 class _MainResultCard extends StatelessWidget {
   final PredictionResult result;
   final DiseaseInfo info;
@@ -104,138 +236,159 @@ class _MainResultCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final conf = result.confidence;
     final lowConfidence = result.isUncertain || conf < 0.45;
-    return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: AppTheme.card,
-        borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: _severityColor.withValues(alpha: 0.3)),
-        boxShadow: [
-          BoxShadow(
-            color: _severityColor.withValues(alpha: 0.1),
-            blurRadius: 20,
-            spreadRadius: 2,
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Container(
-                width: 54,
-                height: 54,
-                decoration: BoxDecoration(
-                  color: _severityColor.withValues(alpha: 0.12),
-                  borderRadius: BorderRadius.circular(16),
-                  border:
-                      Border.all(color: _severityColor.withValues(alpha: 0.3)),
-                ),
-                child: Center(
+
+    return Transform.translate(
+      offset: const Offset(0, -24),
+      child: Container(
+        padding: const EdgeInsets.all(22),
+        decoration: BoxDecoration(
+          color: AppTheme.card,
+          borderRadius: BorderRadius.circular(30),
+          border: Border.all(color: AppTheme.cardBorder),
+          boxShadow: [
+            BoxShadow(
+              color: _severityColor.withValues(alpha: 0.08),
+              blurRadius: 28,
+              offset: const Offset(0, 16),
+            ),
+          ],
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Container(
+                  width: 60,
+                  height: 60,
+                  decoration: BoxDecoration(
+                    color: _severityColor.withValues(alpha: 0.12),
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(
+                      color: _severityColor.withValues(alpha: 0.24),
+                    ),
+                  ),
                   child: Icon(
                     DiseaseIconTheme.data(info.icon),
-                    size: 28,
+                    size: 30,
                     color: DiseaseIconTheme.color(info.icon),
                   ),
                 ),
+                const SizedBox(width: 14),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        info.label,
+                        style:
+                            Theme.of(context).textTheme.headlineSmall?.copyWith(
+                                  color: AppTheme.textPrimary,
+                                ),
+                      ),
+                      const SizedBox(height: 8),
+                      _SeverityBadge(
+                        severity: info.severity,
+                        color: _severityColor,
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 20),
+            Container(
+              padding: const EdgeInsets.all(18),
+              decoration: BoxDecoration(
+                color: AppTheme.background
+                    .withValues(alpha: Get.isDarkMode ? 0.45 : 0.72),
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(
+                    color: AppTheme.cardBorder.withValues(alpha: 0.75)),
               ),
-              const SizedBox(width: 14),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      info.label,
-                      style: TextStyle(
-                        color: AppTheme.textPrimary,
-                        fontSize: 20,
-                        fontWeight: FontWeight.w700,
-                        height: 1.1,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        AppText.t(TrKey.confidence),
+                        style:
+                            Theme.of(context).textTheme.titleMedium?.copyWith(
+                                  color: AppTheme.textPrimary,
+                                ),
+                      ),
+                      Text(
+                        '${(conf * 100).toStringAsFixed(1)}%',
+                        style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                          color: _severityColor,
+                          fontFeatures: const [FontFeature.tabularFigures()],
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 10),
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(999),
+                    child: TweenAnimationBuilder<double>(
+                      tween: Tween(begin: 0, end: conf),
+                      duration: const Duration(milliseconds: 800),
+                      curve: Curves.easeOutCubic,
+                      builder: (_, v, __) => LinearProgressIndicator(
+                        value: v,
+                        minHeight: 12,
+                        backgroundColor:
+                            AppTheme.cardBorder.withValues(alpha: 0.5),
+                        valueColor: AlwaysStoppedAnimation(_severityColor),
                       ),
                     ),
-                    const SizedBox(height: 4),
-                    _SeverityBadge(
-                      severity: info.severity,
-                      color: _severityColor,
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 16),
+            Text(
+              info.description,
+              style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                    color: AppTheme.textSecondary,
+                  ),
+            ),
+            if (lowConfidence) ...[
+              const SizedBox(height: 16),
+              Container(
+                padding: const EdgeInsets.all(14),
+                decoration: BoxDecoration(
+                  color: AppTheme.warning.withValues(alpha: 0.12),
+                  borderRadius: BorderRadius.circular(18),
+                  border: Border.all(
+                    color: AppTheme.warning.withValues(alpha: 0.28),
+                  ),
+                ),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Icon(Icons.info_outline_rounded, color: AppTheme.warning),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: Text(
+                        AppText.t(TrKey.lowConfidence).replaceFirst(
+                          '{classes}',
+                          _possibleClassesLabel(result),
+                        ),
+                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                              color: AppTheme.warning,
+                              fontWeight: FontWeight.w700,
+                            ),
+                      ),
                     ),
                   ],
                 ),
               ),
             ],
-          ),
-
-          const SizedBox(height: 20),
-
-          // Confidence bar
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                AppText.t(TrKey.confidence),
-                style: TextStyle(color: AppTheme.textSecondary, fontSize: 13),
-              ),
-              Text(
-                '${(conf * 100).toStringAsFixed(1)}%',
-                style: TextStyle(
-                  color: _severityColor,
-                  fontSize: 15,
-                  fontWeight: FontWeight.w700,
-                  fontFeatures: const [FontFeature.tabularFigures()],
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 8),
-          ClipRRect(
-            borderRadius: BorderRadius.circular(6),
-            child: TweenAnimationBuilder<double>(
-              tween: Tween(begin: 0, end: conf),
-              duration: const Duration(milliseconds: 800),
-              curve: Curves.easeOutCubic,
-              builder: (_, v, __) => LinearProgressIndicator(
-                value: v,
-                minHeight: 10,
-                backgroundColor: AppTheme.cardBorder.withValues(alpha: 0.5),
-                valueColor: AlwaysStoppedAnimation(_severityColor),
-              ),
-            ),
-          ),
-
-          const SizedBox(height: 16),
-
-          Text(
-            info.description,
-            style: TextStyle(
-              color: AppTheme.textSecondary,
-              fontSize: 13,
-              height: 1.6,
-            ),
-          ),
-          if (lowConfidence) ...[
-            const SizedBox(height: 12),
-            Container(
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: AppTheme.warning.withValues(alpha: 0.12),
-                borderRadius: BorderRadius.circular(12),
-                border:
-                    Border.all(color: AppTheme.warning.withValues(alpha: 0.35)),
-              ),
-              child: Text(
-                AppText.t(TrKey.lowConfidence).replaceFirst(
-                  '{classes}',
-                  _possibleClassesLabel(result),
-                ),
-                style: const TextStyle(
-                  color: AppTheme.warning,
-                  fontSize: 12,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-            ),
           ],
-        ],
+        ),
       ),
     );
   }
@@ -251,40 +404,54 @@ class _MainResultCard extends StatelessWidget {
   }
 }
 
-// ── Treatment Card ────────────────────────────────────────────────────────────
 class _TreatmentCard extends StatelessWidget {
   final DiseaseInfo info;
+
   const _TreatmentCard({required this.info});
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(18),
+      padding: const EdgeInsets.all(22),
       decoration: BoxDecoration(
         color: AppTheme.card,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(24),
         border: Border.all(color: AppTheme.cardBorder),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            '💊 ${AppText.t(TrKey.whatToDoNow)}',
-            style: TextStyle(
-              color: AppTheme.primary,
-              fontSize: 14,
-              fontWeight: FontWeight.w700,
-              letterSpacing: 0.3,
-            ),
+          Row(
+            children: [
+              Container(
+                width: 48,
+                height: 48,
+                decoration: BoxDecoration(
+                  color: AppTheme.primary700,
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: const Icon(
+                  Icons.medical_services_rounded,
+                  color: Colors.white,
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Text(
+                  AppText.t(TrKey.whatToDoNow),
+                  style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                        color: AppTheme.textPrimary,
+                      ),
+                ),
+              ),
+            ],
           ),
-          const SizedBox(height: 10),
+          const SizedBox(height: 16),
           Text(
             info.treatment,
-            style: TextStyle(
-              color: AppTheme.textSecondary,
-              fontSize: 14,
-              height: 1.6,
-            ),
+            style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                  color: AppTheme.textSecondary,
+                ),
           ),
         ],
       ),
@@ -292,18 +459,18 @@ class _TreatmentCard extends StatelessWidget {
   }
 }
 
-// ── Top Predictions Card ──────────────────────────────────────────────────────
 class _TopPredictionsCard extends StatelessWidget {
   final PredictionResult result;
+
   const _TopPredictionsCard({required this.result});
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(18),
+      padding: const EdgeInsets.all(22),
       decoration: BoxDecoration(
         color: AppTheme.card,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(24),
         border: Border.all(color: AppTheme.cardBorder),
       ),
       child: Column(
@@ -311,72 +478,88 @@ class _TopPredictionsCard extends StatelessWidget {
         children: [
           Text(
             AppText.t(TrKey.topPredictions),
-            style: TextStyle(
-              color: AppTheme.textSecondary,
-              fontSize: 12,
-              fontWeight: FontWeight.w700,
-              letterSpacing: 0.6,
-            ),
+            style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                  color: AppTheme.textPrimary,
+                ),
           ),
-          const SizedBox(height: 14),
-          ...result.topPredictions.asMap().entries.map((e) {
-            final idx = e.key;
-            final pred = e.value;
+          const SizedBox(height: 16),
+          ...result.topPredictions.asMap().entries.map((entry) {
+            final idx = entry.key;
+            final pred = entry.value;
             final pct = pred.confidence * 100;
             return Padding(
-              padding: const EdgeInsets.only(bottom: 12),
-              child: Row(
-                children: [
-                  Text(
-                    '${idx + 1}',
-                    style: TextStyle(
-                      color: AppTheme.textSecondary,
-                      fontSize: 12,
-                      fontFamily: 'monospace',
-                    ),
-                  ),
-                  const SizedBox(width: 10),
-                  Expanded(
-                    child: Text(
-                      pred.className.replaceAll('_', ' '),
-                      style: TextStyle(
-                        color: AppTheme.textPrimary,
-                        fontSize: 13,
-                        fontWeight: FontWeight.w500,
+              padding: EdgeInsets.only(
+                  bottom: idx == result.topPredictions.length - 1 ? 0 : 14),
+              child: Container(
+                padding: const EdgeInsets.all(14),
+                decoration: BoxDecoration(
+                  color: AppTheme.background
+                      .withValues(alpha: Get.isDarkMode ? 0.42 : 0.76),
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(
+                      color: AppTheme.cardBorder.withValues(alpha: 0.72)),
+                ),
+                child: Row(
+                  children: [
+                    Container(
+                      width: 34,
+                      height: 34,
+                      decoration: BoxDecoration(
+                        color: AppTheme.primary.withValues(alpha: 0.14),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      alignment: Alignment.center,
+                      child: Text(
+                        '${idx + 1}',
+                        style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                              color: AppTheme.primary700,
+                            ),
                       ),
                     ),
-                  ),
-                  const SizedBox(width: 8),
-                  SizedBox(
-                    width: 90,
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(4),
-                      child: TweenAnimationBuilder<double>(
-                        tween: Tween(begin: 0, end: pred.confidence),
-                        duration: Duration(milliseconds: 600 + idx * 120),
-                        curve: Curves.easeOutCubic,
-                        builder: (_, v, __) => LinearProgressIndicator(
-                          value: v,
-                          minHeight: 6,
-                          backgroundColor:
-                              AppTheme.cardBorder.withValues(alpha: 0.5),
-                          valueColor: AlwaysStoppedAnimation(
-                            AppTheme.primary,
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            pred.className.replaceAll('_', ' '),
+                            style: Theme.of(context)
+                                .textTheme
+                                .titleMedium
+                                ?.copyWith(
+                                  color: AppTheme.textPrimary,
+                                ),
                           ),
-                        ),
+                          const SizedBox(height: 10),
+                          ClipRRect(
+                            borderRadius: BorderRadius.circular(999),
+                            child: TweenAnimationBuilder<double>(
+                              tween: Tween(begin: 0, end: pred.confidence),
+                              duration: Duration(milliseconds: 600 + idx * 120),
+                              curve: Curves.easeOutCubic,
+                              builder: (_, v, __) => LinearProgressIndicator(
+                                value: v,
+                                minHeight: 8,
+                                backgroundColor:
+                                    AppTheme.cardBorder.withValues(alpha: 0.5),
+                                valueColor:
+                                    AlwaysStoppedAnimation(AppTheme.primary),
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
                     ),
-                  ),
-                  const SizedBox(width: 8),
-                  Text(
-                    '${pct.toStringAsFixed(1)}%',
-                    style: TextStyle(
-                      color: AppTheme.textSecondary,
-                      fontSize: 11,
-                      fontFamily: 'monospace',
+                    const SizedBox(width: 12),
+                    Text(
+                      '${pct.toStringAsFixed(1)}%',
+                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                        color: AppTheme.textSecondary,
+                        fontFeatures: const [FontFeature.tabularFigures()],
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             );
           }),
@@ -386,7 +569,6 @@ class _TopPredictionsCard extends StatelessWidget {
   }
 }
 
-// ── Analyse Another Button ────────────────────────────────────────────────────
 class _AnalyseAnotherButton extends StatelessWidget {
   final VoidCallback onTap;
 
@@ -399,40 +581,37 @@ class _AnalyseAnotherButton extends StatelessWidget {
       icon: const Icon(Icons.refresh_rounded, size: 20),
       label: Text(AppText.t(TrKey.analyzeAnotherLeaf)),
       style: OutlinedButton.styleFrom(
-        foregroundColor: AppTheme.primary,
-        side: BorderSide(color: AppTheme.primary700),
-        padding: const EdgeInsets.symmetric(vertical: 14),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
-        minimumSize: const Size(double.infinity, 56),
+        foregroundColor: AppTheme.primary700,
+        side: BorderSide(color: AppTheme.primary.withValues(alpha: 0.4)),
+        backgroundColor: AppTheme.card,
+        minimumSize: const Size(double.infinity, 58),
       ),
     );
   }
 }
 
-// ── Severity Badge ────────────────────────────────────────────────────────────
 class _SeverityBadge extends StatelessWidget {
   final String severity;
   final Color color;
+
   const _SeverityBadge({required this.severity, required this.color});
 
   @override
   Widget build(BuildContext context) {
     final label = AppText.severityLabel(severity);
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 3),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
       decoration: BoxDecoration(
         color: color.withValues(alpha: 0.12),
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: color.withValues(alpha: 0.35)),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: color.withValues(alpha: 0.24)),
       ),
       child: Text(
         label,
-        style: TextStyle(
-          color: color,
-          fontSize: 11,
-          fontWeight: FontWeight.w700,
-        ),
+        style: Theme.of(context).textTheme.labelMedium?.copyWith(
+              color: color,
+              fontWeight: FontWeight.w800,
+            ),
       ),
     );
   }
