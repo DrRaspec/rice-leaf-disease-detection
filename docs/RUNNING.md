@@ -15,15 +15,14 @@ For the model pipeline details, see [AI_PROCESS_FLOW.md](AI_PROCESS_FLOW.md).
 5. [Required Local Assets](#5-required-local-assets)
 6. [Sanity Checks Before Running Anything](#6-sanity-checks-before-running-anything)
 7. [Run Direct Python Inference](#7-run-direct-python-inference)
-8. [Run the FastAPI Backend](#8-run-the-fastapi-backend)
-9. [Run the Spring Boot Backend](#9-run-the-spring-boot-backend)
-10. [Run the Web Frontend](#10-run-the-web-frontend)
-11. [Run the Mobile App](#11-run-the-mobile-app)
-12. [Train the Model](#12-train-the-model)
-13. [Recommended Run Combinations](#13-recommended-run-combinations)
-14. [Useful Commands Summary](#14-useful-commands-summary)
-15. [Common Problems](#15-common-problems)
-16. [Cleanup](#16-cleanup)
+8. [Run the Spring Boot Backend](#8-run-the-spring-boot-backend)
+9. [Run the Web Frontend](#9-run-the-web-frontend)
+10. [Run the Mobile App](#10-run-the-mobile-app)
+11. [Train the Model](#11-train-the-model)
+12. [Recommended Run Combinations](#12-recommended-run-combinations)
+13. [Useful Commands Summary](#13-useful-commands-summary)
+14. [Common Problems](#14-common-problems)
+15. [Cleanup](#15-cleanup)
 
 ---
 
@@ -33,7 +32,7 @@ Install only the tools required for the parts you plan to run:
 
 | Tool | Required For | Install |
 |------|-------------|---------|
-| Python 3.11 | Inference, FastAPI, training | [python.org](https://www.python.org/downloads/) |
+| Python 3.11 | Inference and training | [python.org](https://www.python.org/downloads/) |
 | Java 17+ | Spring Boot backend (`spring-api/`) | [adoptium.net](https://adoptium.net/) |
 | Maven | Spring Boot backend (`spring-api/`) | [maven.apache.org](https://maven.apache.org/) |
 | Node.js 18+ | Web frontend (`web/`) | [nodejs.org](https://nodejs.org/) |
@@ -75,7 +74,6 @@ cd "D:\MyProject\python\num\AI Rice Disease Detection System\RiceLeafsDisease"
 Important folders:
 
 - `model/` contains Python training and inference code
-- `api/` contains the FastAPI application
 - `spring-api/` contains the Spring Boot backend
 - `web/` contains the Vite frontend
 - `mobile/` contains the Flutter app
@@ -91,7 +89,7 @@ Important folders:
 
 ## 3. Windows Python Setup
 
-Use this setup for local inference, FastAPI, and Spring Boot on Windows.
+Use this setup for local inference, training, and Spring Boot on Windows.
 
 ### Step 1 - Create the virtual environment
 
@@ -238,7 +236,7 @@ If this command fails with `No module named 'model'`, you are not running from t
 
 ## 7. Run Direct Python Inference
 
-This is the fastest way to confirm Python inference works before involving Spring or FastAPI.
+This is the fastest way to confirm Python inference works before involving Spring Boot.
 
 ### Step 1 - Activate the Windows environment
 
@@ -261,49 +259,7 @@ If this does not work, do not continue to Spring Boot yet. Fix Python inference 
 
 ---
 
-## 8. Run the FastAPI Backend
-
-FastAPI is the simplest backend path because it runs entirely in Python.
-
-### Step 1 - Activate the virtual environment
-
-```powershell
-cd "D:\MyProject\python\num\AI Rice Disease Detection System\RiceLeafsDisease"
-.\.venv\Scripts\Activate.ps1
-```
-
-### Step 2 - Set required environment variables
-
-```powershell
-$env:APP_API_USERNAME="riceguard_api_user"
-$env:APP_API_PASSWORD="ReplaceWithA_Strong#Password1"
-$env:APP_SECURITY_JWT_SECRET=[Convert]::ToBase64String((1..32 | ForEach-Object { Get-Random -Maximum 256 }))
-```
-
-### Step 3 - Start FastAPI from the repository root
-
-```powershell
-python -m uvicorn api.main:app --reload
-```
-
-### Step 4 - Verify it is running
-
-Health endpoint:
-
-```text
-http://127.0.0.1:8000/api/v1/health
-```
-
-Test commands:
-
-```powershell
-curl.exe http://127.0.0.1:8000/api/v1/health
-curl.exe -X POST "http://127.0.0.1:8000/api/v1/predict" -F "file=@sample.jpg"
-```
-
----
-
-## 9. Run the Spring Boot Backend
+## 8. Run the Spring Boot Backend
 
 Spring Boot does not perform inference directly. It launches Python with `python -m model.predict_cli`.
 
@@ -383,7 +339,7 @@ curl.exe -X POST "http://127.0.0.1:8080/api/v1/predict" -F "file=@sample.jpg"
 
 ---
 
-## 10. Run the Web Frontend
+## 9. Run the Web Frontend
 
 The web app lives in `web/` and uses Vite.
 
@@ -405,25 +361,9 @@ Open:
 http://localhost:5173
 ```
 
-### Use FastAPI instead of Spring
-
-Create `web/.env.local` with:
-
-```env
-VITE_API_BASE_URL=http://127.0.0.1:8000/api/v1
-```
-
-Then run:
-
-```powershell
-cd "D:\MyProject\python\num\AI Rice Disease Detection System\RiceLeafsDisease\web"
-npm install
-npm run dev
-```
-
 ---
 
-## 11. Run the Mobile App
+## 10. Run the Mobile App
 
 The mobile app lives in `mobile/`.
 
@@ -439,8 +379,7 @@ flutter pub get
 | Scenario | URL |
 |---|---|
 | Android emulator to Spring | `http://10.0.2.2:8080` |
-| Android emulator to FastAPI | `http://10.0.2.2:8000` |
-| Real device on same network | `http://YOUR_COMPUTER_LAN_IP:8080` or `:8000` |
+| Real device on same network | `http://YOUR_COMPUTER_LAN_IP:8080` |
 
 ### Step 3 - Run the app
 
@@ -450,15 +389,7 @@ With Spring backend:
 flutter run --dart-define=ENV=dev --dart-define=API_BASE_URL=http://10.0.2.2:8080
 ```
 
-With FastAPI backend:
-
-```powershell
-flutter run --dart-define=ENV=dev --dart-define=API_BASE_URL=http://10.0.2.2:8000
-```
-
----
-
-## 12. Train the Model
+## 11. Train the Model
 
 Run training only if you have the dataset available.
 
@@ -468,6 +399,10 @@ These directories must exist:
 
 - `dataset/train`
 - `dataset/validation`
+
+If you are adding new external datasets first, stop here and follow `docs/DATASET_EXPANSION.md` before retraining.
+Do not merge new source folders directly into `dataset/train` or `dataset/validation`.
+Use `python scripts/rebuild_dataset_from_sources.py` to rebuild the dataset from the reviewed curated sources.
 
 ### Step 2 - Choose your environment
 
@@ -524,6 +459,8 @@ Evaluation writes:
 - `artifacts/confusion_matrix_validation.txt`
 - `artifacts/confusion_matrix_validation.png`
 
+See `docs/MODEL_RESULTS.md` for the latest recorded results from the rebuilt dataset.
+
 If you stay on Windows, you can confirm TensorFlow is not seeing a GPU with:
 
 ```powershell
@@ -532,14 +469,14 @@ python scripts/check_tf_gpu.py
 
 ---
 
-## 13. Recommended Run Combinations
+## 12. Recommended Run Combinations
 
 ### Fastest way to test the API
 
 1. Complete Windows Python setup.
 2. Confirm `artifacts/` exists.
 3. Run direct CLI inference.
-4. Run FastAPI.
+4. Run Spring Boot.
 
 ### Main local web setup
 
@@ -553,12 +490,12 @@ python scripts/check_tf_gpu.py
 
 1. Train in WSL2.
 2. Keep inference on Windows with the repository `.venv`.
-3. Run Spring or FastAPI from Windows.
+3. Run Spring Boot from Windows.
 4. Run web or mobile against that backend.
 
 ---
 
-## 14. Useful Commands Summary
+## 13. Useful Commands Summary
 
 ### Windows PowerShell
 
@@ -578,12 +515,6 @@ python -m model.predict_cli --help
 
 # Direct inference
 python -m model.predict_cli --image path\to\leaf.jpg
-
-# Run FastAPI
-$env:APP_API_USERNAME="riceguard_api_user"
-$env:APP_API_PASSWORD="ReplaceWithA_Strong#Password1"
-$env:APP_SECURITY_JWT_SECRET=[Convert]::ToBase64String((1..32 | ForEach-Object { Get-Random -Maximum 256 }))
-python -m uvicorn api.main:app --reload
 
 # Run Spring
 $env:APP_API_USERNAME="riceguard_api_user"
@@ -629,7 +560,7 @@ bash scripts/evaluate_wsl.sh
 
 ---
 
-## 15. Common Problems
+## 14. Common Problems
 
 ### `ModuleNotFoundError: No module named 'model'`
 
@@ -750,13 +681,9 @@ Set-ExecutionPolicy -Scope CurrentUser RemoteSigned
 
 ### Web app cannot reach the backend
 
-**Cause:** Spring is not running on `8080`, or you are using FastAPI without setting `VITE_API_BASE_URL`.
+**Cause:** Spring is not running on `8080`, or the app is pointing at the wrong API base URL.
 
-**Fix:** Run the expected backend, or create `web/.env.local` with:
-
-```env
-VITE_API_BASE_URL=http://127.0.0.1:8000/api/v1
-```
+**Fix:** Start Spring on `8080` and keep the frontend pointed at the Spring backend.
 
 ---
 
@@ -764,11 +691,11 @@ VITE_API_BASE_URL=http://127.0.0.1:8000/api/v1
 
 **Cause:** Android emulators cannot use plain `localhost` to reach your computer.
 
-**Fix:** Use `http://10.0.2.2:8080` or `http://10.0.2.2:8000`.
+**Fix:** Use `http://10.0.2.2:8080`.
 
 ---
 
-## 16. Cleanup
+## 15. Cleanup
 
 When you stop developing and want to reclaim disk space:
 

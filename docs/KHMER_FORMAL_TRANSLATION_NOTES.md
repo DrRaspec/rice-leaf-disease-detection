@@ -19,8 +19,7 @@ Use Khmer wording that is clear for Cambodian agriculture users while preserving
 - Keep scientific names and fungicide actives in Latin where needed for technical clarity.
 
 ## Consistency Rule
-All three catalogs must carry the same Khmer disease label and symptom wording:
-- `api/main.py`
+Both active catalogs must carry the same Khmer disease label and symptom wording:
 - `spring-api/.../DiseaseInfoCatalog.java`
 - `mobile/.../disease_info_catalog.dart`
 

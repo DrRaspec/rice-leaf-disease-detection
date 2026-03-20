@@ -5,7 +5,6 @@ RiceGuard AI detects rice leaf diseases from an image and returns a prediction p
 ## Repository layout
 
 - `model/`: TensorFlow training, evaluation, inference, and CLI prediction
-- `api/`: FastAPI backend written in Python
 - `spring-api/`: Spring Boot backend that calls the Python inference CLI
 - `web/`: Vue 3 frontend
 - `mobile/`: Flutter mobile app
@@ -29,22 +28,24 @@ If those files are missing, the backends can start but prediction will fail.
 
 - Windows `py -3.11 -m venv .venv` plus `pip install -r requirements.txt` runs TensorFlow on CPU in this project.
 - If you want NVIDIA GPU training on a Windows machine, use WSL2/Linux and install the same `requirements.txt` there.
-- Windows local setup is still fine for FastAPI, Spring Boot, the web app, and CPU inference.
+- Windows local setup is still fine for Spring Boot, the web app, the mobile app, and CPU inference.
 
 ## Choose how you want to run it
 
-### Option A: Windows demo or CPU inference
+### Option A: Windows Spring demo or CPU inference
 
-Use this if you want the simplest local setup for inference, the API, or the web demo.
+Use this if you want the main local setup for inference, the API, or the web demo.
 
 1. Create and activate a Python 3.11 virtual environment
 2. Install `requirements.txt`
 3. Make sure `artifacts/` exists or train the model elsewhere first
-4. Run FastAPI with `python -m uvicorn api.main:app --reload`
+4. Set Spring security environment variables
+5. Point Spring to the virtual environment Python interpreter
+6. Run `mvn spring-boot:run` in `spring-api/`
 
 Backend URL:
 
-- `http://127.0.0.1:8000/api/v1/health`
+- `http://127.0.0.1:8080/api/v1/health`
 
 ### Option B: WSL2 GPU training
 
@@ -125,18 +126,7 @@ If you have the dataset instead:
 - Use WSL2 and the GPU commands above if you want GPU training
 - Use `python -m model.train` only if CPU training is acceptable
 
-### 4. Run the Python backend
-
-Set required environment variables in PowerShell:
-
-```powershell
-$env:APP_API_USERNAME="riceguard_api_user"
-$env:APP_API_PASSWORD="ReplaceWithA_Strong#Password1"
-$env:APP_SECURITY_JWT_SECRET=[Convert]::ToBase64String((1..32 | ForEach-Object { Get-Random -Maximum 256 }))
-python -m uvicorn api.main:app --reload
-```
-
-### 5. Run the Spring backend
+### 4. Run the Spring backend
 
 Spring uses Python for inference, so set `APP_PYTHON_COMMAND` to the virtual environment interpreter:
 
@@ -145,11 +135,12 @@ $env:APP_API_USERNAME="riceguard_api_user"
 $env:APP_API_PASSWORD="ReplaceWithA_Strong#Password1"
 $env:APP_SECURITY_JWT_SECRET=[Convert]::ToBase64String((1..32 | ForEach-Object { Get-Random -Maximum 256 }))
 $env:APP_PYTHON_COMMAND="$PWD\.venv\Scripts\python.exe"
+$env:APP_PROJECT_ROOT="$PWD"
 cd spring-api
 mvn spring-boot:run
 ```
 
-### 6. Run the web app
+### 5. Run the web app
 
 The Vite dev server already proxies `/api` to `http://localhost:8080`, so no `.env` file is required when using the Spring backend.
 
@@ -159,13 +150,7 @@ npm install
 npm run dev
 ```
 
-If you want the web app to talk to FastAPI on port `8000`, create `web/.env.local` with:
-
-```env
-VITE_API_BASE_URL=http://127.0.0.1:8000/api/v1
-```
-
-### 7. Run the mobile app
+### 6. Run the mobile app
 
 ```powershell
 cd mobile
@@ -218,7 +203,6 @@ Check API health:
 
 ```powershell
 curl.exe http://127.0.0.1:8080/api/v1/health
-curl.exe http://127.0.0.1:8000/api/v1/health
 ```
 
 Test prediction:
@@ -232,4 +216,6 @@ curl.exe -X POST "http://127.0.0.1:8080/api/v1/predict" -F "file=@sample.jpg"
 - Full setup and run guide: `docs/RUNNING.md`
 - AI pipeline details: `docs/AI_PROCESS_FLOW.md`
 - Dataset references: `docs/DATA_SOURCES.md`
+- Dataset expansion workflow: `docs/DATASET_EXPANSION.md`
+- Current trained model results: `docs/MODEL_RESULTS.md`
 - Catalog synchronization notes: `docs/CATALOG_SYNC_WORKFLOW.md`

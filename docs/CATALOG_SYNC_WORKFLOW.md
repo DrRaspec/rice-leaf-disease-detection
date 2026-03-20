@@ -5,7 +5,6 @@ This project now uses one canonical source for disease copy:
 - `data/disease_catalog.json`
 
 Generated targets:
-- `api/main.py`
 - `spring-api/src/main/java/com/rice/disease/service/DiseaseInfoCatalog.java`
 - `mobile/lib/features/result/controllers/disease_info_catalog.dart`
 

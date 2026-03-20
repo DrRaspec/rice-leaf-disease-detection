@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Sync disease catalogs in API, Spring, and Mobile from one canonical JSON file.
+Sync disease catalogs in Spring and Mobile from one canonical JSON file.
 
 Usage:
   python scripts/sync_disease_catalogs.py --check
@@ -17,7 +17,6 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 CATALOG_JSON = ROOT / "data" / "disease_catalog.json"
-API_FILE = ROOT / "api" / "main.py"
 JAVA_FILE = ROOT / "spring-api" / "src" / "main" / "java" / "com" / "rice" / "disease" / "service" / "DiseaseInfoCatalog.java"
 DART_FILE = ROOT / "mobile" / "lib" / "features" / "result" / "controllers" / "disease_info_catalog.dart"
 
@@ -42,19 +41,6 @@ def _escape_java(value: str) -> str:
 
 def _escape_dart(value: str) -> str:
     return value.replace("\\", "\\\\").replace("'", "\\'")
-
-
-def _render_py_map(items: dict[str, dict[str, str]], indent: str = "    ") -> str:
-    lines: list[str] = ["{"]
-    for key, entry in items.items():
-        lines.append(f'{indent}"{key}": {{')
-        for field in FIELD_ORDER:
-            lines.append(
-                f'{indent}    "{field}": {json.dumps(entry[field], ensure_ascii=False)},'
-            )
-        lines.append(f"{indent}}},")
-    lines.append("}")
-    return "\n".join(lines)
 
 
 def _render_java_map(items: dict[str, dict[str, str]], indent: str = "        ") -> str:
@@ -112,10 +98,6 @@ def _replace_or_raise(text: str, pattern: str, replacement: str, path: Path) -> 
     return updated
 
 
-def build_api_section(en: dict[str, dict[str, str]], km: dict[str, dict[str, str]]) -> str:
-    return f"DISEASES_EN = {_render_py_map(en)}\n\nDISEASES_KM = {_render_py_map(km)}\n\n"
-
-
 def build_java_section(en: dict[str, dict[str, str]], km: dict[str, dict[str, str]]) -> str:
     en_map = _render_java_map(en)
     km_map = _render_java_map(km)
@@ -150,22 +132,10 @@ def sync(write: bool) -> int:
 
     changed = []
 
-    api_text = API_FILE.read_text(encoding="utf-8")
-    api_updated = _replace_or_raise(
-        api_text,
-        r"DISEASES_EN = \{[\s\S]*?\n\}\n\nDISEASES_KM = \{[\s\S]*?\n\}\n\n",
-        build_api_section(en, km),
-        API_FILE,
-    )
-    if api_updated != api_text:
-        changed.append(API_FILE)
-        if write:
-            API_FILE.write_text(api_updated, encoding="utf-8")
-
     java_text = JAVA_FILE.read_text(encoding="utf-8")
     java_updated = _replace_or_raise(
         java_text,
-        r"    // ──────────────────────────────────────────────────────────────────────────\n    // English[\s\S]*?    // ──────────────────────────────────────────────────────────────────────────\n    // Lookup helper",
+        r"\s*// ──────────────────────────────────────────────────────────────────────────\s*// English[\s\S]*?// ──────────────────────────────────────────────────────────────────────────\s*// Lookup helper",
         build_java_section(en, km),
         JAVA_FILE,
     )
@@ -177,7 +147,7 @@ def sync(write: bool) -> int:
     dart_text = DART_FILE.read_text(encoding="utf-8")
     dart_updated = _replace_or_raise(
         dart_text,
-        r"  static const _en = \{[\s\S]*?\n  \};\n\n  static const _km = \{[\s\S]*?\n  \};\n\n  static DiseaseInfo byClass",
+        r"\s*static const _en = \{[\s\S]*?\n\s*\};\n\n\s*static const _km = \{[\s\S]*?\n\s*\};\n\n\s*static DiseaseInfo byClass",
         build_dart_section(en, km),
         DART_FILE,
     )
@@ -215,4 +185,3 @@ def main() -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
-

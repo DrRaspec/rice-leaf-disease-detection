@@ -1,7 +1,7 @@
 {
   "meta": {
     "version": 1,
-    "source": "api/main.py",
+    "source": "data/disease_catalog.json",
     "updated": "2026-03-06"
   },
   "languages": {
