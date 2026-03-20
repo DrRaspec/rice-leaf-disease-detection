@@ -51,3 +51,13 @@ flutter:
   assets:
     - assets/images/
     - assets/animations/
+  fonts:
+    - family: Noto Sans Khmer
+      fonts:
+        - asset: fonts/khmer/NotoSansKhmer.ttf
+    - family: Battambang
+      fonts:
+        - asset: fonts/khmer/Battambang-Regular.ttf
+          weight: 400
+        - asset: fonts/khmer/Battambang-Bold.ttf
+          weight: 700

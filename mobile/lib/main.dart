@@ -65,6 +65,8 @@ class RiceGuardApp extends StatelessWidget {
     return Obx(() {
       final appThemeMode = settings.themeMode.value;
       final selectedLanguage = settings.languageCode.value;
+      final selectedFontSize = settings.fontSize.value;
+      final selectedZoomScale = settings.zoomScale.value;
       final systemBrightness =
           WidgetsBinding.instance.platformDispatcher.platformBrightness;
       final isDark = appThemeMode == ThemeMode.dark ||
@@ -84,6 +86,9 @@ class RiceGuardApp extends StatelessWidget {
 
       return AdaptiveScope(
         child: GetMaterialApp(
+          key: ValueKey(
+            'app-$selectedLanguage-$activeFontFamily-$selectedFontSize-$selectedZoomScale-${appThemeMode.name}',
+          ),
           title: 'RiceGuard AI',
           debugShowCheckedModeBanner: false,
           theme: AppTheme.light(
@@ -99,8 +104,7 @@ class RiceGuardApp extends StatelessWidget {
           fallbackLocale: const Locale('en', 'US'),
           builder: (context, child) {
             final media = MediaQuery.of(context);
-            final textScale =
-                (settings.fontSize.value / 14.0) * settings.zoomScale.value;
+            final textScale = (selectedFontSize / 14.0) * selectedZoomScale;
             return MediaQuery(
               data: media.copyWith(
                 textScaler: TextScaler.linear(textScale),

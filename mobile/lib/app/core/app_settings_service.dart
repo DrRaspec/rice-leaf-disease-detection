@@ -16,10 +16,7 @@ class AppSettingsService extends GetxService {
   static const String defaultKhmerFontFamily = 'Noto Sans Khmer';
   static const List<String> khmerFontFamilies = [
     'Noto Sans Khmer',
-    'Khmer OS Battambang',
-    'Khmer OS Siemreap',
-    'Khmer Sangam MN',
-    'Khmer MN',
+    'Battambang',
   ];
 
   static const List<String> fontFamilies = ['Roboto', 'serif', 'monospace'];
@@ -48,6 +45,7 @@ class AppSettingsService extends GetxService {
     return {
       khmerFontFamily.value,
       ...khmerFontFamilies,
+      'Roboto',
     }.toList(growable: false);
   }
 
