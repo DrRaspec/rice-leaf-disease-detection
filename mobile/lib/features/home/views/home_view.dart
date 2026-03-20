@@ -68,9 +68,9 @@ class _WideContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
+    return const Row(
       crossAxisAlignment: CrossAxisAlignment.start,
-      children: const [
+      children: [
         Expanded(
           flex: 12,
           child: Column(
@@ -449,8 +449,6 @@ class _HeroCard extends StatelessWidget {
   }
 }
 
-
-
 class _UploadCard extends GetView<HomeController> {
   const _UploadCard();
 
@@ -674,7 +672,7 @@ class _UploadCard extends GetView<HomeController> {
                       child: Row(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Icon(Icons.warning_amber_rounded,
+                          const Icon(Icons.warning_amber_rounded,
                               color: AppTheme.danger),
                           const SizedBox(width: 10),
                           Expanded(

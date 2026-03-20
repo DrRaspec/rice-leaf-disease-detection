@@ -369,7 +369,8 @@ class _MainResultCard extends StatelessWidget {
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Icon(Icons.info_outline_rounded, color: AppTheme.warning),
+                    const Icon(Icons.info_outline_rounded,
+                        color: AppTheme.warning),
                     const SizedBox(width: 10),
                     Expanded(
                       child: Text(
