@@ -12,6 +12,12 @@ flutter run \
 
 API calls target the versioned backend routes (`/api/v1/*`).
 
+## Branding
+
+- Shared icon source: `../branding/app_icon.svg`
+- Android launcher icon: `android/app/src/main/res/mipmap-*/ic_launcher.png`
+- Mobile master PNG asset: `assets/images/app_icon.png`
+
 ## Display Settings
 
 Open the tune icon on the home app bar to change:

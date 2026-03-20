@@ -1,61 +1,12 @@
-<?xml version="1.0" encoding="utf-8"?>
-<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
-    <item android:gravity="center">
-        <shape android:shape="oval">
-            <size android:width="168dp" android:height="168dp" />
-            <solid android:color="#00000000" />
-            <stroke android:width="4dp" android:color="#8EE0BE" />
-        </shape>
-    </item>
-
-    <item android:gravity="center">
-        <shape android:shape="oval">
-            <size android:width="136dp" android:height="136dp" />
-            <solid android:color="#0E3C28" />
-            <stroke android:width="2dp" android:color="#2ECF93" />
-        </shape>
-    </item>
-
-    <item android:gravity="center">
-        <shape android:shape="oval">
-            <size android:width="44dp" android:height="88dp" />
-            <solid android:color="#3ADEA1" />
-        </shape>
-    </item>
-
-    <item android:gravity="center">
-        <shape android:shape="rectangle">
-            <size android:width="4dp" android:height="64dp" />
-            <solid android:color="#E9FFF5" />
-            <corners android:radius="3dp" />
-        </shape>
-    </item>
-
-    <item android:gravity="top|center_horizontal" android:top="34dp">
-        <shape android:shape="oval">
-            <size android:width="10dp" android:height="10dp" />
-            <solid android:color="#E9FFF5" />
-        </shape>
-    </item>
-
-    <item android:gravity="bottom|center_horizontal" android:bottom="34dp">
-        <shape android:shape="oval">
-            <size android:width="10dp" android:height="10dp" />
-            <solid android:color="#E9FFF5" />
-        </shape>
-    </item>
-
-    <item android:gravity="center_vertical|left" android:left="34dp">
-        <shape android:shape="oval">
-            <size android:width="10dp" android:height="10dp" />
-            <solid android:color="#E9FFF5" />
-        </shape>
-    </item>
-
-    <item android:gravity="center_vertical|right" android:right="34dp">
-        <shape android:shape="oval">
-            <size android:width="10dp" android:height="10dp" />
-            <solid android:color="#E9FFF5" />
-        </shape>
-    </item>
-</layer-list>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="32"
+    android:viewportHeight="32">
+    <path
+        android:fillColor="@color/launch_accent_ring"
+        android:pathData="M16,0C7.163,0 0,7.163 0,16s7.163,16 16,16s16,-7.163 16,-16S24.837,0 16,0z" />
+    <path
+        android:fillColor="@color/launch_accent_leaf"
+        android:pathData="M16,6C10,12 8,18 12,24C14,20 16,16 16,12C16,16 18,20 20,24C24,18 22,12 16,6z" />
+</vector>
