@@ -4,8 +4,10 @@ import App from './App.vue'
 import HomeView from './views/HomeView.vue'
 import './assets/styles/main.css'
 import { initUiSettings } from './composables/useUiSettings'
+import { initWebI18n } from './composables/useWebI18n'
 
 initUiSettings()
+initWebI18n()
 
 const router = createRouter({
   history: createWebHistory(),

@@ -35,6 +35,7 @@ class _PickerContent extends GetView<HomeController> {
 
   @override
   Widget build(BuildContext context) {
+    final cardColor = Theme.of(context).cardColor;
     // Load more when near the end
     scrollController.addListener(() {
       if (scrollController.position.pixels >=
@@ -45,12 +46,12 @@ class _PickerContent extends GetView<HomeController> {
 
     return Container(
       decoration: BoxDecoration(
-        color: AppTheme.card,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+        color: cardColor,
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
       ),
       child: Column(
         children: [
-          _Header(),
+          const _Header(),
           Expanded(child: _PhotoGrid(scrollController: scrollController)),
         ],
       ),
@@ -60,6 +61,8 @@ class _PickerContent extends GetView<HomeController> {
 
 // ── Header ─────────────────────────────────────────────────────────────────
 class _Header extends GetView<HomeController> {
+  const _Header();
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -84,7 +87,8 @@ class _Header extends GetView<HomeController> {
             children: [
               // Close button
               IconButton(
-                icon: Icon(Icons.close, color: AppTheme.textSecondary, size: 22),
+                icon:
+                    Icon(Icons.close, color: AppTheme.textSecondary, size: 22),
                 onPressed: Get.back,
                 splashRadius: 20,
               ),
@@ -94,8 +98,8 @@ class _Header extends GetView<HomeController> {
                 child: GestureDetector(
                   onTap: () => _showAlbumList(context),
                   child: Obx(() {
-                    final name =
-                        controller.currentAlbum.value?.name ?? AppText.t(TrKey.gallery);
+                    final name = controller.currentAlbum.value?.name ??
+                        AppText.t(TrKey.gallery);
                     return Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
@@ -145,14 +149,14 @@ class _Header extends GetView<HomeController> {
                               children: [
                                 Text(
                                   AppText.t(TrKey.send),
-                                  style: TextStyle(
+                                  style: const TextStyle(
                                     color: Colors.black,
                                     fontWeight: FontWeight.w700,
                                     fontSize: 14,
                                   ),
                                 ),
                                 const SizedBox(width: 4),
-                                Icon(
+                                const Icon(
                                   Icons.send_rounded,
                                   color: Colors.black,
                                   size: 14,
@@ -180,7 +184,7 @@ class _Header extends GetView<HomeController> {
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
-      builder: (_) => _AlbumListSheet(),
+      builder: (_) => const _AlbumListSheet(),
     );
   }
 }
@@ -215,7 +219,7 @@ class _PhotoGrid extends GetView<HomeController> {
         ),
         itemCount: totalCount,
         itemBuilder: (ctx, idx) {
-          if (idx == 0) return _CameraTile();
+          if (idx == 0) return const _CameraTile();
           final asset = controller.assets[idx - 1];
           return _PhotoTile(asset: asset, index: idx - 1);
         },
@@ -226,6 +230,8 @@ class _PhotoGrid extends GetView<HomeController> {
 
 // ── Camera Tile ────────────────────────────────────────────────────────────
 class _CameraTile extends GetView<HomeController> {
+  const _CameraTile();
+
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
@@ -290,7 +296,8 @@ class _PhotoTile extends GetView<HomeController> {
           fit: StackFit.expand,
           children: [
             // Thumbnail
-            _AssetThumbnail(asset: asset, size: const ThumbnailSize.square(300)),
+            _AssetThumbnail(
+                asset: asset, size: const ThumbnailSize.square(300)),
 
             // Video duration badge
             if (asset.type == AssetType.video)
@@ -367,6 +374,8 @@ class _PhotoTile extends GetView<HomeController> {
 
 // ── Album List Sheet ───────────────────────────────────────────────────────
 class _AlbumListSheet extends GetView<HomeController> {
+  const _AlbumListSheet();
+
   @override
   Widget build(BuildContext context) {
     return Obx(() {
@@ -422,7 +431,9 @@ class _AlbumListSheet extends GetView<HomeController> {
                     subtitle: FutureBuilder<int>(
                       future: album.assetCountAsync,
                       builder: (_, snap) => Text(
-                        snap.hasData ? '${snap.data} ${AppText.t(TrKey.photos)}' : '',
+                        snap.hasData
+                            ? '${snap.data} ${AppText.t(TrKey.photos)}'
+                            : '',
                         style: TextStyle(
                           color: AppTheme.textSecondary,
                           fontSize: 12,
@@ -430,7 +441,8 @@ class _AlbumListSheet extends GetView<HomeController> {
                       ),
                     ),
                     trailing: isCurrent
-                        ? Icon(Icons.check_rounded, color: AppTheme.primary, size: 20)
+                        ? Icon(Icons.check_rounded,
+                            color: AppTheme.primary, size: 20)
                         : null,
                     onTap: () {
                       Navigator.pop(context);
@@ -484,15 +496,37 @@ class _AlbumThumb extends StatelessWidget {
   }
 }
 
-class _AssetThumbnail extends StatelessWidget {
+class _AssetThumbnail extends StatefulWidget {
   final AssetEntity asset;
   final ThumbnailSize size;
   const _AssetThumbnail({required this.asset, required this.size});
 
   @override
+  State<_AssetThumbnail> createState() => _AssetThumbnailState();
+}
+
+class _AssetThumbnailState extends State<_AssetThumbnail> {
+  late Future<Uint8List?> _thumbFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    _thumbFuture = widget.asset.thumbnailDataWithSize(widget.size);
+  }
+
+  @override
+  void didUpdateWidget(covariant _AssetThumbnail oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.asset.id != widget.asset.id ||
+        oldWidget.size != widget.size) {
+      _thumbFuture = widget.asset.thumbnailDataWithSize(widget.size);
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     return FutureBuilder<Uint8List?>(
-      future: asset.thumbnailDataWithSize(size),
+      future: _thumbFuture,
       builder: (_, snapshot) {
         final bytes = snapshot.data;
         if (bytes == null || bytes.isEmpty) {
@@ -501,7 +535,7 @@ class _AssetThumbnail extends StatelessWidget {
             child: Icon(Icons.broken_image, color: AppTheme.textSecondary),
           );
         }
-        return Image.memory(bytes, fit: BoxFit.cover);
+        return Image.memory(bytes, fit: BoxFit.cover, gaplessPlayback: true);
       },
     );
   }

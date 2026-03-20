@@ -3,9 +3,6 @@ numpy>=1.26.0
 matplotlib
 pandas
 scikit-learn
-fastapi
-uvicorn
 pillow
 pillow-heif
-python-multipart
 PyJWT

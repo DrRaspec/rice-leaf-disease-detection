@@ -1,0 +1,153 @@
+{
+  "project_taxonomy": [
+    "bacterial_leaf_blight",
+    "brown_spot",
+    "healthy",
+    "leaf_blast",
+    "leaf_scald",
+    "narrow_brown_spot"
+  ],
+  "sources": [
+    {
+      "slug": "dedeikhsandwisaputra-rice-leafs-disease-dataset",
+      "title": "Rice Leafs Disease Dataset",
+      "url": "https://www.kaggle.com/datasets/dedeikhsandwisaputra/rice-leafs-disease-dataset",
+      "accessed_on": "2026-02-26",
+      "status": "baseline_in_use",
+      "license_note": "Check Kaggle dataset page before redistribution.",
+      "source_taxonomy": [
+        "bacterial_leaf_blight",
+        "brown_spot",
+        "healthy",
+        "leaf_blast",
+        "leaf_scald",
+        "narrow_brown_spot"
+      ],
+      "approved_mappings": {
+        "bacterial_leaf_blight": "bacterial_leaf_blight",
+        "brown_spot": "brown_spot",
+        "healthy": "healthy",
+        "leaf_blast": "leaf_blast",
+        "leaf_scald": "leaf_scald",
+        "narrow_brown_spot": "narrow_brown_spot"
+      },
+      "excluded_classes": [],
+      "notes": [
+        "Current project train and validation folders were derived from this source.",
+        "Treat this as the baseline reference taxonomy for the existing model."
+      ]
+    },
+    {
+      "slug": "vbookshelf-rice-leaf-diseases",
+      "title": "Rice Leaf Diseases",
+      "url": "https://www.kaggle.com/datasets/vbookshelf/rice-leaf-diseases",
+      "accessed_on": "2026-03-20",
+      "status": "imported_exact_matches_only",
+      "license_note": "Check Kaggle dataset page before download or redistribution.",
+      "source_taxonomy": [
+        "Bacterial leaf blight",
+        "Brown spot",
+        "Leaf smut"
+      ],
+      "approved_mappings": {
+        "Bacterial leaf blight": "bacterial_leaf_blight",
+        "Brown spot": "brown_spot"
+      },
+      "excluded_classes": [
+        "Leaf smut"
+      ],
+      "notes": [
+        "Downloaded on 2026-03-20 and verified locally.",
+        "This source contributes 40 bacterial leaf blight images and 40 brown spot images.",
+        "Exact duplicate check against the previous train and validation folders found 0 exact duplicates for those approved classes.",
+        "Imported into the rebuilt curated dataset on 2026-03-20."
+      ]
+    },
+    {
+      "slug": "kaggle-paddy-disease-classification",
+      "title": "Paddy Disease Classification / Paddy Doctor family",
+      "url": "https://www.kaggle.com/competitions/paddy-disease-classification/data",
+      "accessed_on": "2026-03-20",
+      "status": "blocked_competition_authentication",
+      "license_note": "Competition and dataset terms must be reviewed before reuse.",
+      "source_taxonomy": [
+        "bacterial_leaf_blight",
+        "bacterial_leaf_streak",
+        "bacterial_panicle_blight",
+        "blast",
+        "brown_spot",
+        "downy_mildew",
+        "hispa",
+        "leaf_roller",
+        "normal",
+        "tungro",
+        "black_stem_borer",
+        "white_stem_borer",
+        "yellow_stem_borer"
+      ],
+      "approved_mappings": {
+        "bacterial_leaf_blight": "bacterial_leaf_blight",
+        "blast": "leaf_blast",
+        "brown_spot": "brown_spot"
+      },
+      "excluded_classes": [
+        "bacterial_leaf_streak",
+        "bacterial_panicle_blight",
+        "downy_mildew",
+        "hispa",
+        "leaf_roller",
+        "tungro",
+        "black_stem_borer",
+        "white_stem_borer",
+        "yellow_stem_borer"
+      ],
+      "notes": [
+        "Competition files could not be downloaded anonymously on 2026-03-20.",
+        "Map `normal` to `healthy` only after manual image review of the downloaded files.",
+        "Rebuild the validation split after any import from this source."
+      ]
+    },
+    {
+      "slug": "loki4514-rice-leaf-diseases-detection",
+      "title": "Rice Leaf Diseases Detection",
+      "url": "https://www.kaggle.com/datasets/loki4514/rice-leaf-diseases-detection",
+      "accessed_on": "2026-03-20",
+      "status": "imported_original_split_only",
+      "license_note": "Check Kaggle dataset page before download or redistribution.",
+      "source_taxonomy": [
+        "bacterial_leaf_blight",
+        "brown_spot",
+        "healthy",
+        "leaf_blast",
+        "leaf_scald",
+        "narrow_brown_spot",
+        "hispa",
+        "sheath_blight",
+        "tungro",
+        "neck_blast",
+        "augmented_subset_present"
+      ],
+      "approved_mappings": {
+        "bacterial_leaf_blight": "bacterial_leaf_blight",
+        "brown_spot": "brown_spot",
+        "healthy": "healthy",
+        "leaf_blast": "leaf_blast",
+        "leaf_scald": "leaf_scald",
+        "narrow_brown_spot": "narrow_brown_spot"
+      },
+      "excluded_classes": [
+        "hispa",
+        "neck_blast",
+        "sheath_blight",
+        "tungro",
+        "augmented_subset_present"
+      ],
+      "notes": [
+        "Downloaded zip on 2026-03-20.",
+        "Only the original Rice_Leaf_Diease train/test subset was imported.",
+        "The Rice_Leaf_AUG augmented subset was intentionally excluded from the rebuild.",
+        "Exact duplicate check against the previous train and validation folders confirmed thousands of unique usable images across the approved classes."
+      ]
+    }
+  ]
+}

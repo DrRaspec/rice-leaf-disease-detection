@@ -1,16 +1,16 @@
 <template>
   <section id="demo" class="section-pad scanner-section">
     <div class="site-shell">
-      <div class="text-center">
-        <p class="eyebrow">Scanner Demo</p>
-        <h2 class="section-title">Upload and analyze a rice leaf</h2>
-        <p class="section-subtitle mx-auto max-w-2xl">
-          Choose a clear leaf photo to get disease name, confidence, and practical treatment guidance.
-        </p>
-      </div>
+        <div class="max-w-xl">
+          <p class="eyebrow">{{ t('scanner.eyebrow') }}</p>
+          <h2 class="section-title">{{ t('scanner.title') }}</h2>
+          <p class="section-subtitle max-w-xl">
+            {{ t('scanner.subtitle') }}
+          </p>
+        </div>
 
-      <div class="mt-10 grid gap-6 lg:grid-cols-2 lg:gap-8">
-        <div>
+      <div class="mt-8 grid gap-6 xl:grid-cols-[minmax(0,1.08fr)_minmax(360px,0.92fr)] xl:gap-8">
+        <div class="space-y-4">
           <UploadCard
             :selected-file="selectedFile"
             :preview-src="previewUrl"
@@ -20,17 +20,18 @@
             @remove="removeSelection"
           />
 
-          <p v-if="optimizing" class="mt-4 text-sm text-[#2D4535]">Optimizing image for faster upload...</p>
-          <p v-else-if="loading" class="mt-4 text-sm text-[#2D4535]">
-            {{ uploadProgress > 0 && uploadProgress < 100 ? `Uploading ${uploadProgress}%...` : 'Analyzing...' }}
+          <p v-if="optimizing" class="mt-4 text-sm" style="color: var(--rg-text-secondary)">{{ t('scanner.optimizing') }}</p>
+          <p v-else-if="loading" class="mt-4 text-sm" style="color: var(--rg-text-secondary)">
+            {{ uploadProgress > 0 && uploadProgress < 100 ? t('scanner.upload', { progress: uploadProgress }) : t('scanner.analyzing') }}
           </p>
-          <p v-if="selectedFile && optimizedInfo" class="mt-2 text-xs text-[#4D6653]">
+          <p v-if="selectedFile && optimizedInfo" class="mt-2 text-xs" style="color: var(--rg-text-tertiary)">
             {{ optimizedInfo }}
           </p>
 
           <div
             v-if="error"
-            class="mt-4 rounded-2xl border border-[#F5C2C2] bg-[#FFF2F2] p-4 text-sm text-[#8A1F1F]"
+            class="mt-4 rounded-2xl border p-4 text-sm"
+            style="border-color: var(--rg-error-border); background: var(--rg-error-bg); color: var(--rg-error-text)"
             role="status"
             aria-live="polite"
           >
@@ -45,18 +46,22 @@
 </template>
 
 <script setup>
-import { onBeforeUnmount, ref } from 'vue'
+import { computed, onBeforeUnmount, ref } from 'vue'
 import UploadCard from '@/components/home/UploadCard.vue'
 import ResultCard from '@/components/home/ResultCard.vue'
 import { usePrediction } from '@/composables/usePrediction'
 import { optimizeImageForUpload } from '@/utils/imageOptimize'
+import { useWebI18n } from '@/composables/useWebI18n'
 
 const { result, loading, error, uploadProgress, predict, reset } = usePrediction()
+const { t } = useWebI18n()
 
 const selectedFile = ref(null)
 const previewUrl = ref('')
 const optimizing = ref(false)
 const optimizedInfo = ref('')
+
+
 
 function revokePreview() {
   if (previewUrl.value) {
@@ -79,7 +84,7 @@ async function handleFileSelected(file) {
     selectedFile.value = optimized
     previewUrl.value = URL.createObjectURL(optimized)
     if (optimized.size < file.size) {
-      optimizedInfo.value = `Optimized from ${formatKB(file.size)} to ${formatKB(optimized.size)}`
+      optimizedInfo.value = t('scanner.optimized', { from: formatKB(file.size), to: formatKB(optimized.size) })
     }
   } catch {
     selectedFile.value = file

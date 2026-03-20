@@ -1,5 +1,8 @@
 #!/bin/bash
-source ~/rice-env/bin/activate
+set -euo pipefail
+
+RICE_ENV_PATH="${RICE_ENV_PATH:-$HOME/rice-env}"
+source "$RICE_ENV_PATH/bin/activate"
 python -c "
 import tensorflow as tf
 print('TF version:', tf.__version__)

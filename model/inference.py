@@ -130,6 +130,12 @@ def _load_model(path: Path) -> tf.keras.Model:
     return tf.keras.models.load_model(path)
 
 
+def warmup_inference_assets() -> None:
+    """Load artifacts eagerly so long-lived workers pay the startup cost once."""
+    _load_class_names(CLASS_NAMES_PATH)
+    _load_model(MODEL_PATH)
+
+
 def predict_image(image: Image.Image, top_k: int = 3) -> dict:
     model = _load_model(MODEL_PATH)
     class_names = _load_class_names(CLASS_NAMES_PATH)

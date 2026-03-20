@@ -1,12 +1,14 @@
 <template>
-  <section id="diseases" class="section-pad bg-[#F8FCF3]">
+  <section id="diseases" class="section-pad" style="background: var(--rg-surface-alt)">
     <div class="site-shell">
-      <div class="text-center">
-        <p class="eyebrow">Disease Library</p>
-        <h2 class="section-title">Known Rice Diseases</h2>
+      <div class="grid gap-8 lg:grid-cols-[minmax(0,0.78fr)_minmax(0,1.22fr)] lg:items-end">
+        <div class="max-w-xl">
+          <p class="eyebrow">{{ t('diseases.eyebrow') }}</p>
+          <h2 class="section-title">{{ t('diseases.title') }}</h2>
+        </div>
       </div>
 
-      <div class="mt-10 grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
+      <div class="mt-8 grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
         <article
           v-for="disease in diseases"
           :key="disease.name"
@@ -15,10 +17,10 @@
           <div class="icon-pill mb-4" aria-hidden="true">
             <component :is="disease.icon" class="h-5 w-5" />
           </div>
-          <h3 class="text-lg font-semibold text-[#102016]">{{ disease.name }}</h3>
-          <p class="mt-2 text-sm leading-relaxed text-[#38503F]">{{ disease.description }}</p>
+          <h3 class="text-lg font-semibold" style="color: var(--rg-text)">{{ disease.name }}</h3>
+          <p class="mt-1.5 text-sm leading-relaxed" style="color: var(--rg-text-secondary)">{{ disease.description }}</p>
           <span class="risk-chip mt-4 inline-flex" :class="riskChipClass(disease.risk)">
-            {{ disease.risk }} risk
+            {{ disease.risk }} {{ t('diseases.risk') }}
           </span>
         </article>
       </div>
@@ -27,7 +29,8 @@
 </template>
 
 <script setup>
-import { defineComponent, h } from 'vue'
+import { computed, defineComponent, h } from 'vue'
+import { useWebI18n } from '@/composables/useWebI18n'
 
 const LeafIcon = defineComponent({
   name: 'LeafIcon',
@@ -106,7 +109,7 @@ const AlertIcon = defineComponent({
   },
 })
 
-const diseases = [
+const diseasesEn = [
   {
     name: 'Healthy',
     description: 'Leaf texture and color look normal with no major disease signals.',
@@ -145,9 +148,21 @@ const diseases = [
   },
 ]
 
+const diseasesKm = [
+  { name: 'សុខភាពល្អ', description: 'ស្លឹកមានពណ៌ និងសភាពធម្មតា មិនឃើញរោគសញ្ញាសំខាន់។', risk: 'ទាប', icon: ShieldIcon },
+  { name: 'ជំងឺក្រុង', description: 'ស្នាមរាងពេជ្រអាចរាលដាលលឿន នៅពេលអាកាសធាតុសើម។', risk: 'ខ្ពស់', icon: AlertIcon },
+  { name: 'ជំងឺរលាកស្លឹកដោយបាក់តេរី', description: 'ស្លឹកលឿងពីគែម ហើយអាការៈអាចធ្ងន់ក្រោយភ្លៀងច្រើន។', risk: 'ខ្ពស់', icon: AlertIcon },
+  { name: 'ជំងឺអុចត្នោត', description: 'ចំណុចត្នោតរាងមូលលើស្លឹក ច្រើនកើតនៅដំណាំខ្សោយ។', risk: 'មធ្យម', icon: LeafIcon },
+  { name: 'ជំងឺដំបៅស្លឹក', description: 'ស្នាមដូចរលាក ចាប់ផ្ដើមពីចុងស្លឹក ហើយរាលចុះក្រោម។', risk: 'មធ្យម', icon: LeafIcon },
+  { name: 'ជំងឺឆ្នូតត្នោត', description: 'ស្នាមតូចរាងបន្ទាត់បង្ហាញពីសម្ពាធជំងឺផ្សិតដំណាក់កាលដំបូង។', risk: 'ទាប', icon: LeafIcon },
+]
+
+const { language, t } = useWebI18n()
+const diseases = computed(() => (language.value === 'km' ? diseasesKm : diseasesEn))
+
 function riskChipClass(risk) {
-  if (risk === 'High') return 'chip-risk-high'
-  if (risk === 'Medium') return 'chip-risk-medium'
+  if (risk === 'High' || risk === 'ខ្ពស់') return 'chip-risk-high'
+  if (risk === 'Medium' || risk === 'មធ្យម') return 'chip-risk-medium'
   return 'chip-risk-low'
 }
 </script>

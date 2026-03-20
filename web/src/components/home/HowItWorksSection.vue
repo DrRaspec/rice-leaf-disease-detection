@@ -1,29 +1,37 @@
 <template>
-  <section id="how-it-works" class="section-pad bg-[#F5FBEF]">
+  <section id="how-it-works" class="section-pad" style="background: var(--rg-bg)">
     <div class="site-shell">
-      <div class="text-center">
-        <p class="eyebrow">How it works</p>
-        <h2 class="section-title">Simple steps for faster field decisions</h2>
-        <p class="section-subtitle mx-auto max-w-2xl">
-          Built for busy farmers and field teams. Take a photo, check the result, and act quickly.
-        </p>
-      </div>
+      <div class="grid gap-8 lg:grid-cols-[minmax(0,0.75fr)_minmax(0,1.25fr)] lg:items-start">
+        <div class="max-w-xl">
+          <p class="eyebrow">{{ t('how.eyebrow') }}</p>
+          <h2 class="section-title">{{ t('how.title') }}</h2>
+          <p class="section-subtitle max-w-lg">
+            {{ t('how.subtitle') }}
+          </p>
+        </div>
 
-      <div class="mt-10 grid gap-5 md:grid-cols-3">
-        <article v-for="step in steps" :key="step.title" class="surface-card p-6">
-          <div class="icon-pill mb-4" aria-hidden="true">
-            <component :is="step.icon" class="h-5 w-5" />
-          </div>
-          <h3 class="text-lg font-semibold text-[#102016]">{{ step.title }}</h3>
-          <p class="mt-2 text-sm leading-relaxed text-[#38503F]">{{ step.description }}</p>
-        </article>
+        <div class="grid gap-5 md:grid-cols-3">
+          <article v-for="(step, index) in steps" :key="step.title" class="surface-card p-6">
+            <div class="flex items-center justify-between gap-4">
+              <div class="icon-pill" aria-hidden="true">
+                <component :is="step.icon" class="h-5 w-5" />
+              </div>
+              <span class="text-xs font-bold uppercase tracking-[0.18em]" style="color: var(--rg-text-faint)">
+                0{{ index + 1 }}
+              </span>
+            </div>
+            <h3 class="mt-5 text-lg font-semibold" style="color: var(--rg-text)">{{ step.title }}</h3>
+            <p class="mt-2 text-sm leading-relaxed" style="color: var(--rg-text-secondary)">{{ step.description }}</p>
+          </article>
+        </div>
       </div>
     </div>
   </section>
 </template>
 
 <script setup>
-import { defineComponent, h } from 'vue'
+import { computed, defineComponent, h } from 'vue'
+import { useWebI18n } from '@/composables/useWebI18n'
 
 const CameraIcon = defineComponent({
   name: 'CameraIcon',
@@ -107,21 +115,10 @@ const AdviceIcon = defineComponent({
   },
 })
 
-const steps = [
-  {
-    title: 'Capture',
-    description: 'Take a clear rice leaf photo in good light with the leaf centered.',
-    icon: CameraIcon,
-  },
-  {
-    title: 'Analyze',
-    description: 'Upload once and let the model detect likely disease patterns in seconds.',
-    icon: ScanIcon,
-  },
-  {
-    title: 'Act',
-    description: 'Follow treatment and prevention guidance to protect nearby plants early.',
-    icon: AdviceIcon,
-  },
-]
+const { t } = useWebI18n()
+const steps = computed(() => [
+  { title: t('how.captureTitle'), description: t('how.captureDesc'), icon: CameraIcon },
+  { title: t('how.analyzeTitle'), description: t('how.analyzeDesc'), icon: ScanIcon },
+  { title: t('how.actTitle'), description: t('how.actDesc'), icon: AdviceIcon },
+])
 </script>

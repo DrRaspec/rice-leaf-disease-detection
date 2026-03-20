@@ -8,63 +8,70 @@ class SplashView extends GetView<SplashController> {
 
   @override
   Widget build(BuildContext context) {
-    // Ensure controller is created so onReady() navigation timer starts.
     controller;
+    final scaffoldBackground = Theme.of(context).scaffoldBackgroundColor;
     return Scaffold(
-      backgroundColor: AppTheme.background,
+      backgroundColor: scaffoldBackground,
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            // Animated logo
+            // ── Logo with scale-in ──────────────────────────
             TweenAnimationBuilder<double>(
               tween: Tween(begin: 0, end: 1),
-              duration: const Duration(milliseconds: 900),
+              duration: const Duration(milliseconds: 800),
               curve: Curves.easeOutBack,
               builder: (_, v, child) => Transform.scale(scale: v, child: child),
               child: Container(
-                width: 100,
-                height: 100,
+                width: 88,
+                height: 88,
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
                     colors: [AppTheme.primary700, AppTheme.primary],
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
                   ),
-                  borderRadius: BorderRadius.circular(28),
+                  borderRadius: BorderRadius.circular(26),
                   boxShadow: [
                     BoxShadow(
-                      color: AppTheme.primary.withValues(alpha: 0.4),
-                      blurRadius: 32,
-                      spreadRadius: 4,
+                      color: AppTheme.primary.withValues(alpha: 0.32),
+                      blurRadius: 28,
+                      spreadRadius: 2,
+                      offset: const Offset(0, 8),
                     ),
                   ],
                 ),
                 child: const Icon(
                   Icons.eco_rounded,
-                  size: 52,
+                  size: 44,
                   color: Colors.black,
                 ),
               ),
             ),
 
-            const SizedBox(height: 28),
+            const SizedBox(height: 32),
 
-            // App name
+            // ── App name with fade + slide ──────────────────
             TweenAnimationBuilder<double>(
               tween: Tween(begin: 0, end: 1),
               duration: const Duration(milliseconds: 700),
               curve: Curves.easeOut,
-              builder: (_, v, child) => Opacity(opacity: v, child: child),
+              builder: (_, v, child) => Opacity(
+                opacity: v,
+                child: Transform.translate(
+                  offset: Offset(0, 8 * (1 - v)),
+                  child: child,
+                ),
+              ),
               child: Column(
                 children: [
                   RichText(
                     text: TextSpan(
                       style: TextStyle(
-                        fontSize: 34,
+                        fontSize: 32,
                         fontWeight: FontWeight.w800,
                         color: AppTheme.textPrimary,
-                        letterSpacing: -0.5,
+                        letterSpacing: -0.8,
                       ),
                       children: [
                         const TextSpan(text: 'Rice'),
@@ -75,29 +82,30 @@ class SplashView extends GetView<SplashController> {
                       ],
                     ),
                   ),
-                  const SizedBox(height: 6),
+                  const SizedBox(height: 8),
                   Text(
                     'AI Disease Detection',
                     style: TextStyle(
                       color: AppTheme.textSecondary,
-                      fontSize: 15,
-                      letterSpacing: 0.5,
+                      fontSize: 14,
+                      fontWeight: FontWeight.w500,
+                      letterSpacing: 0.8,
                     ),
                   ),
                 ],
               ),
             ),
 
-            const SizedBox(height: 56),
+            const SizedBox(height: 48),
 
-            // Loading indicator
+            // ── Loading indicator ────────────────────────────
             SizedBox(
-              width: 28,
-              height: 28,
+              width: 24,
+              height: 24,
               child: CircularProgressIndicator(
-                strokeWidth: 2.5,
+                strokeWidth: 2,
                 valueColor: AlwaysStoppedAnimation(
-                  AppTheme.primary.withValues(alpha: 0.7),
+                  AppTheme.primary.withValues(alpha: 0.5),
                 ),
               ),
             ),

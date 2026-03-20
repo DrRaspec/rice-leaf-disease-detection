@@ -10,16 +10,15 @@ import 'app/routes/app_routes.dart';
 import 'app/theme/app_theme.dart';
 
 Future<void> main() async {
-  WidgetsFlutterBinding.ensureInitialized();
   AppLogger.configure();
   await AppLogger.runWithPrintGuard(() async {
+    WidgetsFlutterBinding.ensureInitialized();
     await AdaptiveUtils.ensureScreenSize();
 
     const breakpoints = AdaptiveBreakpoints(useShortestSide: true);
     final view = WidgetsBinding.instance.platformDispatcher.implicitView;
-    final logicalSize = view == null
-        ? Size.zero
-        : view.physicalSize / view.devicePixelRatio;
+    final logicalSize =
+        view == null ? Size.zero : view.physicalSize / view.devicePixelRatio;
     final deviceType = breakpoints.getDeviceType(
       logicalSize.width,
       logicalSize.height,
@@ -66,10 +65,15 @@ class RiceGuardApp extends StatelessWidget {
     return Obx(() {
       final appThemeMode = settings.themeMode.value;
       final selectedLanguage = settings.languageCode.value;
+      final selectedFontSize = settings.fontSize.value;
+      final selectedZoomScale = settings.zoomScale.value;
       final systemBrightness =
           WidgetsBinding.instance.platformDispatcher.platformBrightness;
       final isDark = appThemeMode == ThemeMode.dark ||
-          (appThemeMode == ThemeMode.system && systemBrightness == Brightness.dark);
+          (appThemeMode == ThemeMode.system &&
+              systemBrightness == Brightness.dark);
+      final activeFontFamily = settings.activeFontFamily;
+      final activeFontFallbacks = settings.activeFontFallbacks;
 
       SystemChrome.setSystemUIOverlayStyle(
         SystemUiOverlayStyle(
@@ -82,17 +86,25 @@ class RiceGuardApp extends StatelessWidget {
 
       return AdaptiveScope(
         child: GetMaterialApp(
+          key: ValueKey(
+            'app-$selectedLanguage-$activeFontFamily-$selectedFontSize-$selectedZoomScale-${appThemeMode.name}',
+          ),
           title: 'RiceGuard AI',
           debugShowCheckedModeBanner: false,
-          theme: AppTheme.light(fontFamily: settings.fontFamily.value),
-          darkTheme: AppTheme.dark(fontFamily: settings.fontFamily.value),
+          theme: AppTheme.light(
+            fontFamily: activeFontFamily,
+            fontFamilyFallback: activeFontFallbacks,
+          ),
+          darkTheme: AppTheme.dark(
+            fontFamily: activeFontFamily,
+            fontFamilyFallback: activeFontFallbacks,
+          ),
           themeMode: appThemeMode,
           translations: AppTranslations(),
           fallbackLocale: const Locale('en', 'US'),
           builder: (context, child) {
             final media = MediaQuery.of(context);
-            final textScale =
-                (settings.fontSize.value / 14.0) * settings.zoomScale.value;
+            final textScale = (selectedFontSize / 14.0) * selectedZoomScale;
             return MediaQuery(
               data: media.copyWith(
                 textScaler: TextScaler.linear(textScale),

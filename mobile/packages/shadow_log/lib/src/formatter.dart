@@ -68,5 +68,5 @@ String _formatFields(Map<String, Object?> fields) {
   final items = fields.entries
       .map((e) => '${e.key}=${e.value}')
       .join(', ');
-  return '{${items}}';
+  return '{$items}';
 }

@@ -10,7 +10,7 @@ spring:
 app:
   inference:
     python-command: ${APP_PYTHON_COMMAND:python}
-    module: model.predict_cli
+    module: model.predict_worker
     top-k: 3
     project-root: ${APP_PROJECT_ROOT:..}
   security:

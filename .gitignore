@@ -55,3 +55,7 @@ mobile/ios/Pods/
 *.iml
 Thumbs.db
 .DS_Store
+
+# impeccable
+.codex
+.claude

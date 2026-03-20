@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_adaptive_kit/flutter_adaptive_kit.dart';
 import 'package:get/get.dart';
 import '../../../app/core/core_i18n.dart';
 import '../../../app/core/core_services.dart';
 import '../../../app/theme/app_theme.dart';
+import '../../../app/theme/disease_icon_theme.dart';
+import '../../result/controllers/disease_info_catalog.dart';
 import '../controllers/home_controller.dart';
 
 class HomeView extends GetView<HomeController> {
@@ -11,142 +12,204 @@ class HomeView extends GetView<HomeController> {
 
   @override
   Widget build(BuildContext context) {
+    final scaffoldBackground = Theme.of(context).scaffoldBackgroundColor;
     return Scaffold(
-      backgroundColor: AppTheme.background,
-      body: AdaptiveBuilder(
-        phone: (_, __) => _buildPhoneBody(context),
-        tablet: (_, info) =>
-            info.isLandscape ? _buildTabletLandscapeBody(context) : _buildPhoneBody(context),
-        desktop: (_, __) => _buildTabletLandscapeBody(context),
-        foldable: (_, __) => _buildPhoneBody(context),
+      backgroundColor: scaffoldBackground,
+      body: LayoutBuilder(
+        builder: (context, constraints) {
+          final width = constraints.maxWidth;
+          if (width >= 1024) {
+            return const _HomeScrollBody(compact: false);
+          } else if (width >= 600) {
+            final isLandscape =
+                MediaQuery.orientationOf(context) == Orientation.landscape;
+            return _HomeScrollBody(compact: !isLandscape);
+          }
+          return const _HomeScrollBody(compact: true);
+        },
       ),
     );
   }
+}
 
-  Widget _buildPhoneBody(BuildContext context) {
+class _HomeScrollBody extends StatelessWidget {
+  final bool compact;
+  const _HomeScrollBody({required this.compact});
+
+  @override
+  Widget build(BuildContext context) {
+    final hPad = compact ? 20.0 : 28.0;
     return CustomScrollView(
       slivers: [
-        _buildSliverAppBar(context),
+        _HomeHeader(compact: compact),
         SliverPadding(
-          padding: const EdgeInsets.fromLTRB(20, 0, 20, 40),
-          sliver: SliverList(
-            delegate: SliverChildListDelegate([
-              _HeroCard(),
-              const SizedBox(height: 20),
-              _UploadCard(),
-              const SizedBox(height: 20),
-              _DiseasesSection(),
-            ]),
+          padding: EdgeInsets.fromLTRB(hPad, 4, hPad, 40),
+          sliver: SliverToBoxAdapter(
+            child: compact
+                ? const Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      _HeroCard(),
+                      SizedBox(height: 16),
+                      _UploadCard(),
+                      SizedBox(height: 16),
+                      _DiseasesSection(),
+                    ],
+                  )
+                : const _WideContent(),
           ),
         ),
       ],
     );
   }
+}
 
-  Widget _buildTabletLandscapeBody(BuildContext context) {
-    return SafeArea(
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(20, 12, 20, 20),
-        child: Column(
-          children: [
-            _buildHeaderContent(context),
-            const SizedBox(height: 14),
-            Expanded(
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Expanded(
-                    flex: 11,
-                    child: ListView(
-                      children: [
-                        _HeroCard(),
-                        const SizedBox(height: 20),
-                        _UploadCard(),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(width: 20),
-                  Expanded(
-                    flex: 9,
-                    child: const SingleChildScrollView(
-                      child: _DiseasesSection(),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
+class _WideContent extends StatelessWidget {
+  const _WideContent();
 
-  SliverAppBar _buildSliverAppBar(BuildContext context) => SliverAppBar(
-        expandedHeight: 0,
-        floating: true,
-        snap: true,
-        backgroundColor: AppTheme.background.withValues(alpha: 0.95),
-        title: _buildHeaderContent(context),
-      );
-
-  Widget _buildHeaderContent(BuildContext context) {
-    return Row(
+  @override
+  Widget build(BuildContext context) {
+    return const Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Container(
-          width: 34,
-          height: 34,
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              colors: [AppTheme.primary700, AppTheme.primary],
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-            ),
-            borderRadius: BorderRadius.circular(10),
-          ),
-          child: Icon(
-            Icons.eco_rounded,
-            size: 20,
-            color: Get.isDarkMode ? Colors.black : Colors.white,
-          ),
-        ),
-        const SizedBox(width: 10),
-        RichText(
-          text: TextSpan(
-            style: const TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.w800,
-            ),
+        Expanded(
+          flex: 12,
+          child: Column(
             children: [
-              const TextSpan(text: 'Rice'),
-              TextSpan(
-                text: 'Guard',
-                style: TextStyle(color: AppTheme.primary),
-              ),
-              TextSpan(
-                text: ' AI',
-                style: TextStyle(color: AppTheme.textSecondary, fontSize: 14),
-              ),
+              _HeroCard(),
+              SizedBox(height: 20),
+              _UploadCard(),
             ],
           ),
         ),
-        const Spacer(),
-        IconButton(
-          onPressed: () => _showDisplaySettings(context),
-          icon: Icon(Icons.tune_rounded, color: AppTheme.textPrimary),
-          tooltip: AppText.t(TrKey.displaySettings),
+        SizedBox(width: 24),
+        Expanded(
+          flex: 10,
+          child: _DiseasesSection(),
         ),
       ],
+    );
+  }
+}
+
+class _HomeHeader extends StatelessWidget {
+  final bool compact;
+  const _HomeHeader({required this.compact});
+
+  @override
+  Widget build(BuildContext context) {
+    final scaffoldBackground = Theme.of(context).scaffoldBackgroundColor;
+    return SliverAppBar(
+      pinned: true,
+      floating: true,
+      snap: true,
+      toolbarHeight: 68,
+      elevation: 0,
+      scrolledUnderElevation: 0,
+      surfaceTintColor: Colors.transparent,
+      backgroundColor: scaffoldBackground.withValues(alpha: 0.96),
+      titleSpacing: compact ? 20 : 28,
+      title: Row(
+        children: [
+          Container(
+            width: 40,
+            height: 40,
+            decoration: BoxDecoration(
+              color: AppTheme.primary700,
+              borderRadius: BorderRadius.circular(14),
+              boxShadow: [
+                BoxShadow(
+                  color: AppTheme.primary.withValues(alpha: 0.14),
+                  blurRadius: 12,
+                  offset: const Offset(0, 4),
+                ),
+              ],
+            ),
+            child: Icon(
+              Icons.eco_rounded,
+              size: 22,
+              color: Get.isDarkMode ? const Color(0xFF17251C) : Colors.white,
+            ),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  'RiceGuard AI',
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                        color: AppTheme.textPrimary,
+                      ),
+                ),
+                Text(
+                  AppText.t(TrKey.heroTag),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        color: AppTheme.textSecondary,
+                        fontWeight: FontWeight.w600,
+                      ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(width: 12),
+          _HeaderAction(
+            icon: Icons.tune_rounded,
+            label: AppText.t(TrKey.displaySettings),
+            onTap: () => _showDisplaySettings(context),
+          ),
+        ],
+      ),
     );
   }
 
   void _showDisplaySettings(BuildContext context) {
     showModalBottomSheet(
       context: context,
+      isScrollControlled: true,
       backgroundColor: Colors.transparent,
       shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+        borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
       ),
       builder: (_) => const _DisplaySettingsSheet(),
+    );
+  }
+}
+
+class _HeaderAction extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final VoidCallback onTap;
+
+  const _HeaderAction({
+    required this.icon,
+    required this.label,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: AppTheme.card,
+      borderRadius: BorderRadius.circular(16),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(16),
+        child: Ink(
+          width: 48,
+          height: 48,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: AppTheme.cardBorder),
+          ),
+          child: Icon(icon, color: AppTheme.textPrimary),
+        ),
+      ),
     );
   }
 }
@@ -160,13 +223,14 @@ class _DisplaySettingsSheet extends StatelessWidget {
 
     Widget sectionTitle(String text) {
       return Padding(
-        padding: const EdgeInsets.only(bottom: 8),
+        padding: const EdgeInsets.only(bottom: 10),
         child: Text(
           text,
           style: TextStyle(
             color: AppTheme.textSecondary,
             fontSize: 12,
-            fontWeight: FontWeight.w600,
+            fontWeight: FontWeight.w700,
+            letterSpacing: 0.4,
           ),
         ),
       );
@@ -177,115 +241,125 @@ class _DisplaySettingsSheet extends StatelessWidget {
         final selectedMode = settings.themeMode.value;
         final selectedFontSize = settings.fontSize.value;
         final selectedZoom = settings.zoomScale.value;
-        final selectedFamily = settings.fontFamily.value;
+        final selectedFamily = settings.selectedFontFamily;
+        final visibleFontFamilies = settings.visibleFontFamilies;
 
         return AnimatedContainer(
           duration: const Duration(milliseconds: 180),
           decoration: BoxDecoration(
             color: AppTheme.card,
-            borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
             border: Border.all(color: AppTheme.cardBorder),
           ),
-          padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Center(
-                child: Container(
-                  width: 36,
-                  height: 4,
-                  decoration: BoxDecoration(
-                    color: AppTheme.textSecondary.withValues(alpha: 0.35),
-                    borderRadius: BorderRadius.circular(2),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 12),
-              Text(
-                AppText.t(TrKey.displaySettings),
-                style: TextStyle(
-                  color: AppTheme.textPrimary,
-                  fontSize: 18,
-                  fontWeight: FontWeight.w700,
-                ),
-              ),
-              const SizedBox(height: 14),
-              sectionTitle(AppText.t(TrKey.theme)),
-              Wrap(
-                spacing: 8,
+          child: ConstrainedBox(
+            constraints: BoxConstraints(
+              maxHeight: MediaQuery.of(context).size.height * 0.86,
+            ),
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.fromLTRB(20, 12, 20, 20),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  _ChoiceChip(
-                    label: AppText.t(TrKey.dark),
-                    selected: selectedMode == ThemeMode.dark,
-                    onTap: () => settings.setThemeMode(ThemeMode.dark),
+                  Center(
+                    child: Container(
+                      width: 42,
+                      height: 4,
+                      decoration: BoxDecoration(
+                        color: AppTheme.textSecondary.withValues(alpha: 0.32),
+                        borderRadius: BorderRadius.circular(100),
+                      ),
+                    ),
                   ),
-                  _ChoiceChip(
-                    label: AppText.t(TrKey.light),
-                    selected: selectedMode == ThemeMode.light,
-                    onTap: () => settings.setThemeMode(ThemeMode.light),
+                  const SizedBox(height: 18),
+                  Text(
+                    AppText.t(TrKey.displaySettings),
+                    style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                          color: AppTheme.textPrimary,
+                        ),
                   ),
-                  _ChoiceChip(
-                    label: AppText.t(TrKey.system),
-                    selected: selectedMode == ThemeMode.system,
-                    onTap: () => settings.setThemeMode(ThemeMode.system),
+                  const SizedBox(height: 18),
+                  sectionTitle(AppText.t(TrKey.theme)),
+                  Wrap(
+                    spacing: 8,
+                    runSpacing: 8,
+                    children: [
+                      _ChoiceChip(
+                        label: AppText.t(TrKey.dark),
+                        selected: selectedMode == ThemeMode.dark,
+                        onTap: () => settings.setThemeMode(ThemeMode.dark),
+                      ),
+                      _ChoiceChip(
+                        label: AppText.t(TrKey.light),
+                        selected: selectedMode == ThemeMode.light,
+                        onTap: () => settings.setThemeMode(ThemeMode.light),
+                      ),
+                      _ChoiceChip(
+                        label: AppText.t(TrKey.system),
+                        selected: selectedMode == ThemeMode.system,
+                        onTap: () => settings.setThemeMode(ThemeMode.system),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 18),
+                  sectionTitle(AppText.t(TrKey.fontSize)),
+                  Wrap(
+                    spacing: 8,
+                    runSpacing: 8,
+                    children: AppSettingsService.fontSizes.map((size) {
+                      return _ChoiceChip(
+                        label: size.toStringAsFixed(0),
+                        selected: selectedFontSize == size,
+                        onTap: () => settings.setFontSize(size),
+                      );
+                    }).toList(),
+                  ),
+                  const SizedBox(height: 18),
+                  sectionTitle(AppText.t(TrKey.zoom)),
+                  Wrap(
+                    spacing: 8,
+                    runSpacing: 8,
+                    children: AppSettingsService.zoomScales.map((scale) {
+                      return _ChoiceChip(
+                        label: '${(scale * 100).round()}%',
+                        selected: selectedZoom == scale,
+                        onTap: () => settings.setZoomScale(scale),
+                      );
+                    }).toList(),
+                  ),
+                  const SizedBox(height: 18),
+                  sectionTitle(AppText.t(TrKey.fontFamily)),
+                  Wrap(
+                    spacing: 8,
+                    runSpacing: 8,
+                    children: visibleFontFamilies.map((family) {
+                      return _ChoiceChip(
+                        label: family,
+                        selected: selectedFamily == family,
+                        onTap: () => settings.setFontFamily(family),
+                      );
+                    }).toList(),
+                  ),
+                  const SizedBox(height: 18),
+                  sectionTitle(AppText.t(TrKey.language)),
+                  Wrap(
+                    spacing: 8,
+                    runSpacing: 8,
+                    children: [
+                      _ChoiceChip(
+                        label: AppText.t(TrKey.khmer),
+                        selected: settings.languageCode.value == 'km',
+                        onTap: () => settings.setLanguageCode('km'),
+                      ),
+                      _ChoiceChip(
+                        label: AppText.t(TrKey.english),
+                        selected: settings.languageCode.value == 'en',
+                        onTap: () => settings.setLanguageCode('en'),
+                      ),
+                    ],
                   ),
                 ],
               ),
-              const SizedBox(height: 14),
-              sectionTitle(AppText.t(TrKey.fontSize)),
-              Wrap(
-                spacing: 8,
-                children: AppSettingsService.fontSizes.map((size) {
-                  return _ChoiceChip(
-                    label: size.toStringAsFixed(0),
-                    selected: selectedFontSize == size,
-                    onTap: () => settings.setFontSize(size),
-                  );
-                }).toList(),
-              ),
-              const SizedBox(height: 14),
-              sectionTitle(AppText.t(TrKey.zoom)),
-              Wrap(
-                spacing: 8,
-                children: AppSettingsService.zoomScales.map((scale) {
-                  return _ChoiceChip(
-                    label: '${(scale * 100).round()}%',
-                    selected: selectedZoom == scale,
-                    onTap: () => settings.setZoomScale(scale),
-                  );
-                }).toList(),
-              ),
-              const SizedBox(height: 14),
-              sectionTitle(AppText.t(TrKey.fontFamily)),
-              Wrap(
-                spacing: 8,
-                children: AppSettingsService.fontFamilies.map((family) {
-                  return _ChoiceChip(
-                    label: family,
-                    selected: selectedFamily == family,
-                    onTap: () => settings.setFontFamily(family),
-                  );
-                }).toList(),
-              ),
-              const SizedBox(height: 14),
-              sectionTitle(AppText.t(TrKey.language)),
-              Wrap(
-                spacing: 8,
-                children: [
-                  _ChoiceChip(
-                    label: AppText.t(TrKey.khmer),
-                    selected: settings.languageCode.value == 'km',
-                    onTap: () => settings.setLanguageCode('km'),
-                  ),
-                  _ChoiceChip(
-                    label: AppText.t(TrKey.english),
-                    selected: settings.languageCode.value == 'en',
-                    onTap: () => settings.setLanguageCode('en'),
-                  ),
-                ],
-              ),
-            ],
+            ),
           ),
         );
       }),
@@ -306,227 +380,223 @@ class _ChoiceChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final selectedFill = AppTheme.primary.withValues(alpha: 0.18);
+    final selectedPressedFill = AppTheme.primary.withValues(alpha: 0.28);
+    final unselectedFill = AppTheme.background;
+    final unselectedPressedFill = AppTheme.primary.withValues(alpha: 0.08);
+
     return ChoiceChip(
       label: Text(label),
       selected: selected,
       onSelected: (_) => onTap(),
-      side: BorderSide(
-        color: selected
-            ? AppTheme.primary
-            : AppTheme.cardBorder.withValues(alpha: 0.8),
-      ),
+      color: WidgetStateProperty.resolveWith((states) {
+        final isSelected = states.contains(WidgetState.selected);
+        final isPressed = states.contains(WidgetState.pressed);
+        if (isSelected && isPressed) return selectedPressedFill;
+        if (isSelected) return selectedFill;
+        if (isPressed) return unselectedPressedFill;
+        return unselectedFill;
+      }),
+      side: WidgetStateBorderSide.resolveWith((states) {
+        if (states.contains(WidgetState.selected)) {
+          return BorderSide(color: AppTheme.primary);
+        }
+        if (states.contains(WidgetState.pressed)) {
+          return BorderSide(color: AppTheme.primary.withValues(alpha: 0.55));
+        }
+        return BorderSide(color: AppTheme.cardBorder.withValues(alpha: 0.9));
+      }),
       labelStyle: TextStyle(
-        color: selected ? AppTheme.primary : AppTheme.textPrimary,
+        color: selected ? AppTheme.primary700 : AppTheme.textPrimary,
         fontWeight: FontWeight.w600,
       ),
-      backgroundColor: AppTheme.background,
-      selectedColor: AppTheme.primary.withValues(alpha: 0.18),
+      pressElevation: 0,
       showCheckmark: false,
     );
   }
 }
 
-// ── Hero Card ─────────────────────────────────────────────────────────────────
 class _HeroCard extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(24),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: Get.isDarkMode
-              ? const [Color(0xFF143d26), Color(0xFF0d2e1e)]
-              : const [Color(0xFFDDF5E4), Color(0xFFC7EED4)],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-        borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: AppTheme.cardBorder),
-      ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 10,
-                    vertical: 5,
-                  ),
-                  decoration: BoxDecoration(
-                    color: AppTheme.primary.withValues(alpha: 0.15),
-                    borderRadius: BorderRadius.circular(20),
-                    border: Border.all(
-                      color: AppTheme.primary.withValues(alpha: 0.3),
-                    ),
-                  ),
-                  child: Text(
-                    AppText.t(TrKey.heroTag),
-                    style: TextStyle(
-                      color: AppTheme.primary,
-                      fontSize: 12,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 12),
-                Text(
-                  AppText.t(TrKey.heroTitle),
-                  style: TextStyle(
-                    color: AppTheme.textPrimary,
-                    fontSize: 24,
-                    fontWeight: FontWeight.w800,
-                    height: 1.2,
-                    letterSpacing: -0.5,
-                  ),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  AppText.t(TrKey.heroSubtitle),
-                  style: TextStyle(
-                    color: AppTheme.textSecondary,
-                    fontSize: 14,
-                    height: 1.5,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(width: 16),
-          const Text('🌾', style: TextStyle(fontSize: 56)),
-        ],
-      ),
-    );
-  }
-}
+  const _HeroCard();
 
-// ── Upload Card ───────────────────────────────────────────────────────────────
-class _UploadCard extends GetView<HomeController> {
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context).textTheme;
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(22),
       decoration: BoxDecoration(
         color: AppTheme.card,
         borderRadius: BorderRadius.circular(24),
         border: Border.all(color: AppTheme.cardBorder),
       ),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            AppText.t(TrKey.heroTitle),
+            style: theme.displaySmall?.copyWith(
+              color: AppTheme.textPrimary,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            AppText.t(TrKey.heroSubtitle),
+            style: theme.bodyLarge?.copyWith(
+              color: AppTheme.textSecondary,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _UploadCard extends GetView<HomeController> {
+  const _UploadCard();
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context).textTheme;
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: AppTheme.card,
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(color: AppTheme.cardBorder),
+        boxShadow: [
+          BoxShadow(
+            color: AppTheme.primary
+                .withValues(alpha: Get.isDarkMode ? 0.06 : 0.04),
+            blurRadius: 24,
+            offset: const Offset(0, 10),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
             AppText.t(TrKey.uploadTitle),
-            style: TextStyle(
-              color: AppTheme.textPrimary,
-              fontSize: 18,
-              fontWeight: FontWeight.w700,
-            ),
+            style: theme.headlineSmall?.copyWith(color: AppTheme.textPrimary),
           ),
-          const SizedBox(height: 4),
+          const SizedBox(height: 6),
           Text(
             AppText.t(TrKey.uploadSubtitle),
-            style: TextStyle(color: AppTheme.textSecondary, fontSize: 14),
+            style: theme.bodyMedium,
           ),
-          const SizedBox(height: 10),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-            decoration: BoxDecoration(
-              color: AppTheme.primary.withValues(alpha: 0.08),
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: AppTheme.primary.withValues(alpha: 0.2)),
-            ),
-            child: Text(
-              AppText.t(TrKey.uploadTip),
-              style: TextStyle(
-                color: AppTheme.textSecondary,
-                fontSize: 13,
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-          ),
-          const SizedBox(height: 16),
-
-          // Image preview / upload zone
+          const SizedBox(height: 14),
           Obx(() {
             final img = controller.selectedImage.value;
-            return GestureDetector(
+            return InkWell(
               onTap: controller.openMediaPicker,
+              borderRadius: BorderRadius.circular(20),
               child: AnimatedContainer(
-                duration: const Duration(milliseconds: 250),
-                height: 200,
+                duration: const Duration(milliseconds: 220),
+                curve: Curves.easeOutCubic,
+                height: img != null ? 220 : null,
                 decoration: BoxDecoration(
                   color: AppTheme.surface,
-                  borderRadius: BorderRadius.circular(18),
+                  borderRadius: BorderRadius.circular(20),
                   border: Border.all(
-                    color: img != null
-                        ? AppTheme.primary.withValues(alpha: 0.5)
-                        : AppTheme.primary700.withValues(alpha: 0.3),
-                    width: 2,
-                    // ignore: deprecated_member_use
-                    style: BorderStyle.solid,
+                    color: img == null
+                        ? AppTheme.primary.withValues(alpha: 0.32)
+                        : AppTheme.primary700.withValues(alpha: 0.55),
+                    width: img == null ? 1.5 : 2,
                   ),
                 ),
                 child: img == null
-                    ? Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(
-                            Icons.add_photo_alternate_outlined,
-                            size: 44,
-                            color: AppTheme.primary700,
-                          ),
-                          const SizedBox(height: 10),
-                          Text(
-                            AppText.t(TrKey.tapToUpload),
-                            style: TextStyle(
-                              color: AppTheme.textSecondary,
-                              fontWeight: FontWeight.w600,
+                    ? Padding(
+                        padding: const EdgeInsets.symmetric(
+                            vertical: 28, horizontal: 16),
+                        child: Row(
+                          children: [
+                            Container(
+                              width: 52,
+                              height: 52,
+                              decoration: BoxDecoration(
+                                color: AppTheme.surface,
+                                borderRadius: BorderRadius.circular(16),
+                                border: Border.all(
+                                  color: AppTheme.cardBorder,
+                                ),
+                              ),
+                              child: Icon(
+                                Icons.add_a_photo_rounded,
+                                color: AppTheme.textSecondary,
+                                size: 24,
+                              ),
                             ),
-                          ),
-                          const SizedBox(height: 4),
-                          Text(
-                            AppText.t(TrKey.cameraGallery),
-                            style: TextStyle(
-                              color: AppTheme.textSecondary.withValues(alpha: 0.8),
-                              fontSize: 12,
+                            const SizedBox(width: 16),
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Text(
+                                  AppText.t(TrKey.tapToUpload),
+                                  style: theme.titleMedium?.copyWith(
+                                    color: AppTheme.textPrimary,
+                                  ),
+                                ),
+                                const SizedBox(height: 4),
+                                Text(
+                                  AppText.t(TrKey.cameraGallery),
+                                  style: theme.bodyMedium,
+                                ),
+                              ],
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       )
                     : ClipRRect(
-                        borderRadius: BorderRadius.circular(16),
+                        borderRadius: BorderRadius.circular(18),
                         child: Stack(
                           fit: StackFit.expand,
                           children: [
                             Image.file(img, fit: BoxFit.cover),
-                            Container(
-                              decoration: const BoxDecoration(
+                            DecoratedBox(
+                              decoration: BoxDecoration(
                                 gradient: LinearGradient(
-                                  colors: [Colors.transparent, Colors.black54],
+                                  colors: [
+                                    Colors.transparent,
+                                    Colors.black.withValues(alpha: 0.16),
+                                    Colors.black.withValues(alpha: 0.54),
+                                  ],
                                   begin: Alignment.topCenter,
                                   end: Alignment.bottomCenter,
                                 ),
                               ),
                             ),
                             Positioned(
-                              bottom: 10,
-                              right: 10,
-                              child: GestureDetector(
-                                onTap: controller.clearImage,
-                                child: Container(
-                                  padding: const EdgeInsets.all(6),
-                                  decoration: BoxDecoration(
-                                    color: Colors.black54,
-                                    borderRadius: BorderRadius.circular(8),
+                              left: 16,
+                              right: 16,
+                              bottom: 16,
+                              child: Row(
+                                children: [
+                                  Expanded(
+                                    child: Container(
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 14,
+                                        vertical: 12,
+                                      ),
+                                      decoration: BoxDecoration(
+                                        color: Colors.black
+                                            .withValues(alpha: 0.36),
+                                        borderRadius: BorderRadius.circular(18),
+                                      ),
+                                      child: Text(
+                                        AppText.t(TrKey.uploadTitle),
+                                        style: theme.labelLarge?.copyWith(
+                                          color: Colors.white,
+                                        ),
+                                      ),
+                                    ),
                                   ),
-                                  child: const Icon(
-                                    Icons.close,
-                                    size: 16,
-                                    color: Colors.white,
+                                  const SizedBox(width: 10),
+                                  _FloatingIconButton(
+                                    icon: Icons.close_rounded,
+                                    onTap: controller.clearImage,
                                   ),
-                                ),
+                                ],
                               ),
                             ),
                           ],
@@ -535,72 +605,96 @@ class _UploadCard extends GetView<HomeController> {
               ),
             );
           }),
-
           const SizedBox(height: 14),
-
-          // Error
-          Obx(
-            () => controller.errorMsg.value.isNotEmpty
-                ? Container(
-                    margin: const EdgeInsets.only(bottom: 12),
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: AppTheme.danger.withValues(alpha: 0.1),
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(
-                        color: AppTheme.danger.withValues(alpha: 0.3),
-                      ),
+          Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: AppTheme.muted,
+              borderRadius: BorderRadius.circular(16),
+              border:
+                  Border.all(color: AppTheme.cardBorder.withValues(alpha: 0.8)),
+            ),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Icon(Icons.tips_and_updates_rounded,
+                    color: AppTheme.highlight, size: 20),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Text(
+                    AppText.t(TrKey.uploadTip),
+                    style: theme.bodyMedium?.copyWith(
+                      color: AppTheme.textPrimary,
+                      fontWeight: FontWeight.w600,
                     ),
-                    child: Text(
-                      '⚠️ ${controller.errorMsg.value}',
-                      style: const TextStyle(
-                        color: AppTheme.danger,
-                        fontSize: 14,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  )
-                : const SizedBox.shrink(),
+                  ),
+                ),
+              ],
+            ),
           ),
-
-          // Analyse button
+          Obx(
+            () => controller.errorMsg.value.isEmpty
+                ? const SizedBox(height: 16)
+                : Padding(
+                    padding: const EdgeInsets.only(top: 16),
+                    child: Container(
+                      padding: const EdgeInsets.all(14),
+                      decoration: BoxDecoration(
+                        color: AppTheme.danger.withValues(alpha: 0.1),
+                        borderRadius: BorderRadius.circular(18),
+                        border: Border.all(
+                          color: AppTheme.danger.withValues(alpha: 0.3),
+                        ),
+                      ),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Icon(Icons.warning_amber_rounded,
+                              color: AppTheme.danger),
+                          const SizedBox(width: 10),
+                          Expanded(
+                            child: Text(
+                              controller.errorMsg.value,
+                              style: theme.bodyMedium?.copyWith(
+                                color: AppTheme.danger,
+                                fontWeight: FontWeight.w700,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+          ),
+          const SizedBox(height: 16),
           Obx(
             () => ElevatedButton(
               onPressed: controller.isLoading.value ? null : controller.analyse,
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppTheme.primary,
-                disabledBackgroundColor: AppTheme.primary700.withValues(alpha: 0.4),
-                padding: const EdgeInsets.symmetric(vertical: 18),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(16),
-                ),
-                minimumSize: const Size(double.infinity, 58),
+                disabledBackgroundColor:
+                    AppTheme.primary700.withValues(alpha: 0.35),
+                minimumSize: const Size(double.infinity, 56),
               ),
               child: controller.isLoading.value
                   ? const SizedBox(
                       width: 22,
                       height: 22,
                       child: CircularProgressIndicator(
-                        strokeWidth: 2.5,
+                        strokeWidth: 2.4,
                         valueColor: AlwaysStoppedAnimation(Colors.black),
                       ),
                     )
                   : Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        const Icon(
-                          Icons.biotech_rounded,
-                          size: 20,
-                          color: Colors.black,
-                        ),
-                        const SizedBox(width: 8),
+                        const Icon(Icons.biotech_rounded,
+                            size: 20, color: Colors.black),
+                        const SizedBox(width: 10),
                         Text(
                           AppText.t(TrKey.analyze),
-                          style: const TextStyle(
-                            color: Colors.black,
-                            fontSize: 16,
-                            fontWeight: FontWeight.w700,
-                          ),
+                          style:
+                              theme.labelLarge?.copyWith(color: Colors.black),
                         ),
                       ],
                     ),
@@ -612,49 +706,92 @@ class _UploadCard extends GetView<HomeController> {
   }
 }
 
-// ── Diseases Section ──────────────────────────────────────────────────────────
+class _FloatingIconButton extends StatelessWidget {
+  final IconData icon;
+  final VoidCallback onTap;
+
+  const _FloatingIconButton({required this.icon, required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: Colors.black.withValues(alpha: 0.42),
+      borderRadius: BorderRadius.circular(16),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(16),
+        child: SizedBox(
+          width: 44,
+          height: 44,
+          child: Icon(icon, color: Colors.white, size: 20),
+        ),
+      ),
+    );
+  }
+}
+
 class _DiseasesSection extends StatelessWidget {
   const _DiseasesSection();
 
-  static const _diseases = [
-    ('✅', 'Healthy', 'none', 'No disease detected.'),
-    (
-      '🦠',
-      'Bacterial Leaf Blight',
-      'high',
-      'Yellowing and drying of leaf margins.',
-    ),
-    ('💥', 'Leaf Blast', 'high', 'Diamond-shaped gray lesions.'),
-    ('🟤', 'Brown Spot', 'medium', 'Oval brown spots with yellow halos.'),
-    ('🔥', 'Leaf Scald', 'medium', 'Scalded brown lesions from tip.'),
-    ('🟫', 'Narrow Brown Spot', 'low', 'Narrow linear spots on blade.'),
+  static const _diseaseKeys = [
+    'healthy',
+    'bacterial_leaf_blight',
+    'leaf_blast',
+    'brown_spot',
+    'leaf_scald',
+    'narrow_brown_spot',
   ];
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          AppText.t(TrKey.detectableDiseases),
-          style: TextStyle(
-            color: AppTheme.textPrimary,
-            fontSize: 19,
-            fontWeight: FontWeight.w700,
+    final diseases =
+        _diseaseKeys.map(DiseaseInfoCatalog.byClass).toList(growable: false);
+
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: AppTheme.card,
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(color: AppTheme.cardBorder),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            AppText.t(TrKey.detectableDiseases),
+            style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                  color: AppTheme.textPrimary,
+                ),
           ),
-        ),
-        const SizedBox(height: 14),
-        ...(_diseases.map(
-          (d) =>
-              _DiseaseRow(icon: d.$1, label: d.$2, severity: d.$3, desc: d.$4),
-        )),
-      ],
+          const SizedBox(height: 6),
+          Text(
+            AppText.t(TrKey.heroSubtitle),
+            style: Theme.of(context).textTheme.bodyMedium,
+          ),
+          const SizedBox(height: 16),
+          ...diseases.map(
+            (d) => Padding(
+              padding: const EdgeInsets.only(bottom: 10),
+              child: _DiseaseRow(
+                icon: d.icon,
+                label: d.label,
+                severity: d.severity,
+                desc: d.description,
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
 
 class _DiseaseRow extends StatelessWidget {
-  final String icon, label, severity, desc;
+  final String icon;
+  final String label;
+  final String severity;
+  final String desc;
+
   const _DiseaseRow({
     required this.icon,
     required this.label,
@@ -672,55 +809,67 @@ class _DiseaseRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: const EdgeInsets.only(bottom: 10),
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+      padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: AppTheme.card,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppTheme.cardBorder),
+        color:
+            AppTheme.background.withValues(alpha: Get.isDarkMode ? 0.4 : 0.72),
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: AppTheme.cardBorder.withValues(alpha: 0.8)),
       ),
       child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(icon, style: const TextStyle(fontSize: 28)),
-          const SizedBox(width: 14),
+          Container(
+            width: 46,
+            height: 46,
+            decoration: BoxDecoration(
+              color: DiseaseIconTheme.color(icon).withValues(alpha: 0.12),
+              borderRadius: BorderRadius.circular(14),
+              border: Border.all(
+                color: DiseaseIconTheme.color(icon).withValues(alpha: 0.24),
+              ),
+            ),
+            child: Icon(
+              DiseaseIconTheme.data(icon),
+              size: 22,
+              color: DiseaseIconTheme.color(icon),
+            ),
+          ),
+          const SizedBox(width: 12),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
                   label,
-                  style: TextStyle(
-                    color: AppTheme.textPrimary,
-                    fontWeight: FontWeight.w600,
-                    fontSize: 15,
-                  ),
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                        color: AppTheme.textPrimary,
+                      ),
                 ),
-                const SizedBox(height: 2),
+                const SizedBox(height: 4),
                 Text(
                   desc,
-                  style: TextStyle(
-                    color: AppTheme.textSecondary,
-                    fontSize: 13,
-                  ),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: Theme.of(context).textTheme.bodyMedium,
                 ),
               ],
             ),
           ),
-          const SizedBox(width: 8),
+          const SizedBox(width: 10),
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 4),
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
             decoration: BoxDecoration(
               color: _badge.withValues(alpha: 0.12),
-              borderRadius: BorderRadius.circular(8),
-              border: Border.all(color: _badge.withValues(alpha: 0.3)),
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: _badge.withValues(alpha: 0.24)),
             ),
             child: Text(
               AppText.severityLabel(severity),
-              style: TextStyle(
-                color: _badge,
-                fontSize: 11,
-                fontWeight: FontWeight.w700,
-              ),
+              style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                    color: _badge,
+                    fontWeight: FontWeight.w800,
+                  ),
             ),
           ),
         ],

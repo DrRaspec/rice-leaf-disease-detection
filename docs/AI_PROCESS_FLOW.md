@@ -22,6 +22,9 @@ Training expects this folder structure:
 - `dataset/train/<class_name>/*.jpg|png...`
 - `dataset/validation/<class_name>/*.jpg|png...`
 
+When expanding the dataset, do not copy new source images directly into those folders first.
+Review source taxonomy and mapping rules in `docs/DATASET_EXPANSION.md`, then rebuild the split after curation.
+
 Config is defined in `model/config.py`:
 
 - Image size: `260×260`
@@ -100,6 +103,8 @@ Outputs:
   - `artifacts/confusion_matrix_validation.txt`
   - `artifacts/confusion_matrix_validation.png`
 
+The current verified results for the rebuilt external-data split are summarized in `docs/MODEL_RESULTS.md`.
+
 ## 5) Inference Pipeline (Single Image)
 
 Main logic: `model/inference.py`
@@ -172,5 +177,6 @@ You can present it as:
 
 - Performance is measured on the provided validation set; true field generalization still depends on real-world image diversity.
 - Similar diseases (for example `brown_spot` vs `narrow_brown_spot`) can still overlap visually in difficult photos.
-- Mixup and stronger augmentation help but cannot fully compensate for a small dataset (350 images/class).
+- Mixup and stronger augmentation help, but performance still depends on the quality of the curated pool and the realism of external source images.
+- Accuracy claims become unreliable if new external datasets are merged without duplicate filtering, taxonomy review, and a rebuilt holdout split.
 - Best practice is to use the app result as decision support, then confirm in field context.
