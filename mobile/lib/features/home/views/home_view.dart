@@ -12,8 +12,9 @@ class HomeView extends GetView<HomeController> {
 
   @override
   Widget build(BuildContext context) {
+    final scaffoldBackground = Theme.of(context).scaffoldBackgroundColor;
     return Scaffold(
-      backgroundColor: AppTheme.background,
+      backgroundColor: scaffoldBackground,
       body: LayoutBuilder(
         builder: (context, constraints) {
           final width = constraints.maxWidth;
@@ -97,6 +98,7 @@ class _HomeHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final scaffoldBackground = Theme.of(context).scaffoldBackgroundColor;
     return SliverAppBar(
       pinned: true,
       floating: true,
@@ -105,7 +107,7 @@ class _HomeHeader extends StatelessWidget {
       elevation: 0,
       scrolledUnderElevation: 0,
       surfaceTintColor: Colors.transparent,
-      backgroundColor: AppTheme.background.withValues(alpha: 0.96),
+      backgroundColor: scaffoldBackground.withValues(alpha: 0.96),
       titleSpacing: compact ? 20 : 28,
       title: Row(
         children: [
@@ -481,31 +483,6 @@ class _UploadCard extends GetView<HomeController> {
           Text(
             AppText.t(TrKey.uploadSubtitle),
             style: theme.bodyMedium,
-          ),
-          const SizedBox(height: 16),
-          Row(
-            children: [
-              Expanded(
-                child: ElevatedButton.icon(
-                  onPressed: controller.openCamera,
-                  icon: const Icon(Icons.photo_camera_rounded, size: 18),
-                  label: Text(AppText.t(TrKey.camera)),
-                ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: OutlinedButton.icon(
-                  onPressed: controller.openMediaPicker,
-                  icon: const Icon(Icons.photo_library_rounded, size: 18),
-                  label: Text(AppText.t(TrKey.gallery)),
-                  style: OutlinedButton.styleFrom(
-                    foregroundColor: AppTheme.textPrimary,
-                    side: BorderSide(color: AppTheme.cardBorder),
-                    backgroundColor: AppTheme.background.withValues(alpha: 0.7),
-                  ),
-                ),
-              ),
-            ],
           ),
           const SizedBox(height: 14),
           Obx(() {

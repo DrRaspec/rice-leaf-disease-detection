@@ -35,6 +35,7 @@ class _PickerContent extends GetView<HomeController> {
 
   @override
   Widget build(BuildContext context) {
+    final cardColor = Theme.of(context).cardColor;
     // Load more when near the end
     scrollController.addListener(() {
       if (scrollController.position.pixels >=
@@ -45,7 +46,7 @@ class _PickerContent extends GetView<HomeController> {
 
     return Container(
       decoration: BoxDecoration(
-        color: AppTheme.card,
+        color: cardColor,
         borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
       ),
       child: Column(

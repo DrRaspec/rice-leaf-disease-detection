@@ -29,16 +29,19 @@ class AppTheme {
   static const Color danger = Color(0xFFC45743);
   static const Color earth = Color(0xFFA36A2E);
 
-  static _Palette get _current {
+  static bool get _isDark {
     if (Get.isRegistered<AppSettingsService>()) {
       final mode = Get.find<AppSettingsService>().themeMode.value;
       final systemBrightness =
           WidgetsBinding.instance.platformDispatcher.platformBrightness;
-      final isDark = mode == ThemeMode.dark ||
+      return mode == ThemeMode.dark ||
           (mode == ThemeMode.system && systemBrightness == Brightness.dark);
-      return isDark ? _dark : _light;
     }
-    return Get.isDarkMode ? _dark : _light;
+    return Get.isDarkMode;
+  }
+
+  static _Palette get _current {
+    return _isDark ? _dark : _light;
   }
 
   static Color get primary => _current.primary;
@@ -50,15 +53,15 @@ class AppTheme {
   static Color get textPrimary => _current.textPrimary;
   static Color get textSecondary => _current.textSecondary;
   static Color get success => primary;
-  static Color get overlay => Get.isDarkMode
+  static Color get overlay => _isDark
       ? const Color(0xFF08100B).withValues(alpha: 0.72)
       : const Color(0xFF223126).withValues(alpha: 0.08);
   static Color get highlight =>
-      Get.isDarkMode ? const Color(0xFFE4C977) : const Color(0xFFCC9A39);
+      _isDark ? const Color(0xFFE4C977) : const Color(0xFFCC9A39);
   static Color get muted =>
-      Get.isDarkMode ? const Color(0xFF203328) : const Color(0xFFF1ECE0);
+      _isDark ? const Color(0xFF203328) : const Color(0xFFF1ECE0);
   static Gradient get heroGradient => LinearGradient(
-        colors: Get.isDarkMode
+        colors: _isDark
             ? const [Color(0xFF24402F), Color(0xFF121D16)]
             : const [Color(0xFFE7E1C8), Color(0xFFD2E7C6)],
         begin: Alignment.topLeft,

@@ -17,14 +17,15 @@ class ResultView extends GetView<ResultController> {
   Widget build(BuildContext context) {
     final result = controller.result;
     final info = controller.info;
+    final scaffoldBackground = Theme.of(context).scaffoldBackgroundColor;
 
     return Scaffold(
-      backgroundColor: AppTheme.background,
+      backgroundColor: scaffoldBackground,
       body: CustomScrollView(
         slivers: [
           _ResultHeader(image: controller.image, result: result, info: info),
           SliverPadding(
-            padding: const EdgeInsets.fromLTRB(20, 0, 20, 40),
+            padding: const EdgeInsets.fromLTRB(20, 16, 20, 40),
             sliver: SliverList(
               delegate: SliverChildListDelegate([
                 _MainResultCard(result: result, info: info),
@@ -64,12 +65,13 @@ class _ResultHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final scaffoldBackground = Theme.of(context).scaffoldBackgroundColor;
     return SliverAppBar(
       expandedHeight: 340,
       pinned: true,
       stretch: true,
       elevation: 0,
-      backgroundColor: AppTheme.background,
+      backgroundColor: scaffoldBackground,
       leadingWidth: 72,
       leading: Padding(
         padding: const EdgeInsets.only(left: 16, top: 10, bottom: 10),
@@ -88,14 +90,15 @@ class _ResultHeader extends StatelessWidget {
               decoration: BoxDecoration(
                 gradient: LinearGradient(
                   colors: [
-                    Colors.black.withValues(alpha: 0.12),
                     Colors.black.withValues(alpha: 0.16),
-                    AppTheme.background.withValues(alpha: 0.82),
+                    Colors.black.withValues(alpha: 0.28),
+                    Colors.black.withValues(alpha: 0.52),
+                    AppTheme.background.withValues(alpha: 0.88),
                     AppTheme.background,
                   ],
                   begin: Alignment.topCenter,
                   end: Alignment.bottomCenter,
-                  stops: const [0.0, 0.3, 0.75, 1.0],
+                  stops: const [0.0, 0.3, 0.58, 0.82, 1.0],
                 ),
               ),
             ),
@@ -103,45 +106,74 @@ class _ResultHeader extends StatelessWidget {
               alignment: Alignment.bottomLeft,
               child: Padding(
                 padding: const EdgeInsets.fromLTRB(20, 0, 20, 26),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        _HeaderBadge(
-                          icon: DiseaseIconTheme.data(info.icon),
-                          color: _severityColor,
-                          label: AppText.severityLabel(info.severity),
-                        ),
-                        const SizedBox(width: 10),
-                        _HeaderBadge(
-                          icon: Icons.analytics_rounded,
-                          color: AppTheme.highlight,
-                          label:
-                              '${(result.confidence * 100).toStringAsFixed(1)}%',
-                        ),
-                      ],
+                child: Container(
+                  width: double.infinity,
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                  decoration: BoxDecoration(
+                    color: Colors.black.withValues(alpha: 0.18),
+                    borderRadius: BorderRadius.circular(24),
+                    border: Border.all(
+                      color: Colors.white.withValues(alpha: 0.14),
                     ),
-                    const SizedBox(height: 16),
-                    Text(
-                      info.label,
-                      style: Theme.of(context).textTheme.displaySmall?.copyWith(
-                            color: Colors.white,
-                            fontWeight: FontWeight.w800,
-                            height: 1.04,
+                  ),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          _HeaderBadge(
+                            icon: DiseaseIconTheme.data(info.icon),
+                            color: _severityColor,
+                            label: AppText.severityLabel(info.severity),
                           ),
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      info.description,
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                      style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                            color: Colors.white.withValues(alpha: 0.84),
+                          const SizedBox(width: 10),
+                          _HeaderBadge(
+                            icon: Icons.analytics_rounded,
+                            color: AppTheme.highlight,
+                            label:
+                                '${(result.confidence * 100).toStringAsFixed(1)}%',
                           ),
-                    ),
-                  ],
+                        ],
+                      ),
+                      const SizedBox(height: 16),
+                      Text(
+                        info.label,
+                        style:
+                            Theme.of(context).textTheme.displaySmall?.copyWith(
+                          color: Colors.white,
+                          fontWeight: FontWeight.w800,
+                          height: 1.04,
+                          shadows: const [
+                            Shadow(
+                              color: Color(0x99000000),
+                              blurRadius: 16,
+                              offset: Offset(0, 3),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        info.description,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                          color: Colors.white,
+                          fontWeight: FontWeight.w500,
+                          height: 1.35,
+                          shadows: const [
+                            Shadow(
+                              color: Color(0x80000000),
+                              blurRadius: 12,
+                              offset: Offset(0, 2),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ),
@@ -237,159 +269,157 @@ class _MainResultCard extends StatelessWidget {
     final conf = result.confidence;
     final lowConfidence = result.isUncertain || conf < 0.45;
 
-    return Transform.translate(
-      offset: const Offset(0, -24),
-      child: Container(
-        padding: const EdgeInsets.all(22),
-        decoration: BoxDecoration(
-          color: AppTheme.card,
-          borderRadius: BorderRadius.circular(30),
-          border: Border.all(color: AppTheme.cardBorder),
-          boxShadow: [
-            BoxShadow(
-              color: _severityColor.withValues(alpha: 0.08),
-              blurRadius: 28,
-              offset: const Offset(0, 16),
-            ),
-          ],
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Container(
-                  width: 60,
-                  height: 60,
-                  decoration: BoxDecoration(
-                    color: _severityColor.withValues(alpha: 0.12),
-                    borderRadius: BorderRadius.circular(16),
-                    border: Border.all(
-                      color: _severityColor.withValues(alpha: 0.24),
-                    ),
-                  ),
-                  child: Icon(
-                    DiseaseIconTheme.data(info.icon),
-                    size: 30,
-                    color: DiseaseIconTheme.color(info.icon),
-                  ),
-                ),
-                const SizedBox(width: 14),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        info.label,
-                        style:
-                            Theme.of(context).textTheme.headlineSmall?.copyWith(
-                                  color: AppTheme.textPrimary,
-                                ),
-                      ),
-                      const SizedBox(height: 8),
-                      _SeverityBadge(
-                        severity: info.severity,
-                        color: _severityColor,
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 20),
-            Container(
-              padding: const EdgeInsets.all(18),
-              decoration: BoxDecoration(
-                color: AppTheme.background
-                    .withValues(alpha: Get.isDarkMode ? 0.45 : 0.72),
-                borderRadius: BorderRadius.circular(20),
-                border: Border.all(
-                    color: AppTheme.cardBorder.withValues(alpha: 0.75)),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        AppText.t(TrKey.confidence),
-                        style:
-                            Theme.of(context).textTheme.titleMedium?.copyWith(
-                                  color: AppTheme.textPrimary,
-                                ),
-                      ),
-                      Text(
-                        '${(conf * 100).toStringAsFixed(1)}%',
-                        style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                          color: _severityColor,
-                          fontFeatures: const [FontFeature.tabularFigures()],
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 10),
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(999),
-                    child: TweenAnimationBuilder<double>(
-                      tween: Tween(begin: 0, end: conf),
-                      duration: const Duration(milliseconds: 800),
-                      curve: Curves.easeOutCubic,
-                      builder: (_, v, __) => LinearProgressIndicator(
-                        value: v,
-                        minHeight: 12,
-                        backgroundColor:
-                            AppTheme.cardBorder.withValues(alpha: 0.5),
-                        valueColor: AlwaysStoppedAnimation(_severityColor),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 16),
-            Text(
-              info.description,
-              style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                    color: AppTheme.textSecondary,
-                  ),
-            ),
-            if (lowConfidence) ...[
-              const SizedBox(height: 16),
+    return Container(
+      padding: const EdgeInsets.all(22),
+      decoration: BoxDecoration(
+        color: AppTheme.card,
+        borderRadius: BorderRadius.circular(30),
+        border: Border.all(color: AppTheme.cardBorder),
+        boxShadow: [
+          BoxShadow(
+            color: _severityColor.withValues(alpha: 0.08),
+            blurRadius: 28,
+            offset: const Offset(0, 16),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
               Container(
-                padding: const EdgeInsets.all(14),
+                width: 60,
+                height: 60,
                 decoration: BoxDecoration(
-                  color: AppTheme.warning.withValues(alpha: 0.12),
-                  borderRadius: BorderRadius.circular(18),
+                  color: _severityColor.withValues(alpha: 0.12),
+                  borderRadius: BorderRadius.circular(16),
                   border: Border.all(
-                    color: AppTheme.warning.withValues(alpha: 0.28),
+                    color: _severityColor.withValues(alpha: 0.24),
                   ),
                 ),
-                child: Row(
+                child: Icon(
+                  DiseaseIconTheme.data(info.icon),
+                  size: 30,
+                  color: DiseaseIconTheme.color(info.icon),
+                ),
+              ),
+              const SizedBox(width: 14),
+              Expanded(
+                child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Icon(Icons.info_outline_rounded,
-                        color: AppTheme.warning),
-                    const SizedBox(width: 10),
-                    Expanded(
-                      child: Text(
-                        AppText.t(TrKey.lowConfidence).replaceFirst(
-                          '{classes}',
-                          _possibleClassesLabel(result),
-                        ),
-                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                              color: AppTheme.warning,
-                              fontWeight: FontWeight.w700,
-                            ),
-                      ),
+                    Text(
+                      info.label,
+                      style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                            color: AppTheme.textPrimary,
+                          ),
+                    ),
+                    const SizedBox(height: 8),
+                    _SeverityBadge(
+                      severity: info.severity,
+                      color: _severityColor,
                     ),
                   ],
                 ),
               ),
             ],
+          ),
+          const SizedBox(height: 20),
+          Container(
+            padding: const EdgeInsets.all(18),
+            decoration: BoxDecoration(
+              color: AppTheme.background
+                  .withValues(alpha: Get.isDarkMode ? 0.45 : 0.72),
+              borderRadius: BorderRadius.circular(20),
+              border: Border.all(
+                color: AppTheme.cardBorder.withValues(alpha: 0.75),
+              ),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      AppText.t(TrKey.confidence),
+                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                            color: AppTheme.textPrimary,
+                          ),
+                    ),
+                    Text(
+                      '${(conf * 100).toStringAsFixed(1)}%',
+                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                        color: _severityColor,
+                        fontFeatures: const [FontFeature.tabularFigures()],
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 10),
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(999),
+                  child: TweenAnimationBuilder<double>(
+                    tween: Tween(begin: 0, end: conf),
+                    duration: const Duration(milliseconds: 800),
+                    curve: Curves.easeOutCubic,
+                    builder: (_, v, __) => LinearProgressIndicator(
+                      value: v,
+                      minHeight: 12,
+                      backgroundColor:
+                          AppTheme.cardBorder.withValues(alpha: 0.5),
+                      valueColor: AlwaysStoppedAnimation(_severityColor),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 16),
+          Text(
+            info.description,
+            style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                  color: AppTheme.textSecondary,
+                ),
+          ),
+          if (lowConfidence) ...[
+            const SizedBox(height: 16),
+            Container(
+              padding: const EdgeInsets.all(14),
+              decoration: BoxDecoration(
+                color: AppTheme.warning.withValues(alpha: 0.12),
+                borderRadius: BorderRadius.circular(18),
+                border: Border.all(
+                  color: AppTheme.warning.withValues(alpha: 0.28),
+                ),
+              ),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Icon(
+                    Icons.info_outline_rounded,
+                    color: AppTheme.warning,
+                  ),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: Text(
+                      AppText.t(TrKey.lowConfidence).replaceFirst(
+                        '{classes}',
+                        _possibleClassesLabel(result),
+                      ),
+                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                            color: AppTheme.warning,
+                            fontWeight: FontWeight.w700,
+                          ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
           ],
-        ),
+        ],
       ),
     );
   }
