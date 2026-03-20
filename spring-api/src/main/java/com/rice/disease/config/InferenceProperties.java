@@ -14,7 +14,7 @@ public class InferenceProperties {
     private String pythonCommand = "python";
 
     @NotBlank
-    private String module = "model.predict_cli";
+    private String module = "model.predict_worker";
 
     @Min(1)
     private int topK = 3;

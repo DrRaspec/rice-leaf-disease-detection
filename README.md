@@ -5,10 +5,11 @@ RiceGuard AI detects rice leaf diseases from an image and returns a prediction p
 ## Repository layout
 
 - `model/`: TensorFlow training, evaluation, inference, and CLI prediction
-- `spring-api/`: Spring Boot backend that calls the Python inference CLI
+- `spring-api/`: Spring Boot backend that keeps a Python inference worker warm in memory
 - `web/`: Vue 3 frontend
 - `mobile/`: Flutter mobile app
 - `docs/`: setup and project documentation
+- `branding/`: shared app icon source used for web and Android branding
 
 ## Important before you start
 
@@ -42,6 +43,8 @@ Use this if you want the main local setup for inference, the API, or the web dem
 4. Set Spring security environment variables
 5. Point Spring to the virtual environment Python interpreter
 6. Run `mvn spring-boot:run` in `spring-api/`
+
+Spring now keeps a persistent Python worker process alive, so the first prediction may still warm up for a few seconds, but later predictions should be much faster than the old one-process-per-request path.
 
 Backend URL:
 

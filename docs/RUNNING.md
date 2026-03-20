@@ -261,12 +261,17 @@ If this does not work, do not continue to Spring Boot yet. Fix Python inference 
 
 ## 8. Run the Spring Boot Backend
 
-Spring Boot does not perform inference directly. It launches Python with `python -m model.predict_cli`.
+Spring Boot does not perform inference directly. It launches a persistent Python worker with `python -m model.predict_worker`.
 
 This means two settings must be correct:
 
 - `APP_PYTHON_COMMAND` must point to the correct Python interpreter
 - `APP_PROJECT_ROOT` must point to the repository root so Python can import `model`
+
+The worker keeps the model loaded in memory after startup. That means:
+
+- the first prediction after Spring starts can still be slower because the worker warms up TensorFlow and the model
+- later predictions should be much faster because Spring reuses the same Python process
 
 ### Step 1 - Open a terminal in the repository root
 
@@ -307,6 +312,9 @@ $env:APP_PROJECT_ROOT="$PWD"
 ```
 
 If this fails, Spring prediction will also fail.
+
+> [!TIP]
+> If the first prediction feels slower than the next ones, that is expected with the warm-worker design. The model load happens once during startup/first use instead of on every request.
 
 ### Step 6 - Start Spring
 
