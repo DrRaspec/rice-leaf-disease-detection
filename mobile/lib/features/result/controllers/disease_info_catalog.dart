@@ -138,7 +138,7 @@ class DiseaseInfoCatalog {  static const _en = {
     ),
     'leaf_blast': DiseaseInfo(
       key: 'leaf_blast',
-      label: 'ជំងឺក្រុង',
+      label: 'ជំងឺប្លាសលើស្លឹក',
       scientificName: 'Magnaporthe oryzae (Pyricularia oryzae)',
       icon: 'leaf_blast',
       severity: 'high',
