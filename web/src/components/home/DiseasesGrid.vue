@@ -150,7 +150,7 @@ const diseasesEn = [
 
 const diseasesKm = [
   { name: 'សុខភាពល្អ', description: 'ស្លឹកមានពណ៌ និងសភាពធម្មតា មិនឃើញរោគសញ្ញាសំខាន់។', risk: 'ទាប', icon: ShieldIcon },
-  { name: 'ជំងឺក្រុង', description: 'ស្នាមរាងពេជ្រអាចរាលដាលលឿន នៅពេលអាកាសធាតុសើម។', risk: 'ខ្ពស់', icon: AlertIcon },
+  { name: 'ជំងឺប្លាសលើស្លឹក', description: 'ស្នាមរាងពេជ្រអាចរាលដាលលឿន នៅពេលអាកាសធាតុសើម។', risk: 'ខ្ពស់', icon: AlertIcon },
   { name: 'ជំងឺរលាកស្លឹកដោយបាក់តេរី', description: 'ស្លឹកលឿងពីគែម ហើយអាការៈអាចធ្ងន់ក្រោយភ្លៀងច្រើន។', risk: 'ខ្ពស់', icon: AlertIcon },
   { name: 'ជំងឺអុចត្នោត', description: 'ចំណុចត្នោតរាងមូលលើស្លឹក ច្រើនកើតនៅដំណាំខ្សោយ។', risk: 'មធ្យម', icon: LeafIcon },
   { name: 'ជំងឺដំបៅស្លឹក', description: 'ស្នាមដូចរលាក ចាប់ផ្ដើមពីចុងស្លឹក ហើយរាលចុះក្រោម។', risk: 'មធ្យម', icon: LeafIcon },
