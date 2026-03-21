@@ -180,7 +180,7 @@ public final class DiseaseInfoCatalog {
         "leaf_blast",
         new DiseaseInfo(
             "leaf_blast",
-            "ជំងឺក្រុង",
+            "ជំងឺប្លាសលើស្លឹក",
             "Magnaporthe oryzae (Pyricularia oryzae)",
             "leaf_blast",
             "high",
