@@ -13,7 +13,7 @@ Use Khmer wording that is clear for Cambodian agriculture users while preserving
 - IRRI Rice Knowledge Bank, Brown Spot: http://www.knowledgebank.irri.org/training/fact-sheets/pest-management/diseases/item/brown-spot
 
 ## Standardization Decisions
-- Canonical `leaf_blast` Khmer label: `ជំងឺក្រុង` (farmer-recognizable in Cambodia).
+- Canonical `leaf_blast` Khmer label: `ជំងឺប្លាសលើស្លឹក`.
 - Replace non-formal `មួក` with formal symptom verb `ស្វិត`.
 - Replace English-only morphology token `(fusiform)` with Khmer-friendly explanation `(រាងពងក្រពើចុងស្រួច)`.
 - Keep scientific names and fungicide actives in Latin where needed for technical clarity.
